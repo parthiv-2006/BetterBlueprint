@@ -40,14 +40,16 @@ public class LoginPresenter implements LoginOutputBoundary {
         // switch to the logged in view
         this.viewManagerModel.setState(loggedInViewModel.getViewName());
         this.viewManagerModel.firePropertyChange();
+    }
 
-
+    @Override
+    public void prepareCancelView(LoginOutputData response){
         final SignupState SignupState = signupViewModel.getState();
         SignupState.setUsername(response.getUsername());
-        signupViewModel.firePropertyChange();
+        this.signupViewModel.firePropertyChange();
 
-        viewManagerModel.setState(signupViewModel.getViewName());
-        viewManagerModel.firePropertyChange();
+        this.viewManagerModel.setState(signupViewModel.getViewName());
+        this.viewManagerModel.firePropertyChange();
     }
 
     @Override
