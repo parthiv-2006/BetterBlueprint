@@ -81,7 +81,7 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
 
         // Add Logo
         try {
-            ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("BetterBlueprint.png")));
+            ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/BetterBlueprint.png")));
             Image scaledImage = logoIcon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
             JLabel logoLabel = new JLabel(new ImageIcon(scaledImage));
             logoLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
