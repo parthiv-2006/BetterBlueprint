@@ -1,8 +1,8 @@
 package interface_adapter.logout;
 
 import interface_adapter.ViewManagerModel;
-import interface_adapter.logged_in.LoggedInState;
-import interface_adapter.logged_in.LoggedInViewModel;
+import interface_adapter.home.HomeState;
+import interface_adapter.home.HomeViewModel;
 import interface_adapter.login.LoginState;
 import interface_adapter.login.LoginViewModel;
 import use_case.logout.LogoutOutputBoundary;
@@ -13,14 +13,14 @@ import use_case.logout.LogoutOutputData;
  */
 public class LogoutPresenter implements LogoutOutputBoundary {
 
-    private LoggedInViewModel loggedInViewModel;
+    private HomeViewModel homeViewModel;
     private ViewManagerModel viewManagerModel;
     private LoginViewModel loginViewModel;
 
     public LogoutPresenter(ViewManagerModel viewManagerModel,
-                          LoggedInViewModel loggedInViewModel,
+                           HomeViewModel homeViewModel,
                            LoginViewModel loginViewModel) {
-        this.loggedInViewModel = loggedInViewModel;
+        this.homeViewModel = homeViewModel;
         this.viewManagerModel = viewManagerModel;
         this.loginViewModel = loginViewModel;
     }
@@ -36,9 +36,9 @@ public class LogoutPresenter implements LogoutOutputBoundary {
         // 1. get the LoggedInState out of the appropriate View Model,
         // 2. set the username in the state to the empty string
         // 3. firePropertyChanged so that the View that is listening is updated.
-        final LoggedInState loggedInState = loggedInViewModel.getState();
-        loggedInState.setUsername("");
-        this.loggedInViewModel.firePropertyChange();
+        final HomeState homeState = homeViewModel.getState();
+        homeState.setUsername("");
+        this.homeViewModel.firePropertyChange();
 
         // 1. get the LoginState out of the appropriate View Model,
         // 2. set the username in the state to be the username of the user that just logged out,
