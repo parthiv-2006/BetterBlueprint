@@ -13,5 +13,5 @@ public interface LoginInputBoundary {
     /**
      * Executes the switch to signup view use case.
      */
-    void switchToLoginView();
+    void switchToSignupView();
 }
