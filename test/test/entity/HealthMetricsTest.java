@@ -1,4 +1,4 @@
-package java.test.entity;
+package test.entity;
 
 import Entities.HealthMetrics;
 import java.time.LocalDate;
