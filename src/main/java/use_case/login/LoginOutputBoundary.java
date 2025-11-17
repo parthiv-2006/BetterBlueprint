@@ -9,9 +9,6 @@ public interface LoginOutputBoundary {
      * @param outputData the output data
      */
     void prepareSuccessView(LoginOutputData outputData);
-
-    void prepareCancelView(LoginOutputData response);
-
     /**
      * Prepares the failure view for the Login Use Case.
      * @param errorMessage the explanation of the failure
