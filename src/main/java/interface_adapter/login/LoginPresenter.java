@@ -1,8 +1,8 @@
 package interface_adapter.login;
 
 import interface_adapter.ViewManagerModel;
-import interface_adapter.logged_in.LoggedInState;
-import interface_adapter.logged_in.LoggedInViewModel;
+import interface_adapter.home.HomeState;
+import interface_adapter.home.HomeViewModel;
 import use_case.login.LoginOutputBoundary;
 import use_case.login.LoginOutputData;
 import interface_adapter.signup.SignupViewModel;
@@ -13,15 +13,15 @@ import interface_adapter.signup.SignupViewModel;
 public class LoginPresenter implements LoginOutputBoundary {
 
     private final LoginViewModel loginViewModel;
-    private final LoggedInViewModel loggedInViewModel;
+    private final HomeViewModel homeViewModel;
     private final ViewManagerModel viewManagerModel;
     private final SignupViewModel signupViewModel;
 
     public LoginPresenter(ViewManagerModel viewManagerModel,
-                          LoggedInViewModel loggedInViewModel,
+                          HomeViewModel homeViewModel,
                           LoginViewModel loginViewModel, SignupViewModel signupViewModel) {
         this.viewManagerModel = viewManagerModel;
-        this.loggedInViewModel = loggedInViewModel;
+        this.homeViewModel = homeViewModel;
         this.loginViewModel = loginViewModel;
         this.signupViewModel = signupViewModel;
     }
@@ -29,15 +29,15 @@ public class LoginPresenter implements LoginOutputBoundary {
     @Override
     public void prepareSuccessView(LoginOutputData response) {
         // On success, update the loggedInViewModel's state
-        final LoggedInState loggedInState = loggedInViewModel.getState();
-        loggedInState.setUsername(response.getUsername());
-        this.loggedInViewModel.firePropertyChange();
+        final HomeState homeState = homeViewModel.getState();
+        homeState.setUsername(response.getUsername());
+        this.homeViewModel.firePropertyChange();
 
         // and clear everything from the LoginViewModel's state
         loginViewModel.setState(new LoginState());
 
         // switch to the logged in view
-        this.viewManagerModel.setState(loggedInViewModel.getViewName());
+        this.viewManagerModel.setState(homeViewModel.getViewName());
         this.viewManagerModel.firePropertyChange();
     }
 

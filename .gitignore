@@ -3,6 +3,7 @@
 
 # Build output
 /out/
+/users.csv
 
 # IntelliJ IDEA project files (keep shared settings, ignore user settings)
 .idea/workspace.xml

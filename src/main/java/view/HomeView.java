@@ -1,13 +1,20 @@
 package view;
 
+import interface_adapter.home.HomeViewModel;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Objects;
 
-public class HomeView extends JPanel {
-
+public class HomeView extends JPanel implements ActionListener, PropertyChangeListener {
+    private final String viewName = "home";
+    private final HomeViewModel homeViewModel;
     // --- 1. DEFINE A NEW HEALTH APP COLOR PALETTE ---
     private final Color COLOR_NAV_BAR = new Color(22, 160, 133);       // Main Teal/Green
     private final Color COLOR_NAV_BAR_HOVER = new Color(20, 140, 113);  // Darker Teal on hover
@@ -25,7 +32,8 @@ public class HomeView extends JPanel {
     private final CardLayout mainCardLayout;
     private final JPanel mainContentPanel;
 
-    public HomeView() {
+    public HomeView(HomeViewModel homeViewModel) {
+        this.homeViewModel = homeViewModel;
         this.setLayout(new BorderLayout());
 
         // === 3. CREATE THE TOP NAVBAR ===
@@ -179,4 +187,16 @@ public class HomeView extends JPanel {
             }
         });
     }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+    }
+
+    public String getViewName() { return viewName; }
 }
