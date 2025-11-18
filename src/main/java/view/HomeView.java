@@ -19,7 +19,9 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
     private final Color COLOR_NAV_BAR = new Color(22, 160, 133);       // Main Teal/Green
     private final Color COLOR_NAV_BAR_HOVER = new Color(20, 140, 113);  // Darker Teal on hover
     private final Color COLOR_NAV_BAR_TEXT = Color.WHITE;
-    private final Color COLOR_CONTENT_BACKGROUND = Color.WHITE;
+    private final Color COLOR_CONTENT_BACKGROUND = new Color(245, 247, 250); // Soft Gray-White
+    private final Color COLOR_PRIMARY_BUTTON = new Color(41, 128, 185); // Nice Blue for CTA
+    private final Color COLOR_TEXT_DARK = new Color(44, 62, 80);       // Dark Blue-Grey for text
 
     // --- 2. DEFINE UI COMPONENTS ---
     public final JButton home;
@@ -71,13 +73,13 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
         // === 4. CREATE THE CENTER CONTENT PANEL ===
         mainCardLayout = new CardLayout();
         mainContentPanel = new JPanel(mainCardLayout);
-        mainContentPanel.setBackground(COLOR_CONTENT_BACKGROUND); // Set a clean white background
+        mainContentPanel.setBackground(COLOR_CONTENT_BACKGROUND); 
 
         // --- A. Create the "Home" page ---
         JPanel homeView = new JPanel();
         homeView.setLayout(new BoxLayout(homeView, BoxLayout.Y_AXIS));
         homeView.setBackground(COLOR_CONTENT_BACKGROUND);
-        homeView.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
+        homeView.setBorder(BorderFactory.createEmptyBorder(60, 60, 60, 60)); // Increased padding
 
         // -- Panel for Logo and Description (side-by-side)
         JPanel logoAndDescriptionPanel = new JPanel();
@@ -103,29 +105,64 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
             logoAndDescriptionPanel.add(new JLabel("Logo Error"));
         }
 
-        logoAndDescriptionPanel.add(Box.createRigidArea(new Dimension(20, 0)));
+        logoAndDescriptionPanel.add(Box.createRigidArea(new Dimension(30, 0))); // Increased gap
 
-        // Add Description
-        String descriptionText = "<html>A desktop Java application that allows users to log daily health metrics " +
-                "(sleep, water, exercise, calories), calculate personalized health scores, " +
-                "and receive Al-generated insights.</html>";
+        // -- Right side of header: Welcome Title + Description
+        JPanel textPanel = new JPanel();
+        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
+        textPanel.setBackground(COLOR_CONTENT_BACKGROUND);
+        
+        JLabel welcomeTitle = new JLabel("Welcome to BetterBlueprint");
+        welcomeTitle.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        welcomeTitle.setForeground(COLOR_TEXT_DARK);
+        welcomeTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        String descriptionText = "<html><body style='width: 350px; color: #555555;'>" + 
+                "Track your daily metrics, calculate personalized health scores, " +
+                "and receive AI-powered insights to improve your well-being." +
+                "</body></html>";
         JLabel descriptionLabel = new JLabel(descriptionText);
-        descriptionLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        descriptionLabel.setAlignmentY(Component.CENTER_ALIGNMENT); // Center vertically
-        // Set a max size to force text wrapping
-        descriptionLabel.setMaximumSize(new Dimension(400, 150));
-        logoAndDescriptionPanel.add(descriptionLabel);
+        descriptionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        textPanel.add(welcomeTitle);
+        textPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        textPanel.add(descriptionLabel);
+
+        logoAndDescriptionPanel.add(textPanel);
 
         // -- Button to guide user to Input Metrics --
-        JButton goToInputMetrics = new JButton("Start Here: Input Health Metrics");
-        goToInputMetrics.setFont(new Font("SansSerif", Font.BOLD, 16));
-        goToInputMetrics.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JButton goToInputMetrics = new JButton("Start Tracking Now");
+        goToInputMetrics.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        goToInputMetrics.setForeground(Color.WHITE);
+        goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
         goToInputMetrics.setFocusPainted(false);
-        goToInputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Input Metrics"));
+        goToInputMetrics.setBorderPainted(false); // Flat look
+        goToInputMetrics.setOpaque(true);
+        goToInputMetrics.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        // Make button bigger
+        goToInputMetrics.setMaximumSize(new Dimension(220, 50));
+        goToInputMetrics.setPreferredSize(new Dimension(220, 50));
 
+        goToInputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Input Metrics"));
+        
+        // Hover effect for CTA button
+        goToInputMetrics.addMouseListener(new MouseAdapter() {
+             public void mouseEntered(MouseEvent evt) {
+                 goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON.darker());
+                 goToInputMetrics.setCursor(new Cursor(Cursor.HAND_CURSOR));
+             }
+             public void mouseExited(MouseEvent evt) {
+                 goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
+             }
+        });
+
+        homeView.add(Box.createVerticalGlue()); // Push content to center vertically
         homeView.add(logoAndDescriptionPanel);
-        homeView.add(Box.createRigidArea(new Dimension(0, 40)));
+        homeView.add(Box.createRigidArea(new Dimension(0, 50)));
         homeView.add(goToInputMetrics);
+        homeView.add(Box.createVerticalGlue());
 
 
         // --- B. Create the "My Score" page ---
