@@ -4,24 +4,18 @@ import interface_adapter.home.HomeViewModel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.Objects;
 
-public class HomeView extends JPanel implements ActionListener, PropertyChangeListener {
-    private final String viewName = "home";
-    private final HomeViewModel homeViewModel;
-    // --- 1. DEFINE A NEW HEALTH APP COLOR PALETTE ---
-    private final Color COLOR_NAV_BAR = new Color(22, 160, 133);       // Main Teal/Green
-    private final Color COLOR_NAV_BAR_HOVER = new Color(20, 140, 113);  // Darker Teal on hover
-    private final Color COLOR_NAV_BAR_TEXT = Color.WHITE;
-    private final Color COLOR_CONTENT_BACKGROUND = new Color(245, 247, 250); // Soft Gray-White
-    private final Color COLOR_PRIMARY_BUTTON = new Color(41, 128, 185); // Nice Blue for CTA
-    private final Color COLOR_TEXT_DARK = new Color(44, 62, 80);       // Dark Blue-Grey for text
+public class HomeView extends JPanel {
+
+    // --- 1. DEFINE A NEW HEALTH APP COLOR PALETTE (Made static final) ---
+    private static final Color COLOR_NAV_BAR = new Color(22, 160, 133);       // Main Teal/Green
+    private static final Color COLOR_NAV_BAR_HOVER = new Color(20, 140, 113);  // Darker Teal on hover
+    private static final Color COLOR_NAV_BAR_TEXT = Color.WHITE;
+    private static final Color COLOR_CONTENT_BACKGROUND = new Color(245, 247, 250); // Soft Gray-White
+    private static final Color COLOR_PRIMARY_BUTTON = new Color(41, 128, 185); // Nice Blue for CTA
+    private static final Color COLOR_TEXT_DARK = new Color(44, 62, 80);       // Dark Blue-Grey for text
 
     // --- 2. DEFINE UI COMPONENTS ---
     public final JButton home;
@@ -35,8 +29,10 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
     private final CardLayout mainCardLayout;
     private final JPanel mainContentPanel;
 
+    // The homeViewModel field was removed as it was assigned but not accessed.
+    // The parameter is still kept in case it is necessary later.
     public HomeView(HomeViewModel homeViewModel) {
-        this.homeViewModel = homeViewModel;
+        // homeViewModel parameter is not used in the current view logic but kept for future use.
         this.setLayout(new BorderLayout());
 
         // === 3. CREATE THE TOP NAVBAR ===
@@ -61,7 +57,7 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
         styleNavbarButton(history);
         styleNavbarButton(goals);
 
-        // Add buttons to navbar
+        // Add buttons to the navbar
         navbarPanel.add(home);
         navbarPanel.add(inputMetrics);
         navbarPanel.add(accountSettings);
@@ -73,9 +69,114 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
         // === 4. CREATE THE CENTER CONTENT PANEL ===
         mainCardLayout = new CardLayout();
         mainContentPanel = new JPanel(mainCardLayout);
-        mainContentPanel.setBackground(COLOR_CONTENT_BACKGROUND); 
+        mainContentPanel.setBackground(COLOR_CONTENT_BACKGROUND);
 
         // --- A. Create the "Home" page ---
+        JPanel homeView = createHomeContentView();
+
+        // --- B. Create the "My Score" page ---
+        JPanel myScoreView = createMyScorePlaceholderView();
+
+        // --- C. Create other placeholder views ---
+        JPanel inputMetricsView = createPlaceholderView("Input Metrics View");
+        JPanel accountSettingsView = createPlaceholderView("Account/Settings View");
+        JPanel insightsView = createPlaceholderView("Insights View");
+        JPanel historyView = createPlaceholderView("History View");
+        JPanel goalsView = createPlaceholderView("Goals View");
+
+        // --- C. Add all views to the main CardLayout panel ---
+        mainContentPanel.add(homeView, "Home");
+        mainContentPanel.add(myScoreView, "My Score");
+        mainContentPanel.add(inputMetricsView, "Input Metrics");
+        mainContentPanel.add(accountSettingsView, "Account Settings");
+        mainContentPanel.add(insightsView, "Insights");
+        mainContentPanel.add(historyView, "History");
+        mainContentPanel.add(goalsView, "Goals");
+
+        // === 5. ASSEMBLE THE HOMEVIEW ===
+        this.add(navbarPanel, BorderLayout.NORTH);
+        this.add(mainContentPanel, BorderLayout.CENTER);
+
+        // === 6. ADD ACTION LISTENERS (same as before) ===
+        home.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Home"));
+        inputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Input Metrics"));
+        accountSettings.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Account Settings"));
+        myScore.addActionListener(e -> mainCardLayout.show(mainContentPanel, "My Score"));
+        insights.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Insights"));
+        history.addActionListener(e -> mainCardLayout.show(mainContentPanel, "History"));
+        goals.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Goals"));
+
+        // Set "Home" as the default homepage
+        mainCardLayout.show(mainContentPanel, "Home");
+    }
+
+    /**
+     * A helper method to style our navbar buttons
+     * @param button The JButton to style.
+     */
+    private void styleNavbarButton(JButton button) {
+        button.setFont(new Font("SansSerif", Font.BOLD, 14));
+        button.setForeground(COLOR_NAV_BAR_TEXT);
+        button.setBackground(COLOR_NAV_BAR);
+        button.setPreferredSize(new Dimension(140, 50));
+
+        // --- Remove all default Swing button styling ---
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setOpaque(true);
+
+        // --- Add hover effect ---
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(COLOR_NAV_BAR_HOVER);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(COLOR_NAV_BAR);
+            }
+        });
+    }
+
+    /**
+     * Creates and styles the "Start Tracking Now" button and adds its action listener.
+     * This method resolves the long surrounding method warning from the IDE.
+     */
+    private JButton styleAndAddGoToInputMetricsButton() {
+        JButton goToInputMetrics = new JButton("Start Tracking Now");
+        goToInputMetrics.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        goToInputMetrics.setForeground(Color.WHITE);
+        goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
+        goToInputMetrics.setFocusPainted(false);
+        goToInputMetrics.setBorderPainted(false); // Flat look
+        goToInputMetrics.setOpaque(true);
+        goToInputMetrics.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Make button bigger
+        goToInputMetrics.setMaximumSize(new Dimension(220, 50));
+        goToInputMetrics.setPreferredSize(new Dimension(220, 50));
+
+        goToInputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Input Metrics"));
+
+        // Hover effect for CTA button
+        goToInputMetrics.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent evt) {
+                goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON.darker());
+                goToInputMetrics.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            }
+            public void mouseExited(MouseEvent evt) {
+                goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
+            }
+        });
+        return goToInputMetrics;
+    }
+
+    /**
+     * Creates the main content panel for the Home view, including logo, description, and CTA.
+     */
+    private JPanel createHomeContentView() {
         JPanel homeView = new JPanel();
         homeView.setLayout(new BoxLayout(homeView, BoxLayout.Y_AXIS));
         homeView.setBackground(COLOR_CONTENT_BACKGROUND);
@@ -107,17 +208,17 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
 
         logoAndDescriptionPanel.add(Box.createRigidArea(new Dimension(30, 0))); // Increased gap
 
-        // -- Right side of header: Welcome Title + Description
+        // -- Right side of header: Welcome Title and Description
         JPanel textPanel = new JPanel();
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
         textPanel.setBackground(COLOR_CONTENT_BACKGROUND);
-        
+
         JLabel welcomeTitle = new JLabel("Welcome to BetterBlueprint");
         welcomeTitle.setFont(new Font("Segoe UI", Font.BOLD, 28));
         welcomeTitle.setForeground(COLOR_TEXT_DARK);
         welcomeTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        String descriptionText = "<html><body style='width: 350px; color: #555555;'>" + 
+
+        String descriptionText = "<html><body style='width: 350px; color: #555555;'>" +
                 "Track your daily metrics, calculate personalized health scores, " +
                 "and receive AI-powered insights to improve your well-being." +
                 "</body></html>";
@@ -131,41 +232,22 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
 
         logoAndDescriptionPanel.add(textPanel);
 
-        // -- Button to guide user to Input Metrics --
-        JButton goToInputMetrics = new JButton("Start Tracking Now");
-        goToInputMetrics.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        goToInputMetrics.setForeground(Color.WHITE);
-        goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
-        goToInputMetrics.setFocusPainted(false);
-        goToInputMetrics.setBorderPainted(false); // Flat look
-        goToInputMetrics.setOpaque(true);
-        goToInputMetrics.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
-        // Make button bigger
-        goToInputMetrics.setMaximumSize(new Dimension(220, 50));
-        goToInputMetrics.setPreferredSize(new Dimension(220, 50));
+        // -- Button to guide the user to Input Metrics --
+        JButton goToInputMetrics = styleAndAddGoToInputMetricsButton();
 
-        goToInputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Input Metrics"));
-        
-        // Hover effect for CTA button
-        goToInputMetrics.addMouseListener(new MouseAdapter() {
-             public void mouseEntered(MouseEvent evt) {
-                 goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON.darker());
-                 goToInputMetrics.setCursor(new Cursor(Cursor.HAND_CURSOR));
-             }
-             public void mouseExited(MouseEvent evt) {
-                 goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
-             }
-        });
-
-        homeView.add(Box.createVerticalGlue()); // Push content to center vertically
+        homeView.add(Box.createVerticalGlue()); // Push content to the center vertically
         homeView.add(logoAndDescriptionPanel);
         homeView.add(Box.createRigidArea(new Dimension(0, 50)));
         homeView.add(goToInputMetrics);
         homeView.add(Box.createVerticalGlue());
 
+        return homeView;
+    }
 
-        // --- B. Create the "My Score" page ---
+    /**
+     * Creates a placeholder view for My Score.
+     */
+    private JPanel createMyScorePlaceholderView() {
         JPanel myScoreView = new JPanel(new BorderLayout(0, 20));
         myScoreView.setBackground(COLOR_CONTENT_BACKGROUND);
         myScoreView.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
@@ -177,93 +259,20 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
         scorePlaceholder.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
 
         myScoreView.add(scorePlaceholder, BorderLayout.CENTER);
-
-        // --- C. Create other placeholder views ---
-        // (These will now also have a white background)
-        JPanel inputMetricsView = new JPanel();
-        inputMetricsView.setBackground(COLOR_CONTENT_BACKGROUND);
-        inputMetricsView.add(new JLabel("This is the Input Metrics View"));
-
-        JPanel accountSettingsView = new JPanel();
-        accountSettingsView.setBackground(COLOR_CONTENT_BACKGROUND);
-        accountSettingsView.add(new JLabel("This is the Account/Settings View"));
-
-        JPanel insightsView = new JPanel();
-        insightsView.setBackground(COLOR_CONTENT_BACKGROUND);
-        insightsView.add(new JLabel("This is the Insights View"));
-
-        JPanel historyView = new JPanel();
-        historyView.setBackground(COLOR_CONTENT_BACKGROUND);
-        historyView.add(new JLabel("This is the History View"));
-
-        JPanel goalsView = new JPanel();
-        goalsView.setBackground(COLOR_CONTENT_BACKGROUND);
-        goalsView.add(new JLabel("This is the Goals View"));
-
-        // --- C. Add all views to the main CardLayout panel ---
-        mainContentPanel.add(homeView, "Home");
-        mainContentPanel.add(myScoreView, "My Score");
-        mainContentPanel.add(inputMetricsView, "Input Metrics");
-        mainContentPanel.add(accountSettingsView, "Account Settings");
-        mainContentPanel.add(insightsView, "Insights");
-        mainContentPanel.add(historyView, "History");
-        mainContentPanel.add(goalsView, "Goals");
-
-        // === 5. ASSEMBLE THE HOMEVIEW ===
-        this.add(navbarPanel, BorderLayout.NORTH);
-        this.add(mainContentPanel, BorderLayout.CENTER);
-
-        // === 6. ADD ACTION LISTENERS (same as before) ===
-        home.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Home"));
-        inputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Input Metrics"));
-        accountSettings.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Account Settings"));
-        myScore.addActionListener(e -> mainCardLayout.show(mainContentPanel, "My Score"));
-        insights.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Insights"));
-        history.addActionListener(e -> mainCardLayout.show(mainContentPanel, "History"));
-        goals.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Goals"));
-
-        // Set "Home" as the default homepage
-        mainCardLayout.show(mainContentPanel, "Home");
+        return myScoreView;
     }
 
     /**
-     * A helper method to style our navbar buttons
+     * Creates a generic placeholder view for other tabs.
+     * @param labelText The text to display in the placeholder.
      */
-    private void styleNavbarButton(JButton button) {
-        button.setFont(new Font("SansSerif", Font.BOLD, 14));
-        button.setForeground(COLOR_NAV_BAR_TEXT);
-        button.setBackground(COLOR_NAV_BAR);
-        button.setPreferredSize(new Dimension(140, 50));
-
-        // --- Remove all default Swing button styling ---
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setContentAreaFilled(false);
-        button.setOpaque(true);
-
-        // --- Add hover effect ---
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                button.setBackground(COLOR_NAV_BAR_HOVER);
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                button.setBackground(COLOR_NAV_BAR);
-            }
-        });
+    private JPanel createPlaceholderView(String labelText) {
+        JPanel view = new JPanel();
+        view.setBackground(COLOR_CONTENT_BACKGROUND);
+        view.add(new JLabel("This is the " + labelText));
+        return view;
     }
 
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-
-    }
-
-    public String getViewName() { return viewName; }
+    public String getViewName() {
+        return "home"; }
 }
