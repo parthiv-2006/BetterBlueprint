@@ -3,11 +3,24 @@
 
 # Build output
 /out/
-/target
+target/
+bin/
+*.jar
+*.war
 
-# User data
-/users.csv
+# IntelliJ IDEA project files (kept shared settings, ignore user settings)
+.idea/
+*.iml
+*.iws
+*.ipr
+**/assetWizardSettings.xml
 
-# IntelliJ IDEA project files (keep shared settings, ignore user settings)
-.idea/*.xml
-BetterBlueprint.iml
+# Log files
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Project-specific files to ignore
+users.csv
