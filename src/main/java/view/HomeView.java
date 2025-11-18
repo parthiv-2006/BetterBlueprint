@@ -22,6 +22,7 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
     private final Color COLOR_CONTENT_BACKGROUND = Color.WHITE;
 
     // --- 2. DEFINE UI COMPONENTS ---
+    public final JButton home;
     public final JButton inputMetrics;
     public final JButton accountSettings;
     public final JButton myScore;
@@ -41,6 +42,7 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
         navbarPanel.setBackground(COLOR_NAV_BAR);
 
         // Create buttons
+        home = new JButton("Home");
         inputMetrics = new JButton("Input Health Metrics");
         accountSettings = new JButton("Account/Settings");
         myScore = new JButton("My Score");
@@ -49,6 +51,7 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
         goals = new JButton("Goals");
 
         // Style all 6 buttons
+        styleNavbarButton(home);
         styleNavbarButton(inputMetrics);
         styleNavbarButton(accountSettings);
         styleNavbarButton(myScore);
@@ -57,6 +60,7 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
         styleNavbarButton(goals);
 
         // Add buttons to navbar
+        navbarPanel.add(home);
         navbarPanel.add(inputMetrics);
         navbarPanel.add(accountSettings);
         navbarPanel.add(myScore);
@@ -69,21 +73,23 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
         mainContentPanel = new JPanel(mainCardLayout);
         mainContentPanel.setBackground(COLOR_CONTENT_BACKGROUND); // Set a clean white background
 
-        // --- A. Create the "My Score" page (Homepage) ---
-        JPanel myScoreView = new JPanel(new BorderLayout(0, 20));
-        myScoreView.setBackground(COLOR_CONTENT_BACKGROUND);
-        myScoreView.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
+        // --- A. Create the "Home" page ---
+        JPanel homeView = new JPanel();
+        homeView.setLayout(new BoxLayout(homeView, BoxLayout.Y_AXIS));
+        homeView.setBackground(COLOR_CONTENT_BACKGROUND);
+        homeView.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
 
         // -- Panel for Logo and Description (side-by-side)
         JPanel logoAndDescriptionPanel = new JPanel();
         logoAndDescriptionPanel.setLayout(new BoxLayout(logoAndDescriptionPanel, BoxLayout.X_AXIS));
         logoAndDescriptionPanel.setBackground(COLOR_CONTENT_BACKGROUND);
+        logoAndDescriptionPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Add Logo
         try {
             // Try loading with a leading slash (absolute path in classpath)
             java.net.URL logoUrl = getClass().getResource("/BetterBlueprint.png");
-            
+
             if (logoUrl != null) {
                 ImageIcon logoIcon = new ImageIcon(logoUrl);
                 Image scaledImage = logoIcon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
@@ -91,12 +97,9 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
                 logoLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
                 logoAndDescriptionPanel.add(logoLabel);
             } else {
-                // Fallback or error message if URL is null
-                System.err.println("Resource not found: /BetterBlueprint.png");
                 logoAndDescriptionPanel.add(new JLabel("Logo Not Found"));
             }
         } catch (Exception e) {
-            e.printStackTrace();
             logoAndDescriptionPanel.add(new JLabel("Logo Error"));
         }
 
@@ -113,17 +116,32 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
         descriptionLabel.setMaximumSize(new Dimension(400, 150));
         logoAndDescriptionPanel.add(descriptionLabel);
 
+        // -- Button to guide user to Input Metrics --
+        JButton goToInputMetrics = new JButton("Start Here: Input Health Metrics");
+        goToInputMetrics.setFont(new Font("SansSerif", Font.BOLD, 16));
+        goToInputMetrics.setAlignmentX(Component.CENTER_ALIGNMENT);
+        goToInputMetrics.setFocusPainted(false);
+        goToInputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Input Metrics"));
+
+        homeView.add(logoAndDescriptionPanel);
+        homeView.add(Box.createRigidArea(new Dimension(0, 40)));
+        homeView.add(goToInputMetrics);
+
+
+        // --- B. Create the "My Score" page ---
+        JPanel myScoreView = new JPanel(new BorderLayout(0, 20));
+        myScoreView.setBackground(COLOR_CONTENT_BACKGROUND);
+        myScoreView.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
+
         // --- Placeholder for the actual score ---
         JLabel scorePlaceholder = new JLabel("Your score will go here...");
         scorePlaceholder.setFont(new Font("SansSerif", Font.BOLD, 24));
         scorePlaceholder.setHorizontalAlignment(JLabel.CENTER);
         scorePlaceholder.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
 
-        // --- "My Score" page ---
-        myScoreView.add(logoAndDescriptionPanel, BorderLayout.NORTH);
         myScoreView.add(scorePlaceholder, BorderLayout.CENTER);
 
-        // --- B. Create other placeholder views ---
+        // --- C. Create other placeholder views ---
         // (These will now also have a white background)
         JPanel inputMetricsView = new JPanel();
         inputMetricsView.setBackground(COLOR_CONTENT_BACKGROUND);
@@ -146,6 +164,7 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
         goalsView.add(new JLabel("This is the Goals View"));
 
         // --- C. Add all views to the main CardLayout panel ---
+        mainContentPanel.add(homeView, "Home");
         mainContentPanel.add(myScoreView, "My Score");
         mainContentPanel.add(inputMetricsView, "Input Metrics");
         mainContentPanel.add(accountSettingsView, "Account Settings");
@@ -158,6 +177,7 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
         this.add(mainContentPanel, BorderLayout.CENTER);
 
         // === 6. ADD ACTION LISTENERS (same as before) ===
+        home.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Home"));
         inputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Input Metrics"));
         accountSettings.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Account Settings"));
         myScore.addActionListener(e -> mainCardLayout.show(mainContentPanel, "My Score"));
@@ -165,8 +185,8 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
         history.addActionListener(e -> mainCardLayout.show(mainContentPanel, "History"));
         goals.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Goals"));
 
-        // Set "My Score" as the default homepage
-        mainCardLayout.show(mainContentPanel, "My Score");
+        // Set "Home" as the default homepage
+        mainCardLayout.show(mainContentPanel, "Home");
     }
 
     /**
