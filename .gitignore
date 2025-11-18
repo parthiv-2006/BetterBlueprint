@@ -3,13 +3,24 @@
 
 # Build output
 /out/
-/users.csv
+target/
+bin/
+*.jar
+*.war
 
-# IntelliJ IDEA project files (keep shared settings, ignore user settings)
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/dataSources.xml
-.idea/vcs.xml
-.idea/gradle.xml
-.idea/misc.xml
-.idea/assetWizardSettings.xml
+# IntelliJ IDEA project files (kept shared settings, ignore user settings)
+.idea/
+*.iml
+*.iws
+*.ipr
+**/assetWizardSettings.xml
+
+# Log files
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Project-specific files to ignore
+users.csv
