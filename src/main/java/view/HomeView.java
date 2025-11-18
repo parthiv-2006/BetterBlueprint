@@ -81,13 +81,23 @@ public class HomeView extends JPanel implements ActionListener, PropertyChangeLi
 
         // Add Logo
         try {
-            ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/BetterBlueprint.png")));
-            Image scaledImage = logoIcon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
-            JLabel logoLabel = new JLabel(new ImageIcon(scaledImage));
-            logoLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
-            logoAndDescriptionPanel.add(logoLabel);
-        } catch (NullPointerException e) {
-            logoAndDescriptionPanel.add(new JLabel("Logo Not Found"));
+            // Try loading with a leading slash (absolute path in classpath)
+            java.net.URL logoUrl = getClass().getResource("/BetterBlueprint.png");
+            
+            if (logoUrl != null) {
+                ImageIcon logoIcon = new ImageIcon(logoUrl);
+                Image scaledImage = logoIcon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
+                JLabel logoLabel = new JLabel(new ImageIcon(scaledImage));
+                logoLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
+                logoAndDescriptionPanel.add(logoLabel);
+            } else {
+                // Fallback or error message if URL is null
+                System.err.println("Resource not found: /BetterBlueprint.png");
+                logoAndDescriptionPanel.add(new JLabel("Logo Not Found"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            logoAndDescriptionPanel.add(new JLabel("Logo Error"));
         }
 
         logoAndDescriptionPanel.add(Box.createRigidArea(new Dimension(20, 0)));
