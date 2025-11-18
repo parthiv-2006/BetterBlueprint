@@ -1,4 +1,4 @@
-package main.java.Entities;
+package Entities;
 
 /**
  * A simple entity representing a healthScore.java. An algorithm looks at user's history and
