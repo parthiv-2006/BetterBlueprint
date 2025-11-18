@@ -3,13 +3,11 @@
 
 # Build output
 /out/
+/target
+
+# User data
 /users.csv
 
 # IntelliJ IDEA project files (keep shared settings, ignore user settings)
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/dataSources.xml
-.idea/vcs.xml
-.idea/gradle.xml
-.idea/misc.xml
-.idea/assetWizardSettings.xml
+.idea/*.xml
+BetterBlueprint.iml
