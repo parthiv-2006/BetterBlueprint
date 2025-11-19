@@ -17,12 +17,12 @@ import java.util.Map;
  * DAO for user data implemented using a File to persist the data.
  */
 public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
-                                                 LoginUserDataAccessInterface,
-                                                 ChangePasswordUserDataAccessInterface,
-                                                 LogoutUserDataAccessInterface,
-                                                 SettingsUserDataAccessInterface {
+        LoginUserDataAccessInterface,
+        ChangePasswordUserDataAccessInterface,
+        LogoutUserDataAccessInterface,
+        SettingsUserDataAccessInterface {
 
-    private static final String HEADER = "username,password";
+    private static final String HEADER = "username,password,age,height,weight";
 
     private final File csvFile;
     private final Map<String, Integer> headers = new LinkedHashMap<>();
@@ -41,6 +41,9 @@ public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
         csvFile = new File(csvPath);
         headers.put("username", 0);
         headers.put("password", 1);
+        headers.put("age", 2);
+        headers.put("height", 3);
+        headers.put("weight", 4);
 
         if (csvFile.length() == 0) {
             save();
@@ -68,12 +71,10 @@ public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
             }
         }
     }
-    //fix
+
     private void save() {
-        BufferedWriter writer;
-        try {
-            writer = new BufferedWriter(new FileWriter(csvPath));
-            writer.write("username,password,age,height,weight");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile))) {
+            writer.write(HEADER);
             writer.newLine();
 
             for (User user : accounts.values()) {
@@ -86,7 +87,6 @@ public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
                 writer.write(line);
                 writer.newLine();
             }
-            writer.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
