@@ -7,17 +7,12 @@ import interface_adapter.home.HomeViewModel;
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginPresenter;
 import interface_adapter.login.LoginViewModel;
-//import interface_adapter.logout.LogoutController;
-//import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
 import use_case.login.LoginInputBoundary;
 import use_case.login.LoginInteractor;
 import use_case.login.LoginOutputBoundary;
-//import use_case.logout.LogoutInputBoundary;
-//import use_case.logout.LogoutInteractor;
-//import use_case.logout.LogoutOutputBoundary;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
@@ -34,6 +29,7 @@ public class AppBuilder {
     private final CardLayout cardLayout = new CardLayout();
     final UserFactory userFactory = new UserFactory();
     final ViewManagerModel viewManagerModel = new ViewManagerModel();
+    // This ViewManager is added to the JFrame, so it observes the ViewManagerModel
     ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
 
     // set which data access implementation to use, can be any
@@ -58,6 +54,7 @@ public class AppBuilder {
     public AppBuilder addSignupView() {
         signupViewModel = new SignupViewModel();
         signupView = new SignupView(signupViewModel);
+        // Add the view directly to the main cardPanel
         cardPanel.add(signupView, signupView.getViewName());
         return this;
     }
@@ -65,13 +62,16 @@ public class AppBuilder {
     public AppBuilder addLoginView() {
         loginViewModel = new LoginViewModel();
         loginView = new LoginView(loginViewModel);
+        // Add the view directly to the main cardPanel
         cardPanel.add(loginView, loginView.getViewName());
         return this;
     }
 
     public AppBuilder addHomeView() {
         homeViewModel = new HomeViewModel();
-        homeView = new HomeView(homeViewModel);
+        // Pass the ViewManagerModel to HomeView so it can trigger navigation changes
+        homeView = new HomeView(homeViewModel, viewManagerModel);
+        // Add the view directly to the main cardPanel
         cardPanel.add(homeView, homeView.getViewName());
         return this;
     }
@@ -113,16 +113,15 @@ public class AppBuilder {
 //    }
 
     public JFrame build() {
-        final JFrame application = new JFrame("User Login Example");
+        final JFrame application = new JFrame("BetterBlueprint"); // Changed window title
         application.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         application.add(cardPanel);
 
-        viewManagerModel.setState(signupView.getViewName());
+        // Set the initial view to the LoginView (which is the entry point after signup)
+        viewManagerModel.setState(loginView.getViewName());
         viewManagerModel.firePropertyChange();
 
         return application;
     }
-
-
 }
