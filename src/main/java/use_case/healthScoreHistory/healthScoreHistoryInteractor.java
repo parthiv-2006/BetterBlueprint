@@ -1,6 +1,6 @@
 package use_case.healthScoreHistory;
 
-import Entities.healthScore;
+import Entities.HealthScore;
 import java.util.List;
 
 /**

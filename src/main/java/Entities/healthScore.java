@@ -4,7 +4,7 @@ package Entities;
  * A simple entity representing a healthScore.java. An algorithm looks at user's history and
  * returns an overall score (out of 100)
  */
-public class healthScore{
+public class HealthScore{
     private int score;
 
     /**
@@ -13,7 +13,7 @@ public class healthScore{
      */
 
     //Constructor to make a new score object
-    public healthScore(int score){
+    public HealthScore(int score){
         this.score = score;
     }
 
