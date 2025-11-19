@@ -13,13 +13,16 @@ import interface_adapter.signup.SignupViewModel;
 import use_case.login.LoginInputBoundary;
 import use_case.login.LoginInteractor;
 import use_case.login.LoginOutputBoundary;
+import interface_adapter.settings.SettingsController;
+import interface_adapter.settings.SettingsPresenter;
+import interface_adapter.settings.SettingsViewModel;
+import use_case.settings.SettingsInputBoundary;
+import use_case.settings.SettingsOutputBoundary;
+import use_case.settings.SettingsInteractor;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
-import view.HomeView;
-import view.LoginView;
-import view.SignupView;
-import view.ViewManager;
+import view.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -44,8 +47,10 @@ public class AppBuilder {
     private SignupViewModel signupViewModel;
     private LoginViewModel loginViewModel;
     private HomeViewModel homeViewModel;
+    private SettingsViewModel settingsViewModel;
     private HomeView homeView;
     private LoginView loginView;
+    private SettingsView settingsView;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
@@ -73,6 +78,13 @@ public class AppBuilder {
         homeView = new HomeView(homeViewModel, viewManagerModel);
         // Add the view directly to the main cardPanel
         cardPanel.add(homeView, homeView.getViewName());
+        return this;
+    }
+
+    public AppBuilder addSettingsView() {
+        settingsViewModel = new SettingsViewModel();
+        settingsView = new SettingsView(settingsViewModel);  // Assign to instance variable
+        cardPanel.add(settingsView, settingsView.getViewName());
         return this;
     }
 
@@ -111,6 +123,18 @@ public class AppBuilder {
 //
 //        return this;
 //    }
+
+    public AppBuilder addSettingsUseCase() {
+        final SettingsOutputBoundary settingsOutputBoundary = new SettingsPresenter(
+                viewManagerModel, settingsViewModel, homeViewModel);
+        final SettingsInputBoundary settingsInteractor = new SettingsInteractor(
+                userDataAccessObject, settingsOutputBoundary);
+
+        SettingsController settingsController = new SettingsController(settingsInteractor);
+        settingsView.setSettingsController(settingsController);
+        return this;
+    }
+
 
     public JFrame build() {
         final JFrame application = new JFrame("BetterBlueprint"); // Changed window title

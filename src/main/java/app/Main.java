@@ -9,9 +9,11 @@ public class Main {
                 .addLoginView()
                 .addSignupView()
                 .addHomeView()
+                .addSettingsView()
                 .addSignupUseCase()
                 .addLoginUseCase()
 //                .addLogoutUseCase()
+                .addSettingsUseCase()
                 .build();
 
 

@@ -5,6 +5,7 @@ import entity.UserFactory;
 import use_case.change_password.ChangePasswordUserDataAccessInterface;
 import use_case.login.LoginUserDataAccessInterface;
 import use_case.logout.LogoutUserDataAccessInterface;
+import use_case.settings.SettingsUserDataAccessInterface;
 import use_case.signup.SignupUserDataAccessInterface;
 
 import java.io.*;
@@ -18,7 +19,8 @@ import java.util.Map;
 public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
                                                  LoginUserDataAccessInterface,
                                                  ChangePasswordUserDataAccessInterface,
-                                                 LogoutUserDataAccessInterface {
+                                                 LogoutUserDataAccessInterface,
+                                                 SettingsUserDataAccessInterface {
 
     private static final String HEADER = "username,password";
 
@@ -66,26 +68,27 @@ public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
             }
         }
     }
-
+    //fix
     private void save() {
-        final BufferedWriter writer;
+        BufferedWriter writer;
         try {
-            writer = new BufferedWriter(new FileWriter(csvFile));
-            writer.write(String.join(",", headers.keySet()));
+            writer = new BufferedWriter(new FileWriter(csvPath));
+            writer.write("username,password,age,height,weight");
             writer.newLine();
 
             for (User user : accounts.values()) {
-                final String line = String.format("%s,%s",
-                        user.getName(), user.getPassword());
+                String line = String.format("%s,%s,%d,%d,%d",
+                        user.getName(),
+                        user.getPassword(),
+                        user.getAge(),
+                        user.getHeight(),
+                        user.getWeight());
                 writer.write(line);
                 writer.newLine();
             }
-
             writer.close();
-
-        }
-        catch (IOException ex) {
-            throw new RuntimeException(ex);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

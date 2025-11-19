@@ -1,4 +1,62 @@
 package use_case.settings;
 
-public class SettingsInteractor {
+import entity.User;
+
+/**
+ * The Settings Interactor.
+ */
+public class SettingsInteractor implements SettingsInputBoundary {
+
+    private final SettingsUserDataAccessInterface userDataAccessObject;
+    private final SettingsOutputBoundary settingsPresenter;
+
+    public SettingsInteractor(SettingsUserDataAccessInterface userDataAccessObject,
+                              SettingsOutputBoundary settingsPresenter) {
+        this.userDataAccessObject = userDataAccessObject;
+        this.settingsPresenter = settingsPresenter;
+    }
+
+    @Override
+    public void execute(SettingsInputData settingsInputData) {
+        // Validate inputs
+        if ("".equals(settingsInputData.getAge()) || "".equals(settingsInputData.getHeight())
+                || "".equals(settingsInputData.getWeight())) {
+            settingsPresenter.prepareFailView("All fields must be filled.");
+            return;
+        }
+
+        try {
+            // Parse and validate the numeric values
+            final int age = Integer.parseInt(settingsInputData.getAge());
+            final int height = Integer.parseInt(settingsInputData.getHeight());
+            final int weight = Integer.parseInt(settingsInputData.getWeight());
+
+            if (age <= 0 || height <= 0 || weight <= 0) {
+                settingsPresenter.prepareFailView("All values must be positive numbers.");
+                return;
+            }
+
+            // Get current user and update their settings
+            final String currentUsername = userDataAccessObject.getCurrentUsername();
+            final User user = userDataAccessObject.get(currentUsername);
+            user.setAge(age);
+            user.setHeight(height);
+            user.setWeight(weight);
+
+            // Save updated user
+            userDataAccessObject.save(user);
+
+            // Prepare success response
+            final SettingsOutputData outputData = new SettingsOutputData(age, height, weight);
+            settingsPresenter.prepareSuccessView(outputData);
+
+        } catch (NumberFormatException exception) {
+            settingsPresenter.prepareFailView("Please enter valid numbers for all fields.");
+        }
+    }
+
+    @Override
+    public void switchToHomeView() {
+        settingsPresenter.switchToHomeView();
+    }
 }

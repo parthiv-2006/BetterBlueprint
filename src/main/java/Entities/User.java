@@ -1,9 +1,5 @@
 package main.java.Entities;
 
-/**
- * A simple entity representing a user. Users have a username password, age, height, and weight.
- */
-
 public class User {
     private String username;
     private String password;
@@ -11,13 +7,6 @@ public class User {
     private int height;
     private int weight;
 
-
-    /**
-     * Creates a new user with the given non-empty name and non-empty password.
-     * @param username the username
-     * @param password the password
-     * @throws IllegalArgumentException if the password or name are empty
-     */
     public User(String username, String password) {
         if ("".equals(username)) {
             throw new IllegalArgumentException("Username cannot be empty");
@@ -29,39 +18,48 @@ public class User {
         this.password = password;
     }
 
-    /**
-     * Creates a user with all attributes.
-     * @param username the username
-     * @param password the password
-     * @param age the user's age in years
-     * @param height the user's height
-     * @param weight the user's weight
-     */
     public User(String username, String password, int age, int height, int weight) {
-        this(username, password);  // reuses validation logic
+        this(username, password);
+        validateAge(age);
+        validateHeight(height);
+        validateWeight(weight);
         this.age = age;
         this.height = height;
         this.weight = weight;
     }
 
-    public String getName() {
-        return username;
+    // Getters are fine
+    public String getName() { return username; }
+    public String getPassword() { return password; }
+    public int getAge() { return age; }
+    public int getHeight() { return height; }
+    public int getWeight() { return weight; }
+
+    // Business logic methods
+    public void updateHealthMetrics(int newAge, int newHeight, int newWeight) {
+        validateAge(newAge);
+        validateHeight(newHeight);
+        validateWeight(newWeight);
+        this.age = newAge;
+        this.height = newHeight;
+        this.weight = newWeight;
     }
 
-    public String getPassword() {
-        return password;
+    private void validateAge(int age) {
+        if (age < 0 || age > 150) {
+            throw new IllegalArgumentException("Age must be between 0 and 150");
+        }
     }
 
-    public int getAge() {return age;};
+    private void validateHeight(int height) {
+        if (height <= 0) {
+            throw new IllegalArgumentException("Height must be positive");
+        }
+    }
 
-    public void setAge(int age) {this.age = age;}
-
-    public int getHeight() {return height;}
-
-    public void setHeight(int height) {this.height = height;}
-
-    public int getWeight() {return weight;}
-
-    public void setWeight(int weight) {this.weight = weight;}
-
+    private void validateWeight(int weight) {
+        if (weight <= 0) {
+            throw new IllegalArgumentException("Weight must be positive");
+        }
+    }
 }

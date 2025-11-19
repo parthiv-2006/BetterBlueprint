@@ -12,134 +12,134 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-public class SettingsView {
-}
 
-// Below is the LoggedInView, use it for inspiration together with the accountSettingsView in HomeView
-//public class LoggedInView extends JPanel implements ActionListener, PropertyChangeListener {
-//
-//    private final String viewName = "logged in";
-//    private final LoggedInViewModel loggedInViewModel;
-//    private final JLabel passwordErrorField = new JLabel();
-//    private ChangePasswordController changePasswordController = null;
-//    private LogoutController logoutController;
-//
-//    private final JLabel username;
-//
-//    private final JButton logOut;
-//
-//    private final JTextField passwordInputField = new JTextField(15);
-//    private final JButton changePassword;
-//
-//    public LoggedInView(LoggedInViewModel loggedInViewModel) {
-//        this.loggedInViewModel = loggedInViewModel;
-//        this.loggedInViewModel.addPropertyChangeListener(this);
-//
-//        final JLabel title = new JLabel("Logged In Screen");
-//        title.setAlignmentX(Component.CENTER_ALIGNMENT);
-//
-//        final LabelTextPanel passwordInfo = new LabelTextPanel(
-//                new JLabel("Password"), passwordInputField);
-//
-//        final JLabel usernameInfo = new JLabel("Currently logged in: ");
-//        username = new JLabel();
-//
-//        final JPanel buttons = new JPanel();
-//        logOut = new JButton("Log Out");
-//        buttons.add(logOut);
-//
-//        changePassword = new JButton("Change Password");
-//        buttons.add(changePassword);
-//
-//        logOut.addActionListener(this);
-//
-//        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-//
-//        passwordInputField.getDocument().addDocumentListener(new DocumentListener() {
-//
-//            private void documentListenerHelper() {
-//                final LoggedInState currentState = loggedInViewModel.getState();
-//                currentState.setPassword(passwordInputField.getText());
-//                loggedInViewModel.setState(currentState);
-//            }
-//
-//            @Override
-//            public void insertUpdate(DocumentEvent e) {
-//                documentListenerHelper();
-//            }
-//
-//            @Override
-//            public void removeUpdate(DocumentEvent e) {
-//                documentListenerHelper();
-//            }
-//
-//            @Override
-//            public void changedUpdate(DocumentEvent e) {
-//                documentListenerHelper();
-//            }
-//        });
-//
-//        changePassword.addActionListener(
-//                // This creates an anonymous subclass of ActionListener and instantiates it.
-//                evt -> {
-//                    if (evt.getSource().equals(changePassword)) {
-//                        final LoggedInState currentState = loggedInViewModel.getState();
-//
-//                        this.changePasswordController.execute(
-//                                currentState.getUsername(),
-//                                currentState.getPassword()
-//                        );
-//                    }
-//                }
-//        );
-//
-//        this.add(title);
-//        this.add(usernameInfo);
-//        this.add(username);
-//
-//        this.add(passwordInfo);
-//        this.add(passwordErrorField);
-//        this.add(buttons);
-//    }
-//
-//    /**
-//     * React to a button click that results in evt.
-//     * @param evt the ActionEvent to react to
-//     */
-//    public void actionPerformed(ActionEvent evt) {
-//        if (evt.getSource().equals(logOut) && logoutController != null) {
-//            logoutController.execute();
-//        }
-//        System.out.println("Click " + evt.getActionCommand());
-//    }
-//
-//    @Override
-//    public void propertyChange(PropertyChangeEvent evt) {
-//        if (evt.getPropertyName().equals("state")) {
-//            final LoggedInState state = (LoggedInState) evt.getNewValue();
-//            username.setText(state.getUsername());
-//        }
-//        else if (evt.getPropertyName().equals("password")) {
-//            final LoggedInState state = (LoggedInState) evt.getNewValue();
-//            if (state.getPasswordError() == null) {
-//                JOptionPane.showMessageDialog(this, "password updated for " + state.getUsername());
-//                passwordInputField.setText("");
-//            }
-//            else {
-//                JOptionPane.showMessageDialog(this, state.getPasswordError());
-//            }
-//        }
-//
-//    }
-//
-//    public String getViewName() {
-//        return viewName;
-//    }
-//
-//    public void setChangePasswordController(ChangePasswordController changePasswordController) {
-//        this.changePasswordController = changePasswordController;
-//    }
-//    public void setLogoutController(LogoutController logoutController) {
-//        this.logoutController = logoutController;
-//    }
-//}
+public class SettingsView extends JPanel implements ActionListener, PropertyChangeListener {
+
+    private final String viewName = "settings";
+    private final SettingsViewModel settingsViewModel;
+    private SettingsController settingsController;
+
+    private final JTextField ageField = new JTextField(15);
+    private final JTextField heightField = new JTextField(15);
+    private final JTextField weightField = new JTextField(15);
+    private final JButton saveButton;
+    private final JButton cancelButton;
+
+    public SettingsView(SettingsViewModel settingsViewModel) {
+        this.settingsViewModel = settingsViewModel;
+        this.settingsViewModel.addPropertyChangeListener(this);
+
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+        final JLabel title = new JLabel("Settings");
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        final LabelTextPanel ageInfo = new LabelTextPanel(new JLabel("Age"), ageField);
+        final LabelTextPanel heightInfo = new LabelTextPanel(new JLabel("Height (cm)"), heightField);
+        final LabelTextPanel weightInfo = new LabelTextPanel(new JLabel("Weight (kg)"), weightField);
+
+        final JPanel buttons = new JPanel();
+        saveButton = new JButton("Save");
+        cancelButton = new JButton("Cancel");
+        buttons.add(saveButton);
+        buttons.add(cancelButton);
+
+        addFieldListeners();
+        addButtonListeners();
+
+        this.add(title);
+        this.add(ageInfo);
+        this.add(heightInfo);
+        this.add(weightInfo);
+        this.add(buttons);
+    }
+
+    private void addFieldListeners() {
+        ageField.getDocument().addDocumentListener(new DocumentListener() {
+            private void update() {
+                final SettingsState state = settingsViewModel.getState();
+                state.setAge(ageField.getText());
+                settingsViewModel.setState(state);
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) { update(); }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) { update(); }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) { update(); }
+        });
+
+        heightField.getDocument().addDocumentListener(new DocumentListener() {
+            private void update() {
+                final SettingsState state = settingsViewModel.getState();
+                state.setHeight(heightField.getText());
+                settingsViewModel.setState(state);
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) { update(); }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) { update(); }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) { update(); }
+        });
+
+        weightField.getDocument().addDocumentListener(new DocumentListener() {
+            private void update() {
+                final SettingsState state = settingsViewModel.getState();
+                state.setWeight(weightField.getText());
+                settingsViewModel.setState(state);
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) { update(); }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) { update(); }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) { update(); }
+        });
+    }
+
+    private void addButtonListeners() {
+        saveButton.addActionListener(evt -> {
+            if (settingsController != null) {
+                final SettingsState state = settingsViewModel.getState();
+                settingsController.execute(state.getAge(), state.getHeight(), state.getWeight());
+            }
+        });
+
+        cancelButton.addActionListener(this);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource().equals(cancelButton) && settingsController != null) {
+            settingsController.switchToHomeView();
+        }
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if ("state".equals(evt.getPropertyName())) {
+            final SettingsState state = (SettingsState) evt.getNewValue();
+            ageField.setText(state.getAge());
+            heightField.setText(state.getHeight());
+            weightField.setText(state.getWeight());
+        }
+    }
+
+    public String getViewName() {
+        return viewName;
+    }
+
+    public void setSettingsController(SettingsController controller) {
+        this.settingsController = controller;
+    }
+}
