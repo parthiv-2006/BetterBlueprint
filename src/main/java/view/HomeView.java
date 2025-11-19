@@ -19,7 +19,7 @@ public class HomeView extends JPanel {
     public final JButton myScore;
     public final JButton insights;
     public final JButton history;
-    public final JButton goals;
+    public final JButton caloriePlan;
 
     // Use ViewManagerModel to trigger navigation changes (Clean Architecture)
     private final ViewManagerModel viewManagerModel;
@@ -48,7 +48,7 @@ public class HomeView extends JPanel {
         myScore = new JButton("My Score");
         insights = new JButton("Insights");
         history = new JButton("History");
-        goals = new JButton("Goals");
+        caloriePlan = new JButton("Calorie Plan");
 
         // Style all 7 buttons
         styleNavbarButton(home);
@@ -57,7 +57,7 @@ public class HomeView extends JPanel {
         styleNavbarButton(myScore);
         styleNavbarButton(insights);
         styleNavbarButton(history);
-        styleNavbarButton(goals);
+        styleNavbarButton(caloriePlan);
 
         // Add buttons to navbar
         navbarPanel.add(home);
@@ -66,7 +66,7 @@ public class HomeView extends JPanel {
         navbarPanel.add(myScore);
         navbarPanel.add(insights);
         navbarPanel.add(history);
-        navbarPanel.add(goals);
+        navbarPanel.add(caloriePlan);
 
         // === 4. CREATE THE CENTER CONTENT PANEL ===
         // Note: The main card layout is now managed outside this view (in AppBuilder).
@@ -88,7 +88,7 @@ public class HomeView extends JPanel {
         JPanel accountSettingsView = createPlaceholderView("Account/Settings View");
         JPanel insightsView = createPlaceholderView("Insights View");
         JPanel historyView = createPlaceholderView("History View");
-        JPanel goalsView = createPlaceholderView("Goals View");
+        JPanel caloriePlanView = createPlaceholderView("caloriePlan View");
 
         // --- D. Add all sub-views to the content panel ---
         contentPanel.add(homeContentView, "Home");
@@ -97,7 +97,7 @@ public class HomeView extends JPanel {
         contentPanel.add(accountSettingsView, "Account Settings");
         contentPanel.add(insightsView, "Insights");
         contentPanel.add(historyView, "History");
-        contentPanel.add(goalsView, "Goals");
+        contentPanel.add(caloriePlanView, "Calorie Plan");
 
         // === 5. ASSEMBLE THE HOMEVIEW ===
         this.add(navbarPanel, BorderLayout.NORTH);
@@ -112,7 +112,7 @@ public class HomeView extends JPanel {
         myScore.addActionListener(e -> cardLayout.show(contentPanel, "My Score"));
         insights.addActionListener(e -> cardLayout.show(contentPanel, "Insights"));
         history.addActionListener(e -> cardLayout.show(contentPanel, "History"));
-        goals.addActionListener(e -> cardLayout.show(contentPanel, "Goals"));
+        caloriePlan.addActionListener(e -> cardLayout.show(contentPanel, "Calorie Plan"));
 
         // Set "Home" as the default homepage
         cardLayout.show(contentPanel, "Home");
