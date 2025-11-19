@@ -8,7 +8,6 @@ import java.util.List;
  */
 public abstract class healthScoreHistoryInteractor implements healthScoreHistoryInputBoundary {
 
-//    private final UserDataAccessInterface userDataAccessObject;
     private final healthScoreHistoryOutputBoundary presenter;
 
     public healthScoreHistoryInteractor(healthScoreHistoryOutputBoundary presenter) {
