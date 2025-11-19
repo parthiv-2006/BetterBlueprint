@@ -1,17 +1,26 @@
 # Compiled Java class files
 *.class
 
-# Build output
+# Build output and generated files
 /out/
-/users.csv
+target/
+bin/
+*.jar
+*.war
+*.log
 
 # IntelliJ IDEA project files (keep shared settings, ignore user settings)
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/dataSources.xml
-.idea/vcs.xml
-.idea/gradle.xml
-.idea/misc.xml
-.idea/assetWizardSettings.xml
+.idea/
+*.iml
+*.iws
+*.ipr
+**/assetWizardSettings.xml
+# Also ignore the .iml file for the project root itself
+BetterBlueprint.iml
 
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Project-specific data files to ignore
 users.csv
