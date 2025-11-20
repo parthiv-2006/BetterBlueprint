@@ -1,4 +1,4 @@
-package main.java.Entities;
+package Entities;
 
 /**
  * A simple entity representing a user. Users have a username password, age, height, and weight.
