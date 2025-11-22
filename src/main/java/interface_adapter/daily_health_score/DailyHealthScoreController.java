@@ -18,7 +18,7 @@ public class DailyHealthScoreController {
      * Executes the Daily Health Score Use Case
      */
     public void execute(HealthMetrics healthMetrics) {
-        final DailyHealthScoreInputData dailyHealthScoreInputData =
+        DailyHealthScoreInputData dailyHealthScoreInputData =
                 new DailyHealthScoreInputData(healthMetrics);
 
         dailyHealthScoreUseCaseInteractor.execute(dailyHealthScoreInputData);

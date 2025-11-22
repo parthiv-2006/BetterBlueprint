@@ -9,12 +9,16 @@ import Entities.HealthScore;
 
 public class DailyHealthScoreOutputData {
     private final HealthScore healthScore;
+    private final String summary;
 
-    public DailyHealthScoreOutputData(HealthScore healthScore) {
+    public DailyHealthScoreOutputData(HealthScore healthScore, String summary) {
         this.healthScore = healthScore;
+        this.summary = summary;
     }
 
-    public HealthScore getHealthScore() {
-        return healthScore;
-    }
+    public HealthScore getHealthScore() {return healthScore;}
+
+    public String getSummary() {return summary;};
+
+    public String getDate() {};
 }

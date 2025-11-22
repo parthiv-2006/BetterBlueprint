@@ -11,8 +11,12 @@ import interface_adapter.ViewModel;
  */
 
 public class DailyHealthScoreViewModel extends ViewModel<DailyHealthScoreState> {
+
+    public static final String VIEW_NAME = "daily health score";
+
     public DailyHealthScoreViewModel() {
-        super("daily health score");
+        super(VIEW_NAME);
         setState(new DailyHealthScoreState());
     }
+
 }
