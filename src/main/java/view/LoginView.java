@@ -34,15 +34,16 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
     private final JButton cancel;
     private LoginController loginController = null;
 
-    // Modern color scheme
-    private static final Color PRIMARY_COLOR = new Color(99, 102, 241); // Indigo
-    private static final Color PRIMARY_HOVER = new Color(79, 82, 221);
-    private static final Color SECONDARY_COLOR = new Color(255, 255, 255);
-    private static final Color BACKGROUND_COLOR = new Color(249, 250, 251);
+    // Modern color scheme - Blue and Green theme
+    private static final Color PRIMARY_COLOR = new Color(37, 99, 235); // Blue-600
+    private static final Color PRIMARY_HOVER = new Color(29, 78, 216); // Blue-700
+    private static final Color SECONDARY_COLOR = new Color(34, 197, 94); // Green-500
+    private static final Color SECONDARY_HOVER = new Color(22, 163, 74); // Green-600
+    private static final Color BACKGROUND_COLOR = new Color(239, 246, 255); // Light blue tint
     private static final Color CARD_COLOR = new Color(255, 255, 255);
     private static final Color TEXT_COLOR = new Color(31, 41, 55);
     private static final Color ERROR_COLOR = new Color(239, 68, 68);
-    private static final Color BORDER_COLOR = new Color(229, 231, 235);
+    private static final Color BORDER_COLOR = new Color(191, 219, 254); // Light blue border
 
     public LoginView(LoginViewModel loginViewModel) {
         this.loginViewModel = loginViewModel;
@@ -216,7 +217,7 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
                 BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
                 new EmptyBorder(12, 15, 12, 15)
         ));
-        textField.setBackground(SECONDARY_COLOR);
+        textField.setBackground(Color.WHITE);
         textField.setForeground(TEXT_COLOR);
 
         // Add focus effect
@@ -248,7 +249,7 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
 
         if (isPrimary) {
             button.setBackground(PRIMARY_COLOR);
-            button.setForeground(SECONDARY_COLOR);
+            button.setForeground(Color.WHITE);
             button.addMouseListener(new MouseAdapter() {
                 public void mouseEntered(MouseEvent evt) {
                     button.setBackground(PRIMARY_HOVER);
@@ -259,12 +260,10 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
             });
         } else {
             button.setBackground(SECONDARY_COLOR);
-            button.setForeground(PRIMARY_COLOR);
-            button.setBorderPainted(true);
-            button.setBorder(BorderFactory.createLineBorder(PRIMARY_COLOR, 2, true));
+            button.setForeground(Color.WHITE);
             button.addMouseListener(new MouseAdapter() {
                 public void mouseEntered(MouseEvent evt) {
-                    button.setBackground(new Color(243, 244, 246));
+                    button.setBackground(SECONDARY_HOVER);
                 }
                 public void mouseExited(MouseEvent evt) {
                     button.setBackground(SECONDARY_COLOR);
