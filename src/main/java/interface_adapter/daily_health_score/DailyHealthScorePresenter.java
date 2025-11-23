@@ -28,16 +28,16 @@ public class DailyHealthScorePresenter implements DailyHealthScoreOutputBoundary
     public void prepareSuccessView(DailyHealthScoreOutputData outputData) {
         DailyHealthScoreState state = dailyHealthScoreViewModel.getState();
 
-        state.setScore(outputData.getHealthScore());
+        state.setScore(outputData.getScore());
         state.setSummaryFeedback(outputData.getSummary());
         state.setDate(outputData.getDate());
         state.setErrorMessage(null);
 
         dailyHealthScoreViewModel.setState(state);
-        dailyHealthScoreViewModel.firePropertyChanged();
+        dailyHealthScoreViewModel.firePropertyChange();
 
-        viewManagerModel.setActiveView(dailyHealthScoreViewModel.getViewName());
-        viewManagerModel.firePropertyChanged();
+        viewManagerModel.setState(dailyHealthScoreViewModel.getViewName());
+        viewManagerModel.firePropertyChange();
 
 
     }
@@ -49,10 +49,10 @@ public class DailyHealthScorePresenter implements DailyHealthScoreOutputBoundary
         state.setErrorMessage(errorMessage);
 
         dailyHealthScoreViewModel.setState(state);
-        dailyHealthScoreViewModel.firePropertyChanged();
+        dailyHealthScoreViewModel.firePropertyChange();
 
-        viewManagerModel.setActiveView(dailyHealthScoreViewModel.getViewName());
-        viewManagerModel.firePropertyChanged();
+        viewManagerModel.setState(dailyHealthScoreViewModel.getViewName());
+        viewManagerModel.firePropertyChange();
 
     }
 }

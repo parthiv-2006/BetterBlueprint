@@ -1,16 +1,21 @@
 package interface_adapter.daily_health_score;
 
+import Entities.HealthMetrics;
 import Entities.HealthScore;
+
+import java.time.LocalDate;
 
 public class DailyHealthScoreState {
 
-    private HealthScore healthScore;
+    private HealthMetrics healthMetrics;   // newly added
+    private int score;
     private String summaryFeedback;      // short interpretation of score
-    private String date;
+    private LocalDate date;
     private String errorMessage;         // non-null only if failure occurred
 
     public DailyHealthScoreState() {
-        this.healthScore = null;
+        this.healthMetrics = null;    // new
+        this.score = 0;
         this.summaryFeedback = null;
         this.date = null;
         this.errorMessage = null;
@@ -18,15 +23,17 @@ public class DailyHealthScoreState {
 
     // getters
 
-    public HealthScore getHealthScore() {
-        return healthScore;
+    public HealthMetrics getHealthMetrics() {return healthMetrics;}  // new
+
+    public int getScore() {
+        return score;
     }
 
     public String getSummaryFeedback() {
         return summaryFeedback;
     }
 
-    public String getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
@@ -36,15 +43,19 @@ public class DailyHealthScoreState {
 
     // setters
 
-    public void setScore(HealthScore healthScore) {
-        this.healthScore = healthScore;
+    public void setHealthMetrics(HealthMetrics healthMetrics) {
+        this.healthMetrics = healthMetrics;      // new
+    }
+
+    public void setScore(int score) {
+        this.score = score;
     }
 
     public void setSummaryFeedback(String summaryFeedback) {
         this.summaryFeedback = summaryFeedback;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

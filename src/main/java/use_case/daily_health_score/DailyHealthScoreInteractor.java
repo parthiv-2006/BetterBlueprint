@@ -1,6 +1,9 @@
 package use_case.daily_health_score;
 
 import Entities.HealthMetrics;
+import Entities.HealthScore;
+import Entities.User;
+import interface_adapter.daily_health_score.GeminiHealthScoreCalculator;
 
 import java.time.LocalDate;
 
@@ -18,88 +21,56 @@ import java.time.LocalDate;
 
 public class DailyHealthScoreInteractor implements DailyHealthScoreInputBoundary {
     private final DailyHealthScoreUserDataAccessInterface userDataAccessObject;
-    private final DailyHealthScoreOutputBoundary dailyHealthScorePresenter;   // ?
+    private final DailyHealthScoreOutputBoundary healthScorePresenter;
+    private final GeminiHealthScoreCalculator scoreCalculator;
 
 
     // constructor
-    public DailyHealthScoreInteractor(DailyHealthScoreUserDataAccessInterface userDataAccessInterface,
-                                      DailyHealthScoreOutputBoundary dailyHealthScoreOutputBoundary) {
-        this.userDataAccessObject = userDataAccessInterface;
-        this.dailyHealthScorePresenter = dailyHealthScoreOutputBoundary;
+    public DailyHealthScoreInteractor(DailyHealthScoreUserDataAccessInterface userDataAccessObject,
+                                      DailyHealthScoreOutputBoundary outputBoundary,
+                                      GeminiHealthScoreCalculator scoreCalculator) {
+        this.userDataAccessObject = userDataAccessObject;
+        this.healthScorePresenter = outputBoundary;
+        this.scoreCalculator = scoreCalculator;
     }
 
 
     // execute
     @Override
     public void execute(DailyHealthScoreInputData inputData) {
-        // should use Presenter.prepareFailView & Presenter.prepareSuccessView in here
-        // write the logic & what is required for successView & failView
 
-        //final HealthMetrics healthMetrics = dailyHealthScoreInputData.getHealthMetrics();
-        String userID = inputData.getUserId();
-        LocalDate today = LocalDate.now();
-        HealthMetrics healthMetrics = inputData.getHealthMetrics();
+         //final HealthMetrics healthMetrics = dailyHealthScoreInputData.getHealthMetrics();
+         //String userID = inputData.getUserId();
+         //LocalDate today = LocalDate.now();
+         HealthMetrics healthMetrics = inputData.getHealthMetrics();
 
-        // THIS IS ONLY NECESSARY IF THE INPUT METRICS USE CASE DOESN'T ALREADY CHECK FOR COMPLETENESS
-        if (!userDataAccessObject.checkMetricsRecorded(healthMetrics)) {
-            dailyHealthScorePresenter.prepareFailView
-                    ("Health metrics not available. Please go to the Input Metrics " +
-                            "page to record your daily metrics.");
-        } else {
-            // calculates score (output data) & passes to presenter
-            final DailyHealthScoreOutputData outputData = new DailyHealthScoreOutputData
-                    (userDataAccessObject.calculateHealthScore(inputData.getHealthMetrics()));
-            dailyHealthScorePresenter.prepareSuccessView(outputData);
-        }
+         // THIS IS ONLY NECESSARY IF THE INPUT METRICS USE CASE DOESN'T ALREADY CHECK FOR COMPLETENESS
+         if (!userDataAccessObject.checkMetricsRecorded(healthMetrics)) {
+             healthScorePresenter.prepareFailView("No metrics found for today. Please go to Input Metrics to record today's data.");
 
-    }
+         } else {
+
+             try {
+                 // calculates score (output data) & passes to presenter
+
+                 int score = scoreCalculator.calculateScore(healthMetrics);
+                 String summary = scoreCalculator.generateFeedback(healthMetrics, score);
+                 LocalDate date = LocalDate.now();
+
+                 DailyHealthScoreOutputData outputData = new DailyHealthScoreOutputData(
+                         score,
+                         summary,
+                         date
+                 );
+
+                 healthScorePresenter.prepareSuccessView(outputData);
+             }
+
+             catch (Exception e) {
+                 healthScorePresenter.prepareFailView("Failed to calculate score using Gemini.");
+             }
+
+         }
+
+     }
 }
-
-/**
- * @Override
- * public void execute(ViewDailyHealthScoreInputData inputData) {
- *
- *     String userId = inputData.getUserId();
- *     LocalDate today = LocalDate.now();
- *
- *     try {
- *         // 1. Retrieve today's metrics
- *         DailyMetrics metrics = userDataAccess.getMetricsForDate(userId, today);
- *
- *         // 2. If no metrics → prompt user to input
- *         if (metrics == null) {
- *             presenter.prepareNoDataView(
- *                     new ViewDailyHealthScoreOutputData(
- *                             null,
- *                             "No metrics entered for today. Please add today's data.",
- *                             false
- *                     )
- *             );
- *             return;
- *         }
- *
- *         // 3. Compute score
- *         int score = scoringAlgorithm.calculateScore(metrics);
- *
- *         // 4. Generate feedback (could also be done in presenter)
- *         String feedback = scoringAlgorithm.generateFeedback(score);
- *
- *         // 5. Return success output data
- *         presenter.prepareSuccessView(
- *                 new ViewDailyHealthScoreOutputData(score, feedback, true)
- *         );
- *
- *     } catch (Exception e) {
- *         // 6. Error flow
- *         presenter.prepareFailView(
- *                 new ViewDailyHealthScoreOutputData(
- *                         null,
- *                         "An error occurred while calculating your health score. Please try again.",
- *                         false
- *                 )
- *         );
- *     }
- * }
- * }
- *
- */
