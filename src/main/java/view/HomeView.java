@@ -9,13 +9,18 @@ import java.awt.event.MouseEvent;
 
 public class HomeView extends JPanel {
 
-    // --- 1. DEFINE A NEW HEALTH APP COLOR PALETTE (Made static final) ---
-    private static final Color COLOR_NAV_BAR = new Color(22, 160, 133);       // Main Teal/Green
-    private static final Color COLOR_NAV_BAR_HOVER = new Color(20, 140, 113);  // Darker Teal on hover
+    // --- 1. DEFINE BLUE/GREEN THEME COLOR PALETTE ---
+    private static final Color COLOR_NAV_BAR = new Color(37, 99, 235);        // Blue-600
+    private static final Color COLOR_NAV_BAR_HOVER = new Color(29, 78, 216);  // Blue-700
     private static final Color COLOR_NAV_BAR_TEXT = Color.WHITE;
-    private static final Color COLOR_CONTENT_BACKGROUND = new Color(245, 247, 250); // Soft Gray-White
-    private static final Color COLOR_PRIMARY_BUTTON = new Color(41, 128, 185); // Nice Blue for CTA
-    private static final Color COLOR_TEXT_DARK = new Color(44, 62, 80);       // Dark Blue-Grey for text
+    private static final Color COLOR_CONTENT_BACKGROUND = new Color(239, 246, 255); // Light blue tint
+    private static final Color COLOR_PRIMARY_BUTTON = new Color(34, 197, 94); // Green-500
+    private static final Color COLOR_PRIMARY_BUTTON_HOVER = new Color(22, 163, 74); // Green-600
+    private static final Color COLOR_SECONDARY_BUTTON = new Color(37, 99, 235); // Blue-600
+    private static final Color COLOR_TEXT_DARK = new Color(31, 41, 55);       // Dark gray
+    private static final Color COLOR_TEXT_LIGHT = new Color(107, 114, 128);   // Gray-500
+    private static final Color COLOR_CARD = Color.WHITE;
+    private static final Color COLOR_BORDER = new Color(191, 219, 254);       // Light blue border
 
     // --- 2. DEFINE UI COMPONENTS ---
     public final JButton home;
@@ -115,27 +120,40 @@ public class HomeView extends JPanel {
      * @param button The JButton to style.
      */
     private void styleNavbarButton(JButton button) {
-        button.setFont(new Font("SansSerif", Font.BOLD, 14));
+        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(COLOR_NAV_BAR_TEXT);
         button.setBackground(COLOR_NAV_BAR);
-        button.setPreferredSize(new Dimension(140, 50));
+        button.setPreferredSize(new Dimension(150, 55));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         // --- Remove all default Swing button styling ---
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         button.setContentAreaFilled(false);
         button.setOpaque(true);
+        button.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 3, 0, COLOR_NAV_BAR),
+                BorderFactory.createEmptyBorder(5, 15, 5, 15)
+        ));
 
         // --- Add hover effect ---
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
                 button.setBackground(COLOR_NAV_BAR_HOVER);
+                button.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createMatteBorder(0, 0, 3, 0, COLOR_PRIMARY_BUTTON),
+                        BorderFactory.createEmptyBorder(5, 15, 5, 15)
+                ));
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
                 button.setBackground(COLOR_NAV_BAR);
+                button.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createMatteBorder(0, 0, 3, 0, COLOR_NAV_BAR),
+                        BorderFactory.createEmptyBorder(5, 15, 5, 15)
+                ));
             }
         });
     }
@@ -150,24 +168,36 @@ public class HomeView extends JPanel {
         goToInputMetrics.setForeground(Color.WHITE);
         goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
         goToInputMetrics.setFocusPainted(false);
-        goToInputMetrics.setBorderPainted(false); // Flat look
+        goToInputMetrics.setBorderPainted(false);
         goToInputMetrics.setOpaque(true);
         goToInputMetrics.setAlignmentX(Component.CENTER_ALIGNMENT);
+        goToInputMetrics.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Make button bigger
-        goToInputMetrics.setMaximumSize(new Dimension(220, 50));
-        goToInputMetrics.setPreferredSize(new Dimension(220, 50));
+        // Make button bigger with rounded appearance
+        goToInputMetrics.setMaximumSize(new Dimension(240, 55));
+        goToInputMetrics.setPreferredSize(new Dimension(240, 55));
+        goToInputMetrics.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(COLOR_PRIMARY_BUTTON, 2, true),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
 
         goToInputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Input Metrics"));
 
         // Hover effect for CTA button
         goToInputMetrics.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent evt) {
-                goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON.darker());
-                goToInputMetrics.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON_HOVER);
+                goToInputMetrics.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(COLOR_PRIMARY_BUTTON_HOVER, 2, true),
+                        BorderFactory.createEmptyBorder(10, 20, 10, 20)
+                ));
             }
             public void mouseExited(MouseEvent evt) {
                 goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
+                goToInputMetrics.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(COLOR_PRIMARY_BUTTON, 2, true),
+                        BorderFactory.createEmptyBorder(10, 20, 10, 20)
+                ));
             }
         });
         return goToInputMetrics;
@@ -180,22 +210,32 @@ public class HomeView extends JPanel {
         JPanel homeView = new JPanel();
         homeView.setLayout(new BoxLayout(homeView, BoxLayout.Y_AXIS));
         homeView.setBackground(COLOR_CONTENT_BACKGROUND);
-        homeView.setBorder(BorderFactory.createEmptyBorder(60, 60, 60, 60)); // Increased padding
+        homeView.setBorder(BorderFactory.createEmptyBorder(80, 80, 80, 80));
+
+        // -- Create a centered card panel --
+        JPanel cardPanel = new JPanel();
+        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+        cardPanel.setBackground(COLOR_CARD);
+        cardPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(COLOR_BORDER, 1, true),
+                BorderFactory.createEmptyBorder(40, 50, 40, 50)
+        ));
+        cardPanel.setMaximumSize(new Dimension(800, 500));
+        cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // -- Panel for Logo and Description (side-by-side)
         JPanel logoAndDescriptionPanel = new JPanel();
         logoAndDescriptionPanel.setLayout(new BoxLayout(logoAndDescriptionPanel, BoxLayout.X_AXIS));
-        logoAndDescriptionPanel.setBackground(COLOR_CONTENT_BACKGROUND);
+        logoAndDescriptionPanel.setBackground(COLOR_CARD);
         logoAndDescriptionPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Add Logo
         try {
-            // Try loading with a leading slash (absolute path in classpath)
             java.net.URL logoUrl = getClass().getResource("/BetterBlueprint.png");
 
             if (logoUrl != null) {
                 ImageIcon logoIcon = new ImageIcon(logoUrl);
-                Image scaledImage = logoIcon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
+                Image scaledImage = logoIcon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
                 JLabel logoLabel = new JLabel(new ImageIcon(scaledImage));
                 logoLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
                 logoAndDescriptionPanel.add(logoLabel);
@@ -206,19 +246,19 @@ public class HomeView extends JPanel {
             logoAndDescriptionPanel.add(new JLabel("Logo Error"));
         }
 
-        logoAndDescriptionPanel.add(Box.createRigidArea(new Dimension(30, 0))); // Increased gap
+        logoAndDescriptionPanel.add(Box.createRigidArea(new Dimension(40, 0)));
 
         // -- Right side of header: Welcome Title and Description
         JPanel textPanel = new JPanel();
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
-        textPanel.setBackground(COLOR_CONTENT_BACKGROUND);
+        textPanel.setBackground(COLOR_CARD);
 
         JLabel welcomeTitle = new JLabel("Welcome to BetterBlueprint");
-        welcomeTitle.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        welcomeTitle.setFont(new Font("Segoe UI", Font.BOLD, 32));
         welcomeTitle.setForeground(COLOR_TEXT_DARK);
         welcomeTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        String descriptionText = "<html><body style='width: 350px; color: #555555;'>" +
+        String descriptionText = "<html><body style='width: 380px; color: #6B7280; line-height: 1.6;'>" +
                 "Track your daily metrics, calculate personalized health scores, " +
                 "and receive AI-powered insights to improve your well-being." +
                 "</body></html>";
@@ -227,7 +267,7 @@ public class HomeView extends JPanel {
         descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         textPanel.add(welcomeTitle);
-        textPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        textPanel.add(Box.createRigidArea(new Dimension(0, 15)));
         textPanel.add(descriptionLabel);
 
         logoAndDescriptionPanel.add(textPanel);
@@ -235,10 +275,12 @@ public class HomeView extends JPanel {
         // -- Button to guide the user to Input Metrics --
         JButton goToInputMetrics = styleAndAddGoToInputMetricsButton();
 
-        homeView.add(Box.createVerticalGlue()); // Push content to the center vertically
-        homeView.add(logoAndDescriptionPanel);
-        homeView.add(Box.createRigidArea(new Dimension(0, 50)));
-        homeView.add(goToInputMetrics);
+        cardPanel.add(logoAndDescriptionPanel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+        cardPanel.add(goToInputMetrics);
+
+        homeView.add(Box.createVerticalGlue());
+        homeView.add(cardPanel);
         homeView.add(Box.createVerticalGlue());
 
         return homeView;
@@ -248,17 +290,49 @@ public class HomeView extends JPanel {
      * Creates a placeholder view for My Score.
      */
     private JPanel createMyScorePlaceholderView() {
-        JPanel myScoreView = new JPanel(new BorderLayout(0, 20));
+        JPanel myScoreView = new JPanel();
+        myScoreView.setLayout(new BoxLayout(myScoreView, BoxLayout.Y_AXIS));
         myScoreView.setBackground(COLOR_CONTENT_BACKGROUND);
-        myScoreView.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
+        myScoreView.setBorder(BorderFactory.createEmptyBorder(60, 60, 60, 60));
 
-        // --- Placeholder for the actual score ---
-        JLabel scorePlaceholder = new JLabel("Your score will go here...");
-        scorePlaceholder.setFont(new Font("SansSerif", Font.BOLD, 24));
-        scorePlaceholder.setHorizontalAlignment(JLabel.CENTER);
-        scorePlaceholder.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
+        // Create card panel
+        JPanel cardPanel = new JPanel();
+        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+        cardPanel.setBackground(COLOR_CARD);
+        cardPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(COLOR_BORDER, 1, true),
+                BorderFactory.createEmptyBorder(40, 50, 40, 50)
+        ));
+        cardPanel.setMaximumSize(new Dimension(600, 400));
+        cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        myScoreView.add(scorePlaceholder, BorderLayout.CENTER);
+        // Title
+        JLabel titleLabel = new JLabel("Your Health Score");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        titleLabel.setForeground(COLOR_TEXT_DARK);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Score placeholder
+        JLabel scorePlaceholder = new JLabel("No score available yet");
+        scorePlaceholder.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        scorePlaceholder.setForeground(COLOR_TEXT_LIGHT);
+        scorePlaceholder.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel instructionLabel = new JLabel("Start tracking your metrics to see your score");
+        instructionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        instructionLabel.setForeground(COLOR_TEXT_LIGHT);
+        instructionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        cardPanel.add(titleLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+        cardPanel.add(scorePlaceholder);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        cardPanel.add(instructionLabel);
+
+        myScoreView.add(Box.createVerticalGlue());
+        myScoreView.add(cardPanel);
+        myScoreView.add(Box.createVerticalGlue());
+
         return myScoreView;
     }
 
@@ -268,8 +342,39 @@ public class HomeView extends JPanel {
      */
     private JPanel createPlaceholderView(String labelText) {
         JPanel view = new JPanel();
+        view.setLayout(new BoxLayout(view, BoxLayout.Y_AXIS));
         view.setBackground(COLOR_CONTENT_BACKGROUND);
-        view.add(new JLabel("This is the " + labelText));
+        view.setBorder(BorderFactory.createEmptyBorder(60, 60, 60, 60));
+
+        // Create card panel
+        JPanel cardPanel = new JPanel();
+        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+        cardPanel.setBackground(COLOR_CARD);
+        cardPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(COLOR_BORDER, 1, true),
+                BorderFactory.createEmptyBorder(40, 50, 40, 50)
+        ));
+        cardPanel.setMaximumSize(new Dimension(600, 300));
+        cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel titleLabel = new JLabel(labelText);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        titleLabel.setForeground(COLOR_TEXT_DARK);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel comingSoonLabel = new JLabel("Coming Soon");
+        comingSoonLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        comingSoonLabel.setForeground(COLOR_TEXT_LIGHT);
+        comingSoonLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        cardPanel.add(titleLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        cardPanel.add(comingSoonLabel);
+
+        view.add(Box.createVerticalGlue());
+        view.add(cardPanel);
+        view.add(Box.createVerticalGlue());
+
         return view;
     }
 
