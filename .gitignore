@@ -24,3 +24,6 @@ Thumbs.db
 
 # Project-specific files to ignore
 users.csv
+
+health_metrics.json
+users.json
