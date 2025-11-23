@@ -1,9 +1,13 @@
 package app;
 
 import data_access.FileUserDataAccessObject;
+import data_access.HealthMetricsDataAccessObject;
 import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.home.HomeViewModel;
+import interface_adapter.input_metrics.InputMetricsController;
+import interface_adapter.input_metrics.InputMetricsPresenter;
+import interface_adapter.input_metrics.InputMetricsViewModel;
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginPresenter;
 import interface_adapter.login.LoginViewModel;
@@ -12,6 +16,9 @@ import interface_adapter.login.LoginViewModel;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
+import use_case.input_metrics.InputMetricsInputBoundary;
+import use_case.input_metrics.InputMetricsInteractor;
+import use_case.input_metrics.InputMetricsOutputBoundary;
 import use_case.login.LoginInputBoundary;
 import use_case.login.LoginInteractor;
 import use_case.login.LoginOutputBoundary;
@@ -22,6 +29,7 @@ import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
 import view.HomeView;
+import view.InputMetricsView;
 import view.LoginView;
 import view.SignupView;
 import view.ViewManager;
@@ -41,6 +49,7 @@ public class AppBuilder {
 
     // DAO version using local file storage
     final FileUserDataAccessObject userDataAccessObject = new FileUserDataAccessObject("users.csv", userFactory);
+    final HealthMetricsDataAccessObject healthMetricsDataAccessObject = new HealthMetricsDataAccessObject(userDataAccessObject);
 
     // DAO version using a shared external database
 
@@ -50,6 +59,8 @@ public class AppBuilder {
     private HomeViewModel homeViewModel;
     private HomeView homeView;
     private LoginView loginView;
+    private InputMetricsView inputMetricsView;
+    private InputMetricsViewModel inputMetricsViewModel;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
@@ -70,8 +81,13 @@ public class AppBuilder {
     }
 
     public AppBuilder addHomeView() {
+        // Create InputMetricsView first
+        inputMetricsViewModel = new InputMetricsViewModel();
+        inputMetricsView = new InputMetricsView(inputMetricsViewModel);
+
+        // Create HomeView and pass InputMetricsView
         homeViewModel = new HomeViewModel();
-        homeView = new HomeView(homeViewModel);
+        homeView = new HomeView(homeViewModel, inputMetricsView);
         cardPanel.add(homeView, homeView.getViewName());
         return this;
     }
@@ -95,6 +111,17 @@ public class AppBuilder {
 
         LoginController loginController = new LoginController(loginInteractor);
         loginView.setLoginController(loginController);
+        return this;
+    }
+
+    public AppBuilder addInputMetricsUseCase() {
+        final InputMetricsOutputBoundary inputMetricsOutputBoundary =
+            new InputMetricsPresenter(inputMetricsViewModel, viewManagerModel);
+        final InputMetricsInputBoundary inputMetricsInteractor =
+            new InputMetricsInteractor(healthMetricsDataAccessObject, inputMetricsOutputBoundary);
+
+        InputMetricsController controller = new InputMetricsController(inputMetricsInteractor);
+        inputMetricsView.setInputMetricsController(controller);
         return this;
     }
 
