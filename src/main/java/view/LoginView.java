@@ -5,11 +5,14 @@ import interface_adapter.login.LoginState;
 import interface_adapter.login.LoginViewModel;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -21,33 +24,81 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
     private final String viewName = "log in";
     private final LoginViewModel loginViewModel;
 
-    private final JTextField usernameInputField = new JTextField(15);
+    private final JTextField usernameInputField = new JTextField(20);
     private final JLabel usernameErrorField = new JLabel();
 
-    private final JPasswordField passwordInputField = new JPasswordField(15);
+    private final JPasswordField passwordInputField = new JPasswordField(20);
     private final JLabel passwordErrorField = new JLabel();
 
     private final JButton logIn;
     private final JButton cancel;
     private LoginController loginController = null;
 
+    // Modern color scheme
+    private static final Color PRIMARY_COLOR = new Color(99, 102, 241); // Indigo
+    private static final Color PRIMARY_HOVER = new Color(79, 82, 221);
+    private static final Color SECONDARY_COLOR = new Color(255, 255, 255);
+    private static final Color BACKGROUND_COLOR = new Color(249, 250, 251);
+    private static final Color CARD_COLOR = new Color(255, 255, 255);
+    private static final Color TEXT_COLOR = new Color(31, 41, 55);
+    private static final Color ERROR_COLOR = new Color(239, 68, 68);
+    private static final Color BORDER_COLOR = new Color(229, 231, 235);
 
     public LoginView(LoginViewModel loginViewModel) {
-
         this.loginViewModel = loginViewModel;
         this.loginViewModel.addPropertyChangeListener(this);
-        final JLabel title = new JLabel("Login Screen");
+
+        // Set up the main panel with gradient background
+        this.setLayout(new GridBagLayout());
+        this.setBackground(BACKGROUND_COLOR);
+
+        // Create a card-style center panel
+        JPanel cardPanel = new JPanel();
+        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+        cardPanel.setBackground(CARD_COLOR);
+        cardPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+                new EmptyBorder(40, 50, 40, 50)
+        ));
+
+        // Title
+        final JLabel title = new JLabel("Welcome Back");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        title.setForeground(TEXT_COLOR);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        final LabelTextPanel usernameInfo = new LabelTextPanel(
-                new JLabel("Username"), usernameInputField);
-        final LabelTextPanel passwordInfo = new LabelTextPanel(
-                new JLabel("Password"), passwordInputField);
+        // Subtitle
+        final JLabel subtitle = new JLabel("Please login to your account");
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitle.setForeground(new Color(107, 114, 128));
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Style input fields
+        styleTextField(usernameInputField);
+        styleTextField(passwordInputField);
+
+        // Username section
+        JPanel usernamePanel = createInputPanel("Username", usernameInputField);
+
+        // Error label styling
+        usernameErrorField.setForeground(ERROR_COLOR);
+        usernameErrorField.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        usernameErrorField.setAlignmentX(Component.CENTER_ALIGNMENT);
+        usernameErrorField.setBorder(new EmptyBorder(0, 0, 5, 0));
+
+        // Password section
+        JPanel passwordPanel = createInputPanel("Password", passwordInputField);
+
+        // Buttons
+        logIn = createStyledButton(LoginViewModel.LOG_IN_BUTTON_LABEL, true);
+        cancel = createStyledButton(LoginViewModel.CANCEL_BUTTON_LABEL, false);
 
         final JPanel buttons = new JPanel();
-        logIn = new JButton(LoginViewModel.LOG_IN_BUTTON_LABEL);
-        cancel = new JButton(LoginViewModel.CANCEL_BUTTON_LABEL);
+        buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
+        buttons.setBackground(CARD_COLOR);
+        buttons.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttons.add(logIn);
+        buttons.add(Box.createRigidArea(new Dimension(0, 10)));
         buttons.add(cancel);
 
         logIn.addActionListener(
@@ -74,8 +125,6 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
                 }
         );
 
-
-
         usernameInputField.getDocument().addDocumentListener(new DocumentListener() {
 
             private void documentListenerHelper() {
@@ -99,8 +148,6 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
                 documentListenerHelper();
             }
         });
-
-        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         passwordInputField.getDocument().addDocumentListener(new DocumentListener() {
 
@@ -126,11 +173,106 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
             }
         });
 
-        this.add(title);
-        this.add(usernameInfo);
-        this.add(usernameErrorField);
-        this.add(passwordInfo);
-        this.add(buttons);
+        // Add components to card panel
+        cardPanel.add(title);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        cardPanel.add(subtitle);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+        cardPanel.add(usernamePanel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        cardPanel.add(usernameErrorField);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        cardPanel.add(passwordPanel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+        cardPanel.add(buttons);
+
+        // Add card to main panel
+        this.add(cardPanel);
+    }
+
+    private JPanel createInputPanel(String labelText, JTextField textField) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(CARD_COLOR);
+        panel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        label.setForeground(TEXT_COLOR);
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        textField.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        panel.add(label);
+        panel.add(Box.createRigidArea(new Dimension(0, 8)));
+        panel.add(textField);
+
+        return panel;
+    }
+
+    private void styleTextField(JTextField textField) {
+        textField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        textField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+                new EmptyBorder(12, 15, 12, 15)
+        ));
+        textField.setBackground(SECONDARY_COLOR);
+        textField.setForeground(TEXT_COLOR);
+
+        // Add focus effect
+        textField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                textField.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(PRIMARY_COLOR, 2, true),
+                        new EmptyBorder(11, 14, 11, 14)
+                ));
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                textField.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+                        new EmptyBorder(12, 15, 12, 15)
+                ));
+            }
+        });
+    }
+
+    private JButton createStyledButton(String text, boolean isPrimary) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.setMaximumSize(new Dimension(300, 45));
+        button.setPreferredSize(new Dimension(300, 45));
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        if (isPrimary) {
+            button.setBackground(PRIMARY_COLOR);
+            button.setForeground(SECONDARY_COLOR);
+            button.addMouseListener(new MouseAdapter() {
+                public void mouseEntered(MouseEvent evt) {
+                    button.setBackground(PRIMARY_HOVER);
+                }
+                public void mouseExited(MouseEvent evt) {
+                    button.setBackground(PRIMARY_COLOR);
+                }
+            });
+        } else {
+            button.setBackground(SECONDARY_COLOR);
+            button.setForeground(PRIMARY_COLOR);
+            button.setBorderPainted(true);
+            button.setBorder(BorderFactory.createLineBorder(PRIMARY_COLOR, 2, true));
+            button.addMouseListener(new MouseAdapter() {
+                public void mouseEntered(MouseEvent evt) {
+                    button.setBackground(new Color(243, 244, 246));
+                }
+                public void mouseExited(MouseEvent evt) {
+                    button.setBackground(SECONDARY_COLOR);
+                }
+            });
+        }
+
+        return button;
     }
 
     /**
