@@ -76,6 +76,11 @@ public class HomeView extends JPanel {
         mainContentPanel = new JPanel(mainCardLayout);
         mainContentPanel.setBackground(COLOR_CONTENT_BACKGROUND);
 
+        // Provide navigation context to InputMetricsView if it's the right type
+        if (inputMetricsView instanceof InputMetricsView) {
+            ((InputMetricsView) inputMetricsView).setHomeNavigation(mainCardLayout, mainContentPanel);
+        }
+
         // --- A. Create the "Home" page ---
         JPanel homeView = createHomeContentView();
 

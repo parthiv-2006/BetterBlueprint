@@ -29,6 +29,10 @@ public class InputMetricsView extends JPanel implements PropertyChangeListener {
     private final JButton backButton;
     private InputMetricsController inputMetricsController;
 
+    // For navigation within HomeView
+    private CardLayout homeCardLayout;
+    private JPanel homeContentPanel;
+
     // Modern color scheme - Blue and Green theme
     private static final Color PRIMARY_COLOR = new Color(37, 99, 235); // Blue-600
     private static final Color PRIMARY_HOVER = new Color(29, 78, 216); // Blue-700
@@ -111,8 +115,9 @@ public class InputMetricsView extends JPanel implements PropertyChangeListener {
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (inputMetricsController != null) {
-                    inputMetricsController.switchToHomeView();
+                // Navigate back to Home within the HomeView's CardLayout
+                if (homeCardLayout != null && homeContentPanel != null) {
+                    homeCardLayout.show(homeContentPanel, "Home");
                 }
             }
         });
@@ -374,6 +379,16 @@ public class InputMetricsView extends JPanel implements PropertyChangeListener {
 
     public void setInputMetricsController(InputMetricsController controller) {
         this.inputMetricsController = controller;
+    }
+
+    /**
+     * Sets the HomeView's CardLayout and content panel for navigation.
+     * @param cardLayout the CardLayout from HomeView
+     * @param contentPanel the content panel from HomeView
+     */
+    public void setHomeNavigation(CardLayout cardLayout, JPanel contentPanel) {
+        this.homeCardLayout = cardLayout;
+        this.homeContentPanel = contentPanel;
     }
 }
 
