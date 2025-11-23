@@ -45,30 +45,30 @@ public class HomeView extends JPanel {
         navbarPanel.setBackground(COLOR_NAV_BAR);
 
         // Create buttons
-        home = new JButton("Home");
-        inputMetrics = new JButton("Input Health Metrics");
-        accountSettings = new JButton("Account/Settings");
-        myScore = new JButton("My Score");
-        insights = new JButton("Insights");
-        history = new JButton("History");
-        goals = new JButton("Goals");
+        home = createNavButton("Home");
+        inputMetrics = createNavButton("Metrics");
+        myScore = createNavButton("Score");
+        insights = createNavButton("Insights");
+        history = createNavButton("History");
+        accountSettings = createNavButton("Settings");
+        goals = createNavButton("Goals");
 
-        // Style all 6 buttons
+        // Style all buttons
         styleNavbarButton(home);
         styleNavbarButton(inputMetrics);
-        styleNavbarButton(accountSettings);
         styleNavbarButton(myScore);
         styleNavbarButton(insights);
         styleNavbarButton(history);
+        styleNavbarButton(accountSettings);
         styleNavbarButton(goals);
 
         // Add buttons to the navbar
         navbarPanel.add(home);
         navbarPanel.add(inputMetrics);
-        navbarPanel.add(accountSettings);
         navbarPanel.add(myScore);
         navbarPanel.add(insights);
         navbarPanel.add(history);
+        navbarPanel.add(accountSettings);
         navbarPanel.add(goals);
 
         // === 4. CREATE THE CENTER CONTENT PANEL ===
@@ -79,40 +79,47 @@ public class HomeView extends JPanel {
         // --- A. Create the "Home" page ---
         JPanel homeView = createHomeContentView();
 
-        // --- B. Create the "My Score" page ---
-        JPanel myScoreView = createMyScorePlaceholderView();
-
         // --- C. Create other placeholder views ---
-        JPanel inputMetricsView = createPlaceholderView("Input Metrics View");
-        JPanel accountSettingsView = createPlaceholderView("Account/Settings View");
-        JPanel insightsView = createPlaceholderView("Insights View");
-        JPanel historyView = createPlaceholderView("History View");
-        JPanel goalsView = createPlaceholderView("Goals View");
+        JPanel inputMetricsView = createPlaceholderView("Metrics");
+        JPanel myScoreView = createMyScorePlaceholderView();
+        JPanel insightsView = createPlaceholderView("Insights");
+        JPanel historyView = createPlaceholderView("History");
+        JPanel accountSettingsView = createPlaceholderView("Settings");
+        JPanel goalsView = createPlaceholderView("Goals");
 
-        // --- C. Add all views to the main CardLayout panel ---
+        // --- Add all views to the main CardLayout panel ---
         mainContentPanel.add(homeView, "Home");
-        mainContentPanel.add(myScoreView, "My Score");
-        mainContentPanel.add(inputMetricsView, "Input Metrics");
-        mainContentPanel.add(accountSettingsView, "Account Settings");
+        mainContentPanel.add(inputMetricsView, "Metrics");
+        mainContentPanel.add(myScoreView, "Score");
         mainContentPanel.add(insightsView, "Insights");
         mainContentPanel.add(historyView, "History");
+        mainContentPanel.add(accountSettingsView, "Settings");
         mainContentPanel.add(goalsView, "Goals");
 
         // === 5. ASSEMBLE THE HOMEVIEW ===
         this.add(navbarPanel, BorderLayout.NORTH);
         this.add(mainContentPanel, BorderLayout.CENTER);
 
-        // === 6. ADD ACTION LISTENERS (same as before) ===
+        // === 6. ADD ACTION LISTENERS ===
         home.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Home"));
-        inputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Input Metrics"));
-        accountSettings.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Account Settings"));
-        myScore.addActionListener(e -> mainCardLayout.show(mainContentPanel, "My Score"));
+        inputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Metrics"));
+        myScore.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Score"));
         insights.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Insights"));
         history.addActionListener(e -> mainCardLayout.show(mainContentPanel, "History"));
+        accountSettings.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Settings"));
         goals.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Goals"));
 
         // Set "Home" as the default homepage
         mainCardLayout.show(mainContentPanel, "Home");
+    }
+
+    /**
+     * Creates a navigation button with the given text (including icon emoji)
+     * @param text The button text with icon
+     * @return The created JButton
+     */
+    private JButton createNavButton(String text) {
+        return new JButton(text);
     }
 
     /**
@@ -123,7 +130,7 @@ public class HomeView extends JPanel {
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setForeground(COLOR_NAV_BAR_TEXT);
         button.setBackground(COLOR_NAV_BAR);
-        button.setPreferredSize(new Dimension(150, 55));
+        button.setPreferredSize(new Dimension(120, 55));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         // --- Remove all default Swing button styling ---
@@ -133,7 +140,7 @@ public class HomeView extends JPanel {
         button.setOpaque(true);
         button.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 3, 0, COLOR_NAV_BAR),
-                BorderFactory.createEmptyBorder(5, 15, 5, 15)
+                BorderFactory.createEmptyBorder(5, 12, 5, 12)
         ));
 
         // --- Add hover effect ---
@@ -143,7 +150,7 @@ public class HomeView extends JPanel {
                 button.setBackground(COLOR_NAV_BAR_HOVER);
                 button.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createMatteBorder(0, 0, 3, 0, COLOR_PRIMARY_BUTTON),
-                        BorderFactory.createEmptyBorder(5, 15, 5, 15)
+                        BorderFactory.createEmptyBorder(5, 12, 5, 12)
                 ));
             }
 
@@ -152,7 +159,7 @@ public class HomeView extends JPanel {
                 button.setBackground(COLOR_NAV_BAR);
                 button.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createMatteBorder(0, 0, 3, 0, COLOR_NAV_BAR),
-                        BorderFactory.createEmptyBorder(5, 15, 5, 15)
+                        BorderFactory.createEmptyBorder(5, 12, 5, 12)
                 ));
             }
         });
@@ -181,7 +188,7 @@ public class HomeView extends JPanel {
                 BorderFactory.createEmptyBorder(10, 20, 10, 20)
         ));
 
-        goToInputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Input Metrics"));
+        goToInputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Metrics"));
 
         // Hover effect for CTA button
         goToInputMetrics.addMouseListener(new MouseAdapter() {
