@@ -4,10 +4,20 @@ package interface_adapter.settings;
  * The state for the Settings View Model.
  */
 public class SettingsState {
+    private String username = "";
     private String age = "";
     private String height = "";
     private String weight = "";
     private String settingsError;
+    private String passwordError;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public String getAge() {
         return age;
@@ -39,5 +49,13 @@ public class SettingsState {
 
     public void setSettingsError(String settingsError) {
         this.settingsError = settingsError;
+    }
+
+    public String getPasswordError() {
+        return passwordError;
+    }
+
+    public void setPasswordError(String passwordError) {
+        this.passwordError = passwordError;
     }
 }

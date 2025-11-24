@@ -8,12 +8,13 @@ public class Main {
         JFrame application = appBuilder
                 .addLoginView()
                 .addSignupView()
-                .addHomeView()
                 .addSettingsView()
+                .addHomeView()
                 .addSignupUseCase()
                 .addLoginUseCase()
-//                .addLogoutUseCase()
                 .addSettingsUseCase()
+                .addLogoutUseCase()
+                .addChangePasswordUseCase()
                 .build();
 
 

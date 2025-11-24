@@ -24,12 +24,12 @@ public class SettingsPresenter implements SettingsOutputBoundary {
 
     @Override
     public void prepareSuccessView(SettingsOutputData outputData) {
-        // Update the settings state to reflect the saved values
         final SettingsState settingsState = settingsViewModel.getState();
         settingsState.setAge(String.valueOf(outputData.getAge()));
         settingsState.setHeight(String.valueOf(outputData.getHeight()));
         settingsState.setWeight(String.valueOf(outputData.getWeight()));
         settingsState.setSettingsError(null);
+
         this.settingsViewModel.firePropertyChange();
 
         // Switch back to Home view after successful save

@@ -12,7 +12,7 @@ public class User {
 
     public User(String username, String password) {
         if ("".equals(username)) {
-            throw new IllegalArgumentException("Username cannot be empty");
+            throw new IllegalArgumentException("Usefrname cannot be empty");
         }
         if ("".equals(password)) {
             throw new IllegalArgumentException("Password cannot be empty");

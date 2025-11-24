@@ -3,6 +3,7 @@ package view;
 import app.StyleConstants;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.home.HomeViewModel;
+import interface_adapter.settings.SettingsViewModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,11 +22,12 @@ public class HomeView extends JPanel {
     public final JButton goals;
 
     private final ViewManagerModel viewManagerModel;
+    private final SettingsViewModel settingsViewModel;
 
-    public HomeView(HomeViewModel homeViewModel, ViewManagerModel viewManagerModel) {
+    public HomeView(HomeViewModel homeViewModel, ViewManagerModel viewManagerModel, SettingsViewModel settingsViewModel) {
         this.viewManagerModel = viewManagerModel;
+        this.settingsViewModel = settingsViewModel;
         this.setLayout(new BorderLayout());
-
         // === 3. CREATE THE TOP NAVBAR ===
         JPanel navbarPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         navbarPanel.setBackground(StyleConstants.COLOR_NAV_BAR);
@@ -88,6 +90,15 @@ public class HomeView extends JPanel {
         inputMetrics.addActionListener(e -> cardLayout.show(contentPanel, "Input Metrics"));
         // Account Settings now navigates to the separate SettingsView
         accountSettings.addActionListener(e -> {
+            // Get current username from HomeViewModel
+            String currentUsername = homeViewModel.getState().getUsername();
+
+            // Set it in SettingsViewModel state
+            interface_adapter.settings.SettingsState settingsState = settingsViewModel.getState();
+            settingsState.setUsername(currentUsername);
+            settingsViewModel.setState(settingsState);
+
+            // Switch to settings view
             viewManagerModel.setState("settings");
             viewManagerModel.firePropertyChange();
         });
