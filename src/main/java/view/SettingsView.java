@@ -7,8 +7,6 @@ import interface_adapter.settings.SettingsState;
 import interface_adapter.settings.SettingsViewModel;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -97,7 +95,6 @@ public class SettingsView extends JPanel implements ActionListener, PropertyChan
         errorMessageLabel.setBorder(new EmptyBorder(8, 0, 8, 0));
         errorMessageLabel.setForeground(ERROR_COLOR);
 
-        addFieldListeners();
         addButtonListeners();
 
         cardPanel.add(title);
@@ -124,46 +121,16 @@ public class SettingsView extends JPanel implements ActionListener, PropertyChan
         add(cardPanel);
     }
 
-    private void addFieldListeners() {
-        ageField.getDocument().addDocumentListener(new DocumentListener() {
-            private void update() {
-                SettingsState state = settingsViewModel.getState();
-                state.setAge(ageField.getText());
-                settingsViewModel.setState(state);
-            }
-            public void insertUpdate(DocumentEvent e) { update(); }
-            public void removeUpdate(DocumentEvent e) { update(); }
-            public void changedUpdate(DocumentEvent e) { update(); }
-        });
-
-        heightField.getDocument().addDocumentListener(new DocumentListener() {
-            private void update() {
-                SettingsState state = settingsViewModel.getState();
-                state.setHeight(heightField.getText());
-                settingsViewModel.setState(state);
-            }
-            public void insertUpdate(DocumentEvent e) { update(); }
-            public void removeUpdate(DocumentEvent e) { update(); }
-            public void changedUpdate(DocumentEvent e) { update(); }
-        });
-
-        weightField.getDocument().addDocumentListener(new DocumentListener() {
-            private void update() {
-                SettingsState state = settingsViewModel.getState();
-                state.setWeight(weightField.getText());
-                settingsViewModel.setState(state);
-            }
-            public void insertUpdate(DocumentEvent e) { update(); }
-            public void removeUpdate(DocumentEvent e) { update(); }
-            public void changedUpdate(DocumentEvent e) { update(); }
-        });
-    }
 
     private void addButtonListeners() {
         saveButton.addActionListener(evt -> {
             if (settingsController != null) {
-                SettingsState state = settingsViewModel.getState();
-                settingsController.execute(state.getAge(), state.getHeight(), state.getWeight());
+                // Read directly from fields when saving - proper Clean Architecture
+                settingsController.execute(
+                    ageField.getText(),
+                    heightField.getText(),
+                    weightField.getText()
+                );
             }
         });
 
