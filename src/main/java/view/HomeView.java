@@ -36,7 +36,7 @@ public class HomeView extends JPanel {
 
     // The homeViewModel field was removed as it was assigned but not accessed.
     // The parameter is still kept in case it is necessary later.
-    public HomeView(HomeViewModel homeViewModel, JPanel inputMetricsView) {
+    public HomeView(HomeViewModel homeViewModel, JPanel inputMetricsView, HealthHistoryView  healthHistoryView) {
         // homeViewModel parameter is not used in the current view logic but kept for future use.
         this.setLayout(new BorderLayout());
 
@@ -88,7 +88,7 @@ public class HomeView extends JPanel {
         // inputMetricsView is passed as parameter (actual view, not placeholder)
         JPanel myScoreView = createMyScorePlaceholderView();
         JPanel insightsView = createPlaceholderView("Insights");
-        JPanel historyView = createMyHistoryPlaceholderView();
+        JPanel historyView = healthHistoryView;
         JPanel accountSettingsView = createPlaceholderView("Settings");
         JPanel goalsView = createPlaceholderView("Goals");
 

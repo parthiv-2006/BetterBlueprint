@@ -14,6 +14,7 @@ public class HealthHistoryView extends JPanel {
     private List<Double> values;
     private String metricType;
 
+
     public void updateData(List<String> dates, List<Double> values, String metricType) {
         this.dates = dates;
         this.values = values;
