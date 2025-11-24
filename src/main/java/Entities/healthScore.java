@@ -1,19 +1,19 @@
 package Entities;
 
 /**
- * A simple entity representing a HealthScore.java. An algorithm looks at user's history and
+ * A simple entity representing a healthScore.java. An algorithm looks at user's history and
  * returns an overall score (out of 100)
  */
-public class HealthScore{
+public class healthScore{
     private int score;
 
     /**
      * Creates a new score with the given non-empty int.
-     * @param score: number that represents the HealthScore.java of user
+     * @param score: number that represents the healthScore.java of user
      */
 
     //Constructor to make a new score object
-    public HealthScore(int score){
+    public healthScore(int score){
         this.score = score;
     }
 

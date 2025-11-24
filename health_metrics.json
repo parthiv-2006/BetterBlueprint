@@ -1,8 +1,8 @@
 [{
     "date": "2025-11-24",
-    "sleepHours": 2,
-    "waterIntake": 3,
-    "calories": 3,
-    "exerciseMinutes": 3,
+    "sleepHours": 3,
+    "waterIntake": 2,
+    "calories": 2,
+    "exerciseMinutes": 2,
     "userId": "hello"
 }]
