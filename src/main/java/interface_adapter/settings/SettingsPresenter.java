@@ -30,11 +30,7 @@ public class SettingsPresenter implements SettingsOutputBoundary {
         settingsState.setWeight(String.valueOf(outputData.getWeight()));
         settingsState.setSettingsError(null);
 
-        this.settingsViewModel.firePropertyChange();
-
-        // Switch back to Home view after successful save
-        this.viewManagerModel.setState(homeViewModel.getViewName());
-        this.viewManagerModel.firePropertyChange();
+        this.settingsViewModel.firePropertyChange("settingsSaved");
     }
 
     @Override

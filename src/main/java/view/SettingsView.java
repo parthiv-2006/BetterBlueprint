@@ -204,6 +204,8 @@ public class SettingsView extends JPanel implements ActionListener, PropertyChan
             heightField.setText(state.getHeight());
             weightField.setText(state.getWeight());
             errorMessageLabel.setText("");
+        } else if ("settingsSaved".equals(evt.getPropertyName())) {
+            JOptionPane.showMessageDialog(this, "Age/Height/Weight Saved Successfully!");
         } else if ("passwordChanged".equals(evt.getPropertyName())) {
             JOptionPane.showMessageDialog(this, "Password changed successfully!");
         } else if ("passwordError".equals(evt.getPropertyName())) {
@@ -213,6 +215,7 @@ public class SettingsView extends JPanel implements ActionListener, PropertyChan
             errorMessageLabel.setText(s.getPasswordError() != null ? s.getPasswordError() : "An error occurred");
         }
     }
+
 
     public String getViewName() {
         return viewName;
