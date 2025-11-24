@@ -1,27 +1,33 @@
 package interface_adapter.daily_health_score;
 
-import Entities.HealthMetrics;
 import use_case.daily_health_score.DailyHealthScoreInputBoundary;
 import use_case.daily_health_score.DailyHealthScoreInputData;
 
+import java.time.LocalDate;
+
 /**
- * A controller for the DailyHealthScore use case.
+ * Controller for the DailyHealthScore use case.
+ * Collects input from the UI, converts it to an InputData object,
+ * and calls the interactor.
  */
 public class DailyHealthScoreController {
-    private final DailyHealthScoreInputBoundary dailyHealthScoreUseCaseInteractor;
 
-    public DailyHealthScoreController(DailyHealthScoreInputBoundary dailyHealthScoreInteractor) {
-        this.dailyHealthScoreUseCaseInteractor = dailyHealthScoreInteractor;
+    private final DailyHealthScoreInputBoundary dailyHealthScoreInteractor;
+
+    public DailyHealthScoreController(DailyHealthScoreInputBoundary interactor) {
+        this.dailyHealthScoreInteractor = interactor;
     }
 
     /**
-     * Executes the Daily Health Score Use Case
+     * Trigger the DailyHealthScore use case.
+     *
+     * @param userId The ID of the user requesting the score.
+     * @param date   The date for which the health score should be computed.
      */
-    public void execute(HealthMetrics healthMetrics) {
-        final DailyHealthScoreInputData dailyHealthScoreInputData =
-                new DailyHealthScoreInputData(healthMetrics);
+    public void computeDailyHealthScore(LocalDate date, String userId) {
+        DailyHealthScoreInputData inputData =
+                new DailyHealthScoreInputData(date, userId);
 
-        dailyHealthScoreUseCaseInteractor.execute(dailyHealthScoreInputData);
-
+        dailyHealthScoreInteractor.execute(inputData);
     }
 }

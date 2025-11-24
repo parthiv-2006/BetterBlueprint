@@ -10,9 +10,25 @@ import interface_adapter.ViewModel;
  * ----------------------------------------------------------------------
  */
 
-public class DailyHealthScoreViewModel extends ViewModel<DailyHealthScoreState> {
-    public DailyHealthScoreViewModel() {
-        super("daily health score");
-        setState(new DailyHealthScoreState());
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+
+public class DailyHealthScoreViewModel {
+
+    private final PropertyChangeSupport support = new PropertyChangeSupport(this);
+
+    private DailyHealthScoreState state = new DailyHealthScoreState();
+
+    public DailyHealthScoreState getState() {
+        return state;
+    }
+
+    public void setState(DailyHealthScoreState newState) {
+        this.state = newState;
+        support.firePropertyChange("dailyHealthScoreState", null, newState);
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        support.addPropertyChangeListener(listener);
     }
 }

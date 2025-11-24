@@ -1,9 +1,14 @@
 package app;
 
+import data_access.DailyHealthScoreDataAccessObject;
 import data_access.FileUserDataAccessObject;
 import data_access.HealthMetricsDataAccessObject;
 import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
+import interface_adapter.daily_health_score.DailyHealthScoreController;
+import interface_adapter.daily_health_score.DailyHealthScorePresenter;
+import interface_adapter.daily_health_score.DailyHealthScoreViewModel;
+import interface_adapter.daily_health_score.GeminiHealthScoreCalculator;
 import interface_adapter.home.HomeViewModel;
 import interface_adapter.input_metrics.InputMetricsController;
 import interface_adapter.input_metrics.InputMetricsPresenter;
@@ -16,6 +21,9 @@ import interface_adapter.login.LoginViewModel;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
+import use_case.daily_health_score.DailyHealthScoreInteractor;
+import use_case.daily_health_score.DailyHealthScoreUserDataAccessInterface;
+import use_case.daily_health_score.HealthScoreCalculator;
 import use_case.input_metrics.InputMetricsInputBoundary;
 import use_case.input_metrics.InputMetricsInteractor;
 import use_case.input_metrics.InputMetricsOutputBoundary;
@@ -28,11 +36,7 @@ import use_case.login.LoginOutputBoundary;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
-import view.HomeView;
-import view.InputMetricsView;
-import view.LoginView;
-import view.SignupView;
-import view.ViewManager;
+import view.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -61,6 +65,9 @@ public class AppBuilder {
     private LoginView loginView;
     private InputMetricsView inputMetricsView;
     private InputMetricsViewModel inputMetricsViewModel;
+    private DailyHealthScoreViewModel dailyHealthScoreViewModel;
+    private MyScoreView myScoreView;
+    private DailyHealthScoreController dailyHealthScoreController;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
@@ -85,9 +92,13 @@ public class AppBuilder {
         inputMetricsViewModel = new InputMetricsViewModel();
         inputMetricsView = new InputMetricsView(inputMetricsViewModel);
 
+        // Create DailyHealthScoreView
+        dailyHealthScoreViewModel = new DailyHealthScoreViewModel();
+        myScoreView = new MyScoreView(dailyHealthScoreViewModel, dailyHealthScoreController); // controller set later
+
         // Create HomeView and pass InputMetricsView
         homeViewModel = new HomeViewModel();
-        homeView = new HomeView(homeViewModel, inputMetricsView);
+        homeView = new HomeView(homeViewModel, inputMetricsView, myScoreView);
         cardPanel.add(homeView, homeView.getViewName());
         return this;
     }
@@ -125,10 +136,49 @@ public class AppBuilder {
         return this;
     }
 
-    /**
-     * Adds the Logout Use Case to the application.
-     * @return this builder
-     */
+    public AppBuilder addDailyHealthScoreView() {
+        dailyHealthScoreViewModel = new DailyHealthScoreViewModel();
+        myScoreView = new MyScoreView(dailyHealthScoreViewModel, dailyHealthScoreController); // controller set later
+        cardPanel.add(myScoreView, "MyScoreView");
+        return this;
+    }
+
+
+    public AppBuilder addDailyHealthScoreUseCase() {
+        // DAO for health metrics already exists
+        // Use GeminiHealthScoreCalculator as HealthScoreCalculator implementation
+        String apiKey = "";
+        HealthScoreCalculator scoreCalculator = new GeminiHealthScoreCalculator(apiKey);
+        DailyHealthScoreUserDataAccessInterface dailyHealthScoreDataAccessObject = new DailyHealthScoreDataAccessObject();
+
+        // Presenter
+        DailyHealthScorePresenter presenter = new DailyHealthScorePresenter(dailyHealthScoreViewModel);
+
+        // Interactor
+        DailyHealthScoreInteractor interactor = new DailyHealthScoreInteractor(
+               dailyHealthScoreDataAccessObject,
+               presenter,
+               scoreCalculator
+            );
+
+            // Controller
+            dailyHealthScoreController = new DailyHealthScoreController(interactor);
+
+            // Wire controller to view
+            myScoreView = new MyScoreView(dailyHealthScoreViewModel, dailyHealthScoreController);
+
+            // Add the view to the card panel again to ensure it has controller
+            cardPanel.add(myScoreView, "MyScoreView");
+
+            return this;
+        }
+
+
+
+        /**
+        * Adds the Logout Use Case to the application.
+        * @return this builder
+        */
 //    public AppBuilder addLogoutUseCase() {
 //        final LogoutOutputBoundary logoutOutputBoundary = new LogoutPresenter(viewManagerModel,
 //                homeViewModel, loginViewModel);

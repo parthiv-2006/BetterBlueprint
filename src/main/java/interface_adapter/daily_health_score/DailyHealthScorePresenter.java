@@ -12,22 +12,35 @@ import use_case.daily_health_score.DailyHealthScoreOutputData;
 
 public class DailyHealthScorePresenter implements DailyHealthScoreOutputBoundary {
 
-    // write private final viewModels below
+    private final DailyHealthScoreViewModel viewModel;
 
-    // constructor. viewModels as parameters & this.viewModel = viewModel for each
-    public DailyHealthScorePresenter() {
-
+    public DailyHealthScorePresenter(DailyHealthScoreViewModel viewModel) {
+        this.viewModel = viewModel;
     }
 
     @Override
     public void prepareSuccessView(DailyHealthScoreOutputData outputData) {
-        // on success, do ...   likely will deal with STATES
+        DailyHealthScoreState newState = new DailyHealthScoreState();
 
+        newState.setUserId(outputData.getUserId());
+        newState.setDate(outputData.getDate());
+        newState.setScore(outputData.getScore());
+        newState.setFeedback(outputData.getFeedback());
+        newState.setErrorMessage(null);
 
+        viewModel.setState(newState);
     }
 
     @Override
     public void prepareFailView(String errorMessage) {
+        DailyHealthScoreState newState = new DailyHealthScoreState();
+        newState.setErrorMessage(errorMessage);
 
+        // Clear prior results
+        newState.setDate(null);
+        newState.setScore(null);
+        newState.setFeedback("");
+
+        viewModel.setState(newState);
     }
 }

@@ -9,10 +9,12 @@ public class Main {
                 .addLoginView()
                 .addSignupView()
                 .addHomeView()
+                .addDailyHealthScoreView()
                 .addSignupUseCase()
                 .addLoginUseCase()
                 .addInputMetricsUseCase()
 //                .addLogoutUseCase()
+                .addDailyHealthScoreUseCase()
                 .build();
 
 

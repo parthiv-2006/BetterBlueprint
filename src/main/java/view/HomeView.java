@@ -36,7 +36,7 @@ public class HomeView extends JPanel {
 
     // The homeViewModel field was removed as it was assigned but not accessed.
     // The parameter is still kept in case it is necessary later.
-    public HomeView(HomeViewModel homeViewModel, JPanel inputMetricsView) {
+    public HomeView(HomeViewModel homeViewModel, JPanel inputMetricsView, JPanel myScoreView) {
         // homeViewModel parameter is not used in the current view logic but kept for future use.
         this.setLayout(new BorderLayout());
 
@@ -86,7 +86,7 @@ public class HomeView extends JPanel {
 
         // --- C. Create other placeholder views ---
         // inputMetricsView is passed as parameter (actual view, not placeholder)
-        JPanel myScoreView = createMyScorePlaceholderView();
+        JPanel myScorePanel = myScoreView;
         JPanel insightsView = createPlaceholderView("Insights");
         JPanel historyView = createPlaceholderView("History");
         JPanel accountSettingsView = createPlaceholderView("Settings");
@@ -302,52 +302,52 @@ public class HomeView extends JPanel {
     /**
      * Creates a placeholder view for My Score.
      */
-    private JPanel createMyScorePlaceholderView() {
-        JPanel myScoreView = new JPanel();
-        myScoreView.setLayout(new BoxLayout(myScoreView, BoxLayout.Y_AXIS));
-        myScoreView.setBackground(COLOR_CONTENT_BACKGROUND);
-        myScoreView.setBorder(BorderFactory.createEmptyBorder(60, 60, 60, 60));
-
-        // Create card panel
-        JPanel cardPanel = new JPanel();
-        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
-        cardPanel.setBackground(COLOR_CARD);
-        cardPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(COLOR_BORDER, 1, true),
-                BorderFactory.createEmptyBorder(40, 50, 40, 50)
-        ));
-        cardPanel.setMaximumSize(new Dimension(600, 400));
-        cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Title
-        JLabel titleLabel = new JLabel("Your Health Score");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        titleLabel.setForeground(COLOR_TEXT_DARK);
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Score placeholder
-        JLabel scorePlaceholder = new JLabel("No score available yet");
-        scorePlaceholder.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        scorePlaceholder.setForeground(COLOR_TEXT_LIGHT);
-        scorePlaceholder.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel instructionLabel = new JLabel("Start tracking your metrics to see your score");
-        instructionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        instructionLabel.setForeground(COLOR_TEXT_LIGHT);
-        instructionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        cardPanel.add(titleLabel);
-        cardPanel.add(Box.createRigidArea(new Dimension(0, 30)));
-        cardPanel.add(scorePlaceholder);
-        cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        cardPanel.add(instructionLabel);
-
-        myScoreView.add(Box.createVerticalGlue());
-        myScoreView.add(cardPanel);
-        myScoreView.add(Box.createVerticalGlue());
-
-        return myScoreView;
-    }
+//    private JPanel createMyScorePlaceholderView() {
+//        JPanel myScoreView = new JPanel();
+//        myScoreView.setLayout(new BoxLayout(myScoreView, BoxLayout.Y_AXIS));
+//        myScoreView.setBackground(COLOR_CONTENT_BACKGROUND);
+//        myScoreView.setBorder(BorderFactory.createEmptyBorder(60, 60, 60, 60));
+//
+//        // Create card panel
+//        JPanel cardPanel = new JPanel();
+//        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+//        cardPanel.setBackground(COLOR_CARD);
+//        cardPanel.setBorder(BorderFactory.createCompoundBorder(
+//                BorderFactory.createLineBorder(COLOR_BORDER, 1, true),
+//                BorderFactory.createEmptyBorder(40, 50, 40, 50)
+//        ));
+//        cardPanel.setMaximumSize(new Dimension(600, 400));
+//        cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+//
+//        // Title
+//        JLabel titleLabel = new JLabel("Your Health Score");
+//        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+//        titleLabel.setForeground(COLOR_TEXT_DARK);
+//        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+//
+//        // Score placeholder
+//        JLabel scorePlaceholder = new JLabel("No score available yet");
+//        scorePlaceholder.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+//        scorePlaceholder.setForeground(COLOR_TEXT_LIGHT);
+//        scorePlaceholder.setAlignmentX(Component.CENTER_ALIGNMENT);
+//
+//        JLabel instructionLabel = new JLabel("Start tracking your metrics to see your score");
+//        instructionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+//        instructionLabel.setForeground(COLOR_TEXT_LIGHT);
+//        instructionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+//
+//        cardPanel.add(titleLabel);
+//        cardPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+//        cardPanel.add(scorePlaceholder);
+//        cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+//        cardPanel.add(instructionLabel);
+//
+//        myScoreView.add(Box.createVerticalGlue());
+//        myScoreView.add(cardPanel);
+//        myScoreView.add(Box.createVerticalGlue());
+//
+//        return myScoreView;
+//    }
 
     /**
      * Creates a generic placeholder view for other tabs.
