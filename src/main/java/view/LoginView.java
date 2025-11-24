@@ -94,19 +94,15 @@ public class LoginView extends JPanel implements PropertyChangeListener {
 
         // Buttons
         logIn = createStyledButton(LoginViewModel.LOG_IN_BUTTON_LABEL, true);
-        cancel = createStyledButton(LoginViewModel.CANCEL_BUTTON_LABEL, false);
+        signUp = createStyledButton(LoginViewModel.SIGN_UP_BUTTON_LABEL, false);
 
         final JPanel buttons = new JPanel();
-        logIn = new JButton(LoginViewModel.LOG_IN_BUTTON_LABEL);
-        // Renamed button and used a generic label for the Sign Up button
-        signUp = new JButton("Sign Up");
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
         buttons.setBackground(CARD_COLOR);
         buttons.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttons.add(logIn);
-        buttons.add(signUp); // Added the renamed button to the panel
+        buttons.add(signUp);
         buttons.add(Box.createRigidArea(new Dimension(0, 10)));
-        buttons.add(cancel);
 
         // Action Listener for Log In button
         logIn.addActionListener(

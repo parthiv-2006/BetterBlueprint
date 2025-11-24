@@ -44,6 +44,7 @@ import view.HomeView;
 import view.InputMetricsView;
 import view.LoginView;
 import view.SignupView;
+import view.SettingsView;
 import view.ViewManager;
 
 import javax.swing.*;
