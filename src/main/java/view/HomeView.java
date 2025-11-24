@@ -88,7 +88,7 @@ public class HomeView extends JPanel {
         // inputMetricsView is passed as parameter (actual view, not placeholder)
         JPanel myScoreView = createMyScorePlaceholderView();
         JPanel insightsView = createPlaceholderView("Insights");
-        JPanel historyView = createPlaceholderView("History");
+        JPanel historyView = createMyHistoryPlaceholderView();
         JPanel accountSettingsView = createPlaceholderView("Settings");
         JPanel goalsView = createPlaceholderView("Goals");
 
@@ -175,8 +175,18 @@ public class HomeView extends JPanel {
      * Creates and styles the "Start Tracking Now" button and adds its action listener.
      * This method resolves the long surrounding method warning from the IDE.
      */
-    private JButton styleAndAddGoToInputMetricsButton() {
-        JButton goToInputMetrics = new JButton("Start Tracking Now");
+    private JButton styleAndAddGoToInputMetricsButton(int n) {
+        /**
+         * If n = 1, then the button displays 'Start Tracking Now'
+         * if n = 2, then the button displays 'Input More Data'
+         */
+        JButton goToInputMetrics;
+
+        if (n == 1) {
+            goToInputMetrics = new JButton("Start Tracking Now");
+        } else {
+            goToInputMetrics = new JButton("Input More Data");
+        }
         goToInputMetrics.setFont(new Font("Segoe UI", Font.BOLD, 16));
         goToInputMetrics.setForeground(Color.WHITE);
         goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
@@ -286,11 +296,11 @@ public class HomeView extends JPanel {
         logoAndDescriptionPanel.add(textPanel);
 
         // -- Button to guide the user to Input Metrics --
-        JButton goToInputMetrics = styleAndAddGoToInputMetricsButton();
+        JButton goToInputMetrics2 = styleAndAddGoToInputMetricsButton(1);
 
         cardPanel.add(logoAndDescriptionPanel);
         cardPanel.add(Box.createRigidArea(new Dimension(0, 40)));
-        cardPanel.add(goToInputMetrics);
+        cardPanel.add(goToInputMetrics2);
 
         homeView.add(Box.createVerticalGlue());
         homeView.add(cardPanel);
@@ -347,6 +357,50 @@ public class HomeView extends JPanel {
         myScoreView.add(Box.createVerticalGlue());
 
         return myScoreView;
+    }
+
+    private JPanel createMyHistoryPlaceholderView() {
+        JPanel myHistoryView = new JPanel();
+        myHistoryView.setLayout(new BoxLayout(myHistoryView, BoxLayout.Y_AXIS));
+        myHistoryView.setBackground(COLOR_CONTENT_BACKGROUND);
+        myHistoryView.setBorder(BorderFactory.createEmptyBorder(60, 60, 60, 60));
+
+        // Create card panel
+        JPanel cardPanel = new JPanel();
+        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+        cardPanel.setBackground(COLOR_CARD);
+        cardPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(COLOR_BORDER, 1, true),
+                BorderFactory.createEmptyBorder(40, 50, 40, 50)
+        ));
+        cardPanel.setMaximumSize(new Dimension(600, 400));
+        cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Title
+        JLabel titleLabel = new JLabel("Your Charts");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        titleLabel.setForeground(COLOR_TEXT_DARK);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Score placeholder
+        JLabel historyPlaceholder = new JLabel("Not enough data");
+        historyPlaceholder.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        historyPlaceholder.setForeground(COLOR_TEXT_LIGHT);
+        historyPlaceholder.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JButton styledGoToInputMetricsButton = styleAndAddGoToInputMetricsButton(2);
+
+        cardPanel.add(titleLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+        cardPanel.add(historyPlaceholder);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        cardPanel.add(styledGoToInputMetricsButton);
+
+        myHistoryView.add(Box.createVerticalGlue());
+        myHistoryView.add(cardPanel);
+        myHistoryView.add(Box.createVerticalGlue());
+
+        return myHistoryView;
     }
 
     /**

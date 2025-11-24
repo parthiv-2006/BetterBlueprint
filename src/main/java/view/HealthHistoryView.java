@@ -9,7 +9,7 @@ import java.util.List;
  * The View for the Health History use case.
  */
 public class HealthHistoryView extends JPanel {
-
+    private final String viewName = "health history";
     private List<String> dates;
     private List<Double> values;
     private String metricType;
