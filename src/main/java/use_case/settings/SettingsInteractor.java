@@ -1,6 +1,6 @@
 package use_case.settings;
 
-import entity.User;
+import Entities.User;
 
 /**
  * The Settings Interactor.
@@ -39,9 +39,7 @@ public class SettingsInteractor implements SettingsInputBoundary {
             // Get current user and update their settings
             final String currentUsername = userDataAccessObject.getCurrentUsername();
             final User user = userDataAccessObject.get(currentUsername);
-            user.setAge(age);
-            user.setHeight(height);
-            user.setWeight(weight);
+            user.updateAgeHeightWeight(age, height, weight);
 
             // Save updated user
             userDataAccessObject.save(user);

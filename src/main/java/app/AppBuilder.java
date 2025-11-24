@@ -1,7 +1,7 @@
 package app;
 
 import data_access.FileUserDataAccessObject;
-import entity.UserFactory;
+import Entities.UserFactory;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.home.HomeViewModel;
 import interface_adapter.login.LoginController;

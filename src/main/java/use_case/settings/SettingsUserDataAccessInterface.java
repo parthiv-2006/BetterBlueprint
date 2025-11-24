@@ -1,6 +1,6 @@
 package use_case.settings;
 
-import entity.User;
+import Entities.User;
 
 /**
  * DAO interface for the Settings Use Case.

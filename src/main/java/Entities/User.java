@@ -1,11 +1,14 @@
-package main.java.Entities;
+package Entities;
 
+/**
+ * A simple entity representing a user. Users have a username and password..
+ */
 public class User {
-    private String username;
-    private String password;
-    private int age;
-    private int height;
-    private int weight;
+    final private String username;
+    final private String password;
+    private Integer age;
+    private Integer height;
+    private Integer weight;
 
     public User(String username, String password) {
         if ("".equals(username)) {
@@ -31,12 +34,20 @@ public class User {
     // Getters are fine
     public String getName() { return username; }
     public String getPassword() { return password; }
-    public int getAge() { return age; }
-    public int getHeight() { return height; }
-    public int getWeight() { return weight; }
+    public int getAge() {
+        return age != null ? age : 0;
+    }
+
+    public int getHeight() {
+        return height != null ? height : 0;
+    }
+
+    public int getWeight() {
+        return weight != null ? weight : 0;
+    }
 
     // Business logic methods
-    public void updateHealthMetrics(int newAge, int newHeight, int newWeight) {
+    public void updateAgeHeightWeight(int newAge, int newHeight, int newWeight) {
         validateAge(newAge);
         validateHeight(newHeight);
         validateWeight(newWeight);

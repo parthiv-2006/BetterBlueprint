@@ -1,7 +1,7 @@
 package data_access;
 
-import entity.User;
-import entity.UserFactory;
+import Entities.User;
+import Entities.UserFactory;
 import use_case.change_password.ChangePasswordUserDataAccessInterface;
 import use_case.login.LoginUserDataAccessInterface;
 import use_case.logout.LogoutUserDataAccessInterface;
@@ -62,7 +62,10 @@ public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
                     final String[] col = row.split(",");
                     final String username = String.valueOf(col[headers.get("username")]);
                     final String password = String.valueOf(col[headers.get("password")]);
-                    final User user = userFactory.create(username, password);
+                    final int age = Integer.parseInt(col[headers.get("age")]);
+                    final int height = Integer.parseInt(col[headers.get("height")]);
+                    final int weight = Integer.parseInt(col[headers.get("weight")]);
+                    final User user = userFactory.create(username, password, age, height, weight);
                     accounts.put(username, user);
                 }
             }
