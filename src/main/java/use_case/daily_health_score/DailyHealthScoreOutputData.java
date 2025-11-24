@@ -1,20 +1,20 @@
 package use_case.daily_health_score;
 
 
-import Entities.HealthScore;
+import Entities.healthScore;
 
 /**
  * Output Data for the Daily Health Score Use Case.
  */
 
 public class DailyHealthScoreOutputData {
-    private final HealthScore healthScore;
+    private final healthScore healthScore;
 
-    public DailyHealthScoreOutputData(HealthScore healthScore) {
+    public DailyHealthScoreOutputData(healthScore healthScore) {
         this.healthScore = healthScore;
     }
 
-    public HealthScore getHealthScore() {
+    public healthScore getHealthScore() {
         return healthScore;
     }
 }

@@ -1,7 +1,7 @@
 package use_case.daily_health_score;
 
 import Entities.HealthMetrics;
-import Entities.HealthScore;
+import Entities.healthScore;
 
 /**
  * DAO interface for the Daily Health Score Use Case.
@@ -21,7 +21,7 @@ public interface DailyHealthScoreUserDataAccessInterface {
      * @param healthMetrics used to calculate the user's daily healthScore
      * @return the HealthScore calculated using healthMetrics
      */
-    HealthScore calculateHealthScore(HealthMetrics healthMetrics);
+    healthScore calculateHealthScore(HealthMetrics healthMetrics);
 
 
 }

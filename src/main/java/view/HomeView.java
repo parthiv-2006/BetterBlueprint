@@ -73,7 +73,8 @@ public class HomeView extends JPanel {
         JPanel homeContentView = createHomeContentView();
         JPanel myScoreView = createMyScorePlaceholderView();
         JPanel insightsView = createPlaceholderView("Insights");
-        JPanel historyView = createPlaceholderView("History");
+        JPanel historyView = createMyHistoryPlaceholderView();
+        JPanel accountSettingsView = createPlaceholderView("Settings");
         JPanel goalsView = createPlaceholderView("Goals");
 
         // Add views to content panel
@@ -148,7 +149,59 @@ public class HomeView extends JPanel {
             }
         });
 
-        return button;
+    /**
+     * Creates and styles the "Start Tracking Now" button and adds its action listener.
+     * This method resolves the long surrounding method warning from the IDE.
+     */
+    private JButton styleAndAddGoToInputMetricsButton(int n) {
+        /**
+         * If n = 1, then the button displays 'Start Tracking Now'
+         * if n = 2, then the button displays 'Input More Data'
+         */
+        JButton goToInputMetrics;
+
+        if (n == 1) {
+            goToInputMetrics = new JButton("Start Tracking Now");
+        } else {
+            goToInputMetrics = new JButton("Input More Data");
+        }
+        goToInputMetrics.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        goToInputMetrics.setForeground(Color.WHITE);
+        goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
+        goToInputMetrics.setFocusPainted(false);
+        goToInputMetrics.setBorderPainted(false);
+        goToInputMetrics.setOpaque(true);
+        goToInputMetrics.setAlignmentX(Component.CENTER_ALIGNMENT);
+        goToInputMetrics.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Make button bigger with rounded appearance
+        goToInputMetrics.setMaximumSize(new Dimension(240, 55));
+        goToInputMetrics.setPreferredSize(new Dimension(240, 55));
+        goToInputMetrics.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(COLOR_PRIMARY_BUTTON, 2, true),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+
+        goToInputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Metrics"));
+
+        // Hover effect for CTA button
+        goToInputMetrics.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent evt) {
+                goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON_HOVER);
+                goToInputMetrics.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(COLOR_PRIMARY_BUTTON_HOVER, 2, true),
+                        BorderFactory.createEmptyBorder(10, 20, 10, 20)
+                ));
+            }
+            public void mouseExited(MouseEvent evt) {
+                goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
+                goToInputMetrics.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(COLOR_PRIMARY_BUTTON, 2, true),
+                        BorderFactory.createEmptyBorder(10, 20, 10, 20)
+                ));
+            }
+        });
+        return goToInputMetrics;
     }
 
     private JPanel createHomeContentView() {
@@ -212,11 +265,12 @@ public class HomeView extends JPanel {
 
         logoAndDescriptionPanel.add(textPanel);
 
-        JButton goToInputMetrics = createCTAButton();
+        // -- Button to guide the user to Input Metrics --
+        JButton goToInputMetrics2 = styleAndAddGoToInputMetricsButton(1);
 
         cardPanel.add(logoAndDescriptionPanel);
         cardPanel.add(Box.createRigidArea(new Dimension(0, 40)));
-        cardPanel.add(goToInputMetrics);
+        cardPanel.add(goToInputMetrics2);
 
         homeView.add(Box.createVerticalGlue());
         homeView.add(cardPanel);
@@ -308,6 +362,54 @@ public class HomeView extends JPanel {
         return myScoreView;
     }
 
+    private JPanel createMyHistoryPlaceholderView() {
+        JPanel myHistoryView = new JPanel();
+        myHistoryView.setLayout(new BoxLayout(myHistoryView, BoxLayout.Y_AXIS));
+        myHistoryView.setBackground(COLOR_CONTENT_BACKGROUND);
+        myHistoryView.setBorder(BorderFactory.createEmptyBorder(60, 60, 60, 60));
+
+        // Create card panel
+        JPanel cardPanel = new JPanel();
+        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+        cardPanel.setBackground(COLOR_CARD);
+        cardPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(COLOR_BORDER, 1, true),
+                BorderFactory.createEmptyBorder(40, 50, 40, 50)
+        ));
+        cardPanel.setMaximumSize(new Dimension(600, 400));
+        cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Title
+        JLabel titleLabel = new JLabel("Your Charts");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        titleLabel.setForeground(COLOR_TEXT_DARK);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Score placeholder
+        JLabel historyPlaceholder = new JLabel("Not enough data");
+        historyPlaceholder.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        historyPlaceholder.setForeground(COLOR_TEXT_LIGHT);
+        historyPlaceholder.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JButton styledGoToInputMetricsButton = styleAndAddGoToInputMetricsButton(2);
+
+        cardPanel.add(titleLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+        cardPanel.add(historyPlaceholder);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        cardPanel.add(styledGoToInputMetricsButton);
+
+        myHistoryView.add(Box.createVerticalGlue());
+        myHistoryView.add(cardPanel);
+        myHistoryView.add(Box.createVerticalGlue());
+
+        return myHistoryView;
+    }
+
+    /**
+     * Creates a generic placeholder view for other tabs.
+     * @param labelText The text to display in the placeholder.
+     */
     private JPanel createPlaceholderView(String labelText) {
         JPanel view = new JPanel();
         view.setLayout(new BoxLayout(view, BoxLayout.Y_AXIS));

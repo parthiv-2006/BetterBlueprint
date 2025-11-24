@@ -1,11 +1,11 @@
-package use_case.healthScoreHistory;
+package use_case.healthHistory;
 /**
  * The View Health Score History Use Case.
  */
-public interface healthScoreHistoryInputBoundary {
+public interface healthHistoryInputBoundary {
     /**
      * Execute the View Health Score History Use Case.
      * @param inputData the input data for this use case
      */
-    void execute(healthScoreHistoryInputData inputData);
+    void execute(healthHistoryInputData inputData);
 }
