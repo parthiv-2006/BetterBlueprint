@@ -1,10 +1,11 @@
 package data_access;
 
-import entity.User;
-import entity.UserFactory;
+import Entities.User;
+import Entities.UserFactory;
 import use_case.change_password.ChangePasswordUserDataAccessInterface;
 import use_case.login.LoginUserDataAccessInterface;
 import use_case.logout.LogoutUserDataAccessInterface;
+import use_case.settings.SettingsUserDataAccessInterface;
 import use_case.signup.SignupUserDataAccessInterface;
 
 import java.io.*;
@@ -16,11 +17,12 @@ import java.util.Map;
  * DAO for user data implemented using a File to persist the data.
  */
 public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
-                                                 LoginUserDataAccessInterface,
-                                                 ChangePasswordUserDataAccessInterface,
-                                                 LogoutUserDataAccessInterface {
+        LoginUserDataAccessInterface,
+        ChangePasswordUserDataAccessInterface,
+        LogoutUserDataAccessInterface,
+        SettingsUserDataAccessInterface {
 
-    private static final String HEADER = "username,password";
+    private static final String HEADER = "username,password,age,height,weight";
 
     private final File csvFile;
     private final Map<String, Integer> headers = new LinkedHashMap<>();
@@ -39,6 +41,9 @@ public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
         csvFile = new File(csvPath);
         headers.put("username", 0);
         headers.put("password", 1);
+        headers.put("age", 2);
+        headers.put("height", 3);
+        headers.put("weight", 4);
 
         if (csvFile.length() == 0) {
             save();
@@ -57,7 +62,10 @@ public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
                     final String[] col = row.split(",");
                     final String username = String.valueOf(col[headers.get("username")]);
                     final String password = String.valueOf(col[headers.get("password")]);
-                    final User user = userFactory.create(username, password);
+                    final int age = Integer.parseInt(col[headers.get("age")]);
+                    final int height = Integer.parseInt(col[headers.get("height")]);
+                    final int weight = Integer.parseInt(col[headers.get("weight")]);
+                    final User user = userFactory.create(username, password, age, height, weight);
                     accounts.put(username, user);
                 }
             }
@@ -68,24 +76,22 @@ public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
     }
 
     private void save() {
-        final BufferedWriter writer;
-        try {
-            writer = new BufferedWriter(new FileWriter(csvFile));
-            writer.write(String.join(",", headers.keySet()));
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile))) {
+            writer.write(HEADER);
             writer.newLine();
 
             for (User user : accounts.values()) {
-                final String line = String.format("%s,%s",
-                        user.getName(), user.getPassword());
+                String line = String.format("%s,%s,%d,%d,%d",
+                        user.getName(),
+                        user.getPassword(),
+                        user.getAge(),
+                        user.getHeight(),
+                        user.getWeight());
                 writer.write(line);
                 writer.newLine();
             }
-
-            writer.close();
-
-        }
-        catch (IOException ex) {
-            throw new RuntimeException(ex);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

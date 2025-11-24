@@ -28,7 +28,7 @@ public class LoginPresenter implements LoginOutputBoundary {
 
     @Override
     public void prepareSuccessView(LoginOutputData response) {
-        // On success, update the loggedInViewModel's state
+        // On success, update the homeViewModel's state
         final HomeState homeState = homeViewModel.getState();
         homeState.setUsername(response.getUsername());
         this.homeViewModel.firePropertyChange();
