@@ -8,9 +8,14 @@ public class GeminiAPIService {
     private final String apiKey;
     private final OkHttpClient client;
 
-    public GeminiAPIService(String apiKey) {
-        this.apiKey = apiKey;
+    public GeminiAPIService() {
+        this.apiKey = System.getenv("GEMINI_API_KEY");
         this.client = new OkHttpClient();
+
+        if (this.apiKey == null || this.apiKey.isEmpty()) {
+            throw new IllegalStateException("GEMINI_API_KEY environment variable is not set. " +
+                    "Please set it with: export GEMINI_API_KEY=your_actual_key_here");
+        }
     }
 
     public String getHealthInsights(String healthData) {
@@ -31,6 +36,7 @@ public class GeminiAPIService {
             }
         } catch (Exception e) {
             // Fallback insights if API fails
+            System.err.println("Gemini API error: " + e.getMessage());
         }
         return "Based on your data: Focus on consistent sleep patterns and adequate hydration for better wellness.";
     }
