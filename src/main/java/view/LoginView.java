@@ -294,6 +294,7 @@ public class LoginView extends JPanel implements PropertyChangeListener {
 
     private void setFields(LoginState state) {
         usernameInputField.setText(state.getUsername());
+        passwordInputField.setText(state.getPassword());
     }
 
     public String getViewName() {

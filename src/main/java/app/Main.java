@@ -16,7 +16,6 @@ public class Main {
                 .addLogoutUseCase()
                 .addChangePasswordUseCase()
                 .addInputMetricsUseCase()
-//                .addLogoutUseCase()
                 .build();
 
 
