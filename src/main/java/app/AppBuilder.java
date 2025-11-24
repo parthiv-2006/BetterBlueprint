@@ -8,6 +8,8 @@ import interface_adapter.home.HomeViewModel;
 import interface_adapter.input_metrics.InputMetricsController;
 import interface_adapter.input_metrics.InputMetricsPresenter;
 import interface_adapter.input_metrics.InputMetricsViewModel;
+import interface_adapter.goals.GoalsViewModel;
+import interface_adapter.goals.GoalsController;
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginPresenter;
 import interface_adapter.login.LoginViewModel;
@@ -33,6 +35,7 @@ import view.InputMetricsView;
 import view.LoginView;
 import view.SignupView;
 import view.ViewManager;
+import view.GoalsView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -61,6 +64,8 @@ public class AppBuilder {
     private LoginView loginView;
     private InputMetricsView inputMetricsView;
     private InputMetricsViewModel inputMetricsViewModel;
+    private GoalsView goalsView;
+    private GoalsViewModel goalsViewModel;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
@@ -85,9 +90,14 @@ public class AppBuilder {
         inputMetricsViewModel = new InputMetricsViewModel();
         inputMetricsView = new InputMetricsView(inputMetricsViewModel);
 
+        // Create GoalsView
+        goalsViewModel = new GoalsViewModel();
+        goalsView = new GoalsView(goalsViewModel);
+
         // Create HomeView and pass InputMetricsView
         homeViewModel = new HomeViewModel();
-        homeView = new HomeView(homeViewModel, inputMetricsView);
+        homeView = new HomeView(homeViewModel, inputMetricsView, goalsView);
+
         cardPanel.add(homeView, homeView.getViewName());
         return this;
     }
@@ -122,6 +132,11 @@ public class AppBuilder {
 
         InputMetricsController controller = new InputMetricsController(inputMetricsInteractor);
         inputMetricsView.setInputMetricsController(controller);
+        return this;
+    }
+
+    public AppBuilder addGoalsUseCase() {
+        //TODO: Implement Goals Use Case
         return this;
     }
 

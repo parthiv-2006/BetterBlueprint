@@ -36,7 +36,7 @@ public class HomeView extends JPanel {
 
     // The homeViewModel field was removed as it was assigned but not accessed.
     // The parameter is still kept in case it is necessary later.
-    public HomeView(HomeViewModel homeViewModel, JPanel inputMetricsView) {
+    public HomeView(HomeViewModel homeViewModel, JPanel inputMetricsView, JPanel goalsView) {
         // homeViewModel parameter is not used in the current view logic but kept for future use.
         this.setLayout(new BorderLayout());
 
@@ -81,6 +81,12 @@ public class HomeView extends JPanel {
             ((InputMetricsView) inputMetricsView).setHomeNavigation(mainCardLayout, mainContentPanel);
         }
 
+        // Provide navigation context to GoalsView if it's the right type
+        if (goalsView instanceof GoalsView) {
+            ((GoalsView) goalsView)
+                    .setHomeNavigation(mainCardLayout, mainContentPanel);
+        }
+
         // --- A. Create the "Home" page ---
         JPanel homeView = createHomeContentView();
 
@@ -90,7 +96,7 @@ public class HomeView extends JPanel {
         JPanel insightsView = createPlaceholderView("Insights");
         JPanel historyView = createPlaceholderView("History");
         JPanel accountSettingsView = createPlaceholderView("Settings");
-        JPanel goalsView = createPlaceholderView("Goals");
+//        JPanel goalsView = createPlaceholderView("Goals");
 
         // --- Add all views to the main CardLayout panel ---
         mainContentPanel.add(homeView, "Home");
@@ -99,7 +105,6 @@ public class HomeView extends JPanel {
         mainContentPanel.add(insightsView, "Insights");
         mainContentPanel.add(historyView, "History");
         mainContentPanel.add(accountSettingsView, "Settings");
-        mainContentPanel.add(goalsView, "Goals");
         mainContentPanel.add(goalsView, "Goals");
 
         // === 5. ASSEMBLE THE HOMEVIEW ===
