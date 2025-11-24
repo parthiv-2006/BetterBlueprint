@@ -31,7 +31,7 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
     private final JLabel passwordErrorField = new JLabel();
 
     private final JButton logIn;
-    private final JButton cancel;
+    private final JButton signUp;
     private LoginController loginController = null;
 
     // Modern color scheme - Blue and Green theme
@@ -92,7 +92,7 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
 
         // Buttons
         logIn = createStyledButton(LoginViewModel.LOG_IN_BUTTON_LABEL, true);
-        cancel = createStyledButton(LoginViewModel.CANCEL_BUTTON_LABEL, false);
+        signUp = createStyledButton(LoginViewModel.SIGN_UP_BUTTON_LABEL, false);
 
         final JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
@@ -100,7 +100,7 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
         buttons.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttons.add(logIn);
         buttons.add(Box.createRigidArea(new Dimension(0, 10)));
-        buttons.add(cancel);
+        buttons.add(signUp);
 
         logIn.addActionListener(
                 new ActionListener() {
@@ -118,7 +118,7 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
                 }
         );
 
-        cancel.addActionListener(
+        signUp.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent evt) {
                         loginController.switchToSignupView();
@@ -284,7 +284,7 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-            final LoginState state = (LoginState) evt.getNewValue();
+        final LoginState state = (LoginState) evt.getNewValue();
         setFields(state);
         usernameErrorField.setText(state.getLoginError());
     }
