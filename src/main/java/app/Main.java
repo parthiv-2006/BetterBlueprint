@@ -12,7 +12,7 @@ public class Main {
                 .addSignupUseCase()
                 .addLoginUseCase()
                 .addInputMetricsUseCase()
-//                .addGoalsUseCase()
+                .addGoalsUseCase()
 //                .addLogoutUseCase()
                 .build();
 

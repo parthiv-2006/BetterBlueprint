@@ -36,6 +36,12 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
 
     // RESULT screen components
     private final JLabel resultTitleLabel = new JLabel("Your Daily Caloric Plan");
+    private final JLabel resultSummaryLabel = new JLabel(" ");  // NEW
+    private final JLabel explanationLabel = new JLabel(" ");    // NEW
+    private final JLabel disclaimerLabel = new JLabel(" ");
+
+    private final JLabel intakeLabel = new JLabel("Daily calories intake goal: -- kcal");
+    private final JLabel burnLabel = new JLabel("Daily calories burn goal: -- kcal");
 
     private final JButton generateButton;
     private final JButton backButton;
@@ -46,15 +52,15 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
     private JPanel homeContentPanel;
 
     // Color scheme
-    private static final Color PRIMARY_COLOR = new Color(37, 99, 235); // Blue-600
-    private static final Color PRIMARY_HOVER = new Color(29, 78, 216); // Blue-700
-    private static final Color SECONDARY_COLOR = new Color(34, 197, 94); // Green-500
-    private static final Color SECONDARY_HOVER = new Color(22, 163, 74); // Green-600
-    private static final Color BACKGROUND_COLOR = new Color(239, 246, 255); // Light blue tint
+    private static final Color PRIMARY_COLOR = new Color(37, 99, 235);
+    private static final Color PRIMARY_HOVER = new Color(29, 78, 216);
+    private static final Color SECONDARY_COLOR = new Color(34, 197, 94);
+    private static final Color SECONDARY_HOVER = new Color(22, 163, 74);
+    private static final Color BACKGROUND_COLOR = new Color(239, 246, 255);
     private static final Color CARD_COLOR = new Color(255, 255, 255);
     private static final Color TEXT_COLOR = new Color(31, 41, 55);
     private static final Color ERROR_COLOR = new Color(239, 68, 68);
-    private static final Color BORDER_COLOR = new Color(191, 219, 254); // Light blue border
+    private static final Color BORDER_COLOR = new Color(191, 219, 254);
 
     public GoalsView(GoalsViewModel goalsViewModel) {
         this.goalsViewModel = goalsViewModel;
@@ -65,7 +71,7 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
 
         innerCardPanel.setBackground(BACKGROUND_COLOR);
 
-        // Add two cards
+        // Add three cards
         innerCardPanel.add(createGoalSelectionCard(), "SELECT");
         innerCardPanel.add(createGoalDetailsCard(), "DETAILS");
         innerCardPanel.add(createGoalResultCard(), "RESULT");
@@ -76,8 +82,8 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         this.add(innerCardPanel);
 
         // Buttons on details card
-        generateButton = createStyledButton("Generate Plan", true);
-        backButton = createStyledButton("Back to Goal Selection", false);
+        generateButton = createStyledButton("Generate Plan", "SECONDARY");
+        backButton = createStyledButton("Back to Goal Selection", "PRIMARY");
 
         generateButton.addActionListener(e -> handleGenerate());
         backButton.addActionListener(e -> innerCardLayout.show(innerCardPanel, "SELECT"));
@@ -251,12 +257,47 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         ));
         cardPanel.setMaximumSize(new Dimension(650, 600));
 
+        // Title
         resultTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
         resultTitleLabel.setForeground(TEXT_COLOR);
         resultTitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        // Summary (Goal | Target | Timeframe)
+        resultSummaryLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        resultSummaryLabel.setForeground(new Color(107, 114, 128));
+        resultSummaryLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton backToDetailsButton = createStyledButton("Back to Details", false);
+        // Short explanation text
+        explanationLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        explanationLabel.setForeground(TEXT_COLOR);
+        explanationLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Disclaimer (smaller, grey)
+        disclaimerLabel.setFont(new Font("Segoe UI", Font.ITALIC, 11));
+        disclaimerLabel.setForeground(new Color(120, 120, 120));
+        disclaimerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        intakeLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        intakeLabel.setForeground(TEXT_COLOR);
+        intakeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        burnLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        burnLabel.setForeground(TEXT_COLOR);
+        burnLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JPanel goalsPanel = new JPanel();
+        goalsPanel.setLayout(new BoxLayout(goalsPanel, BoxLayout.Y_AXIS));
+        goalsPanel.setBackground(new Color(248, 250, 252));
+        goalsPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+                new EmptyBorder(15, 15, 15, 15)
+        ));
+        goalsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        goalsPanel.add(intakeLabel);
+        goalsPanel.add(Box.createRigidArea(new Dimension(0, 8)));
+        goalsPanel.add(burnLabel);
+
+        JButton backToDetailsButton = createStyledButton("Back to Details", "SECONDARY");
         backToDetailsButton.addActionListener(e -> innerCardLayout.show(innerCardPanel, "DETAILS"));
 
         JPanel buttonsPanel = new JPanel();
@@ -264,11 +305,20 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         buttonsPanel.setBackground(CARD_COLOR);
         buttonsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttonsPanel.add(backToDetailsButton);
+        buttonsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
         cardPanel.add(resultTitleLabel);
         cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        cardPanel.add(resultSummaryLabel);
         cardPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        cardPanel.add(goalsPanel);
         cardPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        cardPanel.add(explanationLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        cardPanel.add(disclaimerLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 25)));
         cardPanel.add(buttonsPanel);
 
         JPanel outer = new JPanel();
@@ -347,7 +397,7 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         });
     }
 
-    private JButton createStyledButton(String text, boolean isPrimary) {
+    private JButton createStyledButton(String text, String style) {
         JButton button = new JButton(text);
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -359,34 +409,37 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         button.setOpaque(true);
         button.setContentAreaFilled(true);
 
-        if (isPrimary) {
-            button.setBackground(SECONDARY_COLOR);
-            button.setForeground(Color.WHITE);
-            button.addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseEntered(java.awt.event.MouseEvent evt) {
-                    button.setBackground(SECONDARY_HOVER);
-                }
+        switch (style) {
+            case "PRIMARY":     // Blue
+                button.setBackground(PRIMARY_COLOR);
+                button.setForeground(Color.WHITE);
+                button.addMouseListener(new java.awt.event.MouseAdapter() {
+                    public void mouseEntered(java.awt.event.MouseEvent evt) {
+                        button.setBackground(PRIMARY_HOVER);
+                    }
+                    public void mouseExited(java.awt.event.MouseEvent evt) {
+                        button.setBackground(PRIMARY_COLOR);
+                    }
+                });
+                break;
 
-                public void mouseExited(java.awt.event.MouseEvent evt) {
-                    button.setBackground(SECONDARY_COLOR);
-                }
-            });
-        } else {
-            button.setBackground(PRIMARY_COLOR);
-            button.setForeground(Color.WHITE);
-            button.addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseEntered(java.awt.event.MouseEvent evt) {
-                    button.setBackground(PRIMARY_HOVER);
-                }
-
-                public void mouseExited(java.awt.event.MouseEvent evt) {
-                    button.setBackground(PRIMARY_COLOR);
-                }
-            });
+            case "SECONDARY":   // GREEN
+                button.setBackground(SECONDARY_COLOR);
+                button.setForeground(Color.WHITE);
+                button.addMouseListener(new java.awt.event.MouseAdapter() {
+                    public void mouseEntered(java.awt.event.MouseEvent evt) {
+                        button.setBackground(SECONDARY_HOVER);
+                    }
+                    public void mouseExited(java.awt.event.MouseEvent evt) {
+                        button.setBackground(SECONDARY_COLOR);
+                    }
+                });
+                break;
         }
 
         return button;
     }
+
 
     private void handleGenerate() {
         if (selectedGoalType == null) {
@@ -414,10 +467,39 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
 
         errorMessageLabel.setText("");
 
-        // TODO: call goalsController here when use case is implemented
+        if (goalsController != null) {
+            goalsController.execute(
+                    selectedGoalType,
+                    target,
+                    timeframe
+            );
+        }
+
+        String targetDisplay;
+        if (needsTarget) {
+            targetDisplay = target + " kg";
+        } else {
+            targetDisplay = "(maintain current weight)";
+        }
+
+        // Summary at top
+        resultSummaryLabel.setText(
+                "Goal: " + selectedGoalType +
+                        "  |  Target: " + targetDisplay +
+                        "  |  Timeframe: " + timeframe + " weeks"
+        );
+
+        // Explanation text
+        explanationLabel.setText(
+                "Follow this plan daily to reach your goal safely within " + timeframe + " weeks."
+        );
+
+        // Disclaimer (small)
+        disclaimerLabel.setText(
+                "*This is a general guideline and not medical advice. Consult a physician for personalized recommendations."
+        );
 
         innerCardLayout.show(innerCardPanel, "RESULT");
-
     }
 
     private void addDocumentListeners() {
@@ -454,6 +536,23 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         } else {
             errorMessageLabel.setText("");
         }
+
+        resultSummaryLabel.setText(
+                "Goal: " + state.getGoalType()
+                        + "  |  Target: " + state.getTargetWeight()
+                        + "  |  Timeframe: " + state.getTimeframe() + " weeks"
+        );
+
+        intakeLabel.setText("Daily calories intake goal: "
+                + state.getDailyIntakeCalories() + " kcal");
+
+        burnLabel.setText("Daily calories burn goal: "
+                + state.getDailyBurnCalories() + " kcal");
+
+        explanationLabel.setText(state.getExplanation());
+
+        // Switch to RESULT when the state is updated by presenter
+        innerCardLayout.show(innerCardPanel, "RESULT");
     }
 
     public String getViewName() {

@@ -1,9 +1,11 @@
 package app;
 
+import Entities.User;
 import data_access.FileUserDataAccessObject;
 import data_access.HealthMetricsDataAccessObject;
 import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
+import interface_adapter.goals.GoalsPresenter;
 import interface_adapter.home.HomeViewModel;
 import interface_adapter.input_metrics.InputMetricsController;
 import interface_adapter.input_metrics.InputMetricsPresenter;
@@ -15,9 +17,11 @@ import interface_adapter.login.LoginPresenter;
 import interface_adapter.login.LoginViewModel;
 //import interface_adapter.logout.LogoutController;
 //import interface_adapter.logout.LogoutPresenter;
+import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
+import use_case.goals.GoalsInteractor;
 import use_case.input_metrics.InputMetricsInputBoundary;
 import use_case.input_metrics.InputMetricsInteractor;
 import use_case.input_metrics.InputMetricsOutputBoundary;
@@ -27,6 +31,9 @@ import use_case.login.LoginOutputBoundary;
 //import use_case.logout.LogoutInputBoundary;
 //import use_case.logout.LogoutInteractor;
 //import use_case.logout.LogoutOutputBoundary;
+import use_case.logout.LogoutInputBoundary;
+import use_case.logout.LogoutInteractor;
+import use_case.logout.LogoutOutputBoundary;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
@@ -136,7 +143,23 @@ public class AppBuilder {
     }
 
     public AppBuilder addGoalsUseCase() {
-        //TODO: Implement Goals Use Case
+        String currentUsername = userDataAccessObject.getCurrentUsername();
+        entity.User entityUser = userDataAccessObject.get(currentUsername);
+
+        User currentUser = new User(
+                entityUser.getName(),
+                entityUser.getPassword(),
+                30,  // default age
+                170, // default height in cm
+                70   // default weight in kg
+        );
+
+        final GoalsPresenter goalsPresenter = new GoalsPresenter(goalsViewModel);
+        final GoalsInteractor goalsInteractor = new GoalsInteractor(goalsPresenter, currentUser);
+        final GoalsController goalsController = new GoalsController(goalsInteractor);
+
+        goalsView.setGoalsController(goalsController);
+
         return this;
     }
 
@@ -144,15 +167,15 @@ public class AppBuilder {
      * Adds the Logout Use Case to the application.
      * @return this builder
      */
-//    public AppBuilder addLogoutUseCase() {
-//        final LogoutOutputBoundary logoutOutputBoundary = new LogoutPresenter(viewManagerModel,
-//                homeViewModel, loginViewModel);
-//
-//        final LogoutInputBoundary logoutInteractor =
-//                new LogoutInteractor(userDataAccessObject, logoutOutputBoundary);
-//
-//        return this;
-//    }
+    public AppBuilder addLogoutUseCase() {
+        final LogoutOutputBoundary logoutOutputBoundary = new LogoutPresenter(viewManagerModel,
+                homeViewModel, loginViewModel);
+
+        final LogoutInputBoundary logoutInteractor =
+                new LogoutInteractor(userDataAccessObject, logoutOutputBoundary);
+
+        return this;
+    }
 
     public JFrame build() {
         final JFrame application = new JFrame("User Login Example");
