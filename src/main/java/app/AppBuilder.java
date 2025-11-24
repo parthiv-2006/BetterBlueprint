@@ -163,7 +163,12 @@ public class AppBuilder {
         // Create the View once
         myScoreView = new MyScoreView(dailyHealthScoreViewModel, null);
 
-        String apiKey = "AIzaSyBuI8LXd226lmxwLTvqP6o3i3Mtq6kbsFg";
+        // Read API key from environment variable
+        String apiKey = System.getenv("GEMINI_API_KEY");
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new IllegalStateException("GEMINI_API_KEY environment variable is not set. " +
+                    "Please set it before running the application.");
+        }
         HealthScoreCalculator scoreCalculator = new GeminiHealthScoreCalculator(apiKey);
 
         DailyHealthScoreUserDataAccessInterface metricsDAO =
@@ -185,7 +190,7 @@ public class AppBuilder {
 
 //    public AppBuilder addDailyHealthScoreUseCase() {
 //
-//        String apiKey = "AIzaSyBuI8LXd226lmxwLTvqP6o3i3Mtq6kbsFg";
+//        String apiKey = System.getenv("GEMINI_API_KEY");
 //        HealthScoreCalculator scoreCalculator = new GeminiHealthScoreCalculator(apiKey);
 //
 //        DailyHealthScoreUserDataAccessInterface metricsDAO =
@@ -214,7 +219,7 @@ public class AppBuilder {
 //    public AppBuilder addDailyHealthScoreUseCase() {
         // DAO for health metrics already exists
         // Use GeminiHealthScoreCalculator as HealthScoreCalculator implementation
-//        String apiKey = "AIzaSyBuI8LXd226lmxwLTvqP6o3i3Mtq6kbsFg";
+//        String apiKey = System.getenv("GEMINI_API_KEY");
 //        HealthScoreCalculator scoreCalculator = new GeminiHealthScoreCalculator(apiKey);
 //        DailyHealthScoreUserDataAccessInterface dailyHealthScoreDataAccessObject = new DailyHealthScoreDataAccessObject();
 //

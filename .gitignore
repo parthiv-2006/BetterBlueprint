@@ -22,6 +22,11 @@ bin/
 .DS_Store
 Thumbs.db
 
+# Environment variables (API keys, secrets)
+.env
+.env.local
+*.env
+
 # Project-specific files to ignore
 users.csv
 

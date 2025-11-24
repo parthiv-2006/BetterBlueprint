@@ -12,7 +12,7 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
     private final String apiKey;
     private final HttpClient client;
     private static final String GEMINI_URL =
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=";
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=";
 
     public GeminiHealthScoreCalculator(String apiKey) {
         this.apiKey = apiKey;
@@ -77,10 +77,19 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
             HttpResponse<String> response =
                     client.send(request, HttpResponse.BodyHandlers.ofString());
 
+            // Log response for debugging
+            System.out.println("Gemini API Response Status: " + response.statusCode());
+            System.out.println("Gemini API Response Body: " + response.body());
+
+            if (response.statusCode() != 200) {
+                return "Error: " + response.body();
+            }
+
             return extractTextFromGeminiResponse(response.body());
         }
         catch (Exception e) {
-            return "Unable to retrieve response from Gemini.";
+            e.printStackTrace();
+            return "Unable to retrieve response from Gemini: " + e.getMessage();
         }
     }
 
