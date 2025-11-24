@@ -16,6 +16,7 @@ public class DailyHealthScoreController {
 
     public DailyHealthScoreController(DailyHealthScoreInputBoundary interactor) {
         this.dailyHealthScoreInteractor = interactor;
+        System.out.println("Controller created with interactor: " + interactor);
     }
 
     /**

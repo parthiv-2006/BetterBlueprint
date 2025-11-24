@@ -20,7 +20,7 @@ import java.time.LocalDate;
 public class MyScoreView extends JPanel implements PropertyChangeListener {
 
     private final DailyHealthScoreViewModel viewModel;
-    private final DailyHealthScoreController controller;
+    private DailyHealthScoreController controller;
 
     private final JLabel dateLabel = new JLabel("Date:");
     private final JLabel scoreLabel = new JLabel("Score:");
@@ -36,7 +36,24 @@ public class MyScoreView extends JPanel implements PropertyChangeListener {
 
         viewModel.addPropertyChangeListener(this);
         setupLayout();
-        setupActions();
+        // setupActions();
+        System.out.println("MyScoreView created: " + this); // for testing
+    }
+
+    public void setController(DailyHealthScoreController controller) {
+        this.controller = controller;
+
+        // Remove OLD listeners to avoid duplicates
+        for (ActionListener al : computeButton.getActionListeners()) {
+            computeButton.removeActionListener(al);
+        }
+
+        // Add listener NOW that controller exists
+        computeButton.addActionListener(e -> {
+            System.out.println("BUTTON PRESSED");   // for testing
+            LocalDate today = LocalDate.now();
+            controller.computeDailyHealthScore(today, "user");
+        });
     }
 
     private void setupLayout() {
@@ -70,13 +87,13 @@ public class MyScoreView extends JPanel implements PropertyChangeListener {
         add(feedbackLabel, gbc);
     }
 
-    private void setupActions() {
-        computeButton.addActionListener(e -> {
-            // Automatically use today's date
-            LocalDate today = LocalDate.now();
-            controller.computeDailyHealthScore(today, "user"); // replace "user" with dynamic login if available
-        });
-    }
+//    private void setupActions() {
+//        computeButton.addActionListener(e -> {
+//            // Automatically use today's date
+//            LocalDate today = LocalDate.now();
+//            controller.computeDailyHealthScore(today, "user"); // replace "user" with dynamic login if available
+//        });
+//    }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {

@@ -25,10 +25,18 @@ public class DailyHealthScoreViewModel {
 
     public void setState(DailyHealthScoreState newState) {
         this.state = newState;
-        support.firePropertyChange("dailyHealthScoreState", null, newState);
+    }
+
+    public void firePropertyChanged() {
+        support.firePropertyChange(
+                "dailyHealthScoreState",
+                null,     // old value not needed for this use case
+                state     // send the updated state
+        );
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         support.addPropertyChangeListener(listener);
     }
 }
+

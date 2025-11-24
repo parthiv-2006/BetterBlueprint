@@ -19,28 +19,31 @@ public class DailyHealthScorePresenter implements DailyHealthScoreOutputBoundary
     }
 
     @Override
-    public void prepareSuccessView(DailyHealthScoreOutputData outputData) {
+    public void prepareSuccessView(DailyHealthScoreOutputData data) {
         DailyHealthScoreState newState = new DailyHealthScoreState();
 
-        newState.setUserId(outputData.getUserId());
-        newState.setDate(outputData.getDate());
-        newState.setScore(outputData.getScore());
-        newState.setFeedback(outputData.getFeedback());
+        newState.setUserId(data.getUserId());
+        newState.setDate(data.getDate());
+        newState.setScore(data.getScore());
+        newState.setFeedback(data.getFeedback());
         newState.setErrorMessage(null);
 
+        // Tell the view model to update and notify listeners
         viewModel.setState(newState);
+        viewModel.firePropertyChanged();
     }
 
     @Override
     public void prepareFailView(String errorMessage) {
         DailyHealthScoreState newState = new DailyHealthScoreState();
-        newState.setErrorMessage(errorMessage);
 
-        // Clear prior results
+        newState.setErrorMessage(errorMessage);
         newState.setDate(null);
         newState.setScore(null);
         newState.setFeedback("");
 
         viewModel.setState(newState);
+        viewModel.firePropertyChanged();
     }
 }
+

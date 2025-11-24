@@ -47,6 +47,8 @@ public class DailyHealthScoreInteractor implements DailyHealthScoreInputBoundary
         int score;
         String feedback;
 
+        System.out.println("Interactor executing...");
+
         try {
             // Step 2: Compute score using service (Gemini API)
             score = scoreCalculator.calculateScore(
