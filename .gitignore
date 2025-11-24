@@ -7,20 +7,23 @@ target/
 bin/
 *.jar
 *.war
-*.log
 
-# IntelliJ IDEA project files (keep shared settings, ignore user settings)
+# IntelliJ IDEA project files (kept shared settings, ignore user settings)
 .idea/
 *.iml
 *.iws
 *.ipr
 **/assetWizardSettings.xml
-# Also ignore the .iml file for the project root itself
-BetterBlueprint.iml
+
+# Log files
+*.log
 
 # OS generated files
 .DS_Store
 Thumbs.db
 
-# Project-specific data files to ignore
+# Project-specific files to ignore
 users.csv
+
+health_metrics.json
+users.json
