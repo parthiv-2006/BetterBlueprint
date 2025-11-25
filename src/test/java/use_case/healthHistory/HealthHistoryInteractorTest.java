@@ -108,11 +108,6 @@ public class HealthHistoryInteractorTest {
             this.successCalled = true;
             this.outputData = outputData;
         }
-
-        @Override
-        public void prepareFailView(String errorMessage) {
-            // unused in these tests
-        }
     }
 }
 
