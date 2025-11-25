@@ -22,7 +22,7 @@ public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
         LogoutUserDataAccessInterface,
         SettingsUserDataAccessInterface {
 
-    private static final String HEADER = "username,password";
+    private static final String HEADER = "username,password,age,height,weight";
 
     private final File csvFile;
     private final Map<String, Integer> headers = new LinkedHashMap<>();
@@ -62,7 +62,10 @@ public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
                     final String[] col = row.split(",");
                     final String username = String.valueOf(col[headers.get("username")]);
                     final String password = String.valueOf(col[headers.get("password")]);
-                    final User user = userFactory.create(username, password);
+                    final int age = Integer.parseInt(col[headers.get("age")]);
+                    final int height = Integer.parseInt(col[headers.get("height")]);
+                    final int weight = Integer.parseInt(col[headers.get("weight")]);
+                    final User user = userFactory.create(username, password, age, height, weight);
                     accounts.put(username, user);
                 }
             }
