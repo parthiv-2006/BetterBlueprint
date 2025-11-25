@@ -38,9 +38,7 @@ public class DailyHealthScoreDataAccessObject implements DailyHealthScoreUserDat
         }
     }
 
-    // ------------------------------------------------------------
     // return DailyMetricsDTO for a given user/date (raw metrics)
-    // ------------------------------------------------------------
     @Override
     public DailyMetricsDTO getMetricsForDate(String userId, LocalDate date) {
         try {
@@ -76,9 +74,7 @@ public class DailyHealthScoreDataAccessObject implements DailyHealthScoreUserDat
     }
 
 
-    // ------------------------------------------------------------
     // save the computed score + feedback into the same JSON file
-    // ------------------------------------------------------------
     @Override
     public void saveDailyHealthScore(DailyHealthScoreOutputData scoreData) {
         try {

@@ -3,11 +3,8 @@ package interface_adapter.daily_health_score;
 import use_case.daily_health_score.DailyHealthScoreOutputBoundary;
 import use_case.daily_health_score.DailyHealthScoreOutputData;
 
-/** -------------------------------------------------------------------
- * A Presenter class receives information (an Output Data Object) from the
- * Use Case Interactor and turns it into raw strings and numbers to be displayed.
- * The presenter will update the View Model with this information.
- * --------------------------------------------------------------------
+/**
+ * A Presenter class for the Daily Health Score Use Case.
  */
 
 public class DailyHealthScorePresenter implements DailyHealthScoreOutputBoundary {
@@ -27,6 +24,12 @@ public class DailyHealthScorePresenter implements DailyHealthScoreOutputBoundary
         newState.setScore(data.getScore());
         newState.setFeedback(data.getFeedback());
         newState.setErrorMessage(null);
+
+        // Set health metrics for breakdown display
+        newState.setSleepHours(data.getSleepHours());
+        newState.setExerciseMinutes(data.getExerciseMinutes());
+        newState.setCalories(data.getCalories());
+        newState.setWaterIntake(data.getWaterIntake());
 
         // Tell the view model to update and notify listeners
         viewModel.setState(newState);

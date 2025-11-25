@@ -1,5 +1,9 @@
 package use_case.daily_health_score;
 
+/**
+ * The Data Transfer Object for Daily Health Metrics.
+ */
+
 public class DailyMetricsDTO {
     private final double sleepHours;
     private final double exerciseMinutes;

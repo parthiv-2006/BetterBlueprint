@@ -7,6 +7,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+/**
+ * Implementation of HealthScoreCalculator using Google Gemini API.
+ */
+
 public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
 
     private final String apiKey;
@@ -95,8 +99,6 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
 
     /**
      * Extracts the model's text output from Gemini's JSON response.
-     * This is a minimal JSON parsing strategy—replace with a real JSON
-     * library (Jackson/Gson) if needed.
      */
     private String extractTextFromGeminiResponse(String json) {
         // naive extraction: look for "text": " ... "

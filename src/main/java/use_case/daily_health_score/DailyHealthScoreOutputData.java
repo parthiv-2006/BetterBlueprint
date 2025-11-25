@@ -1,8 +1,5 @@
 package use_case.daily_health_score;
 
-
-import Entities.HealthScore;
-
 import java.time.LocalDate;
 
 /**

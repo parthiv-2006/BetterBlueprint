@@ -4,14 +4,6 @@ import java.time.LocalDate;
 
 /**
  * The Daily Health Score Interactor.
- *
- * -------------------------------------------------------------------------------
- * Takes the Input Data and executes the use case, looking up information in the
- * Data Access object when necessary and manipulating Entities.
- * This might create new data that needs to be saved through a Data Access object.
- * When complete, create an Output Data object — the use case result —
- * and pass it to the Presenter.
- * -------------------------------------------------------------------------------
  */
 
 public class DailyHealthScoreInteractor implements DailyHealthScoreInputBoundary {
@@ -34,7 +26,7 @@ public class DailyHealthScoreInteractor implements DailyHealthScoreInputBoundary
         String userId = inputData.getUserId();
         LocalDate date = inputData.getDate();
 
-        // Step 1: Load existing metrics
+        // Load existing metrics
         DailyMetricsDTO metrics = userDataAccessObject.getMetricsForDate(userId, date);
 
         if (metrics == null) {
@@ -50,7 +42,7 @@ public class DailyHealthScoreInteractor implements DailyHealthScoreInputBoundary
         System.out.println("Interactor executing...");
 
         try {
-            // Step 2: Compute score using service (Gemini API)
+            // Compute score using Gemini API
             score = scoreCalculator.calculateScore(
                     metrics.getSleepHours(),
                     metrics.getExerciseMinutes(),
@@ -58,7 +50,7 @@ public class DailyHealthScoreInteractor implements DailyHealthScoreInputBoundary
                     metrics.getWaterIntake()
             );
 
-            // Step 3: Generate feedback
+            // Generate feedback
             feedback = scoreCalculator.generateFeedback(
                     metrics.getSleepHours(),
                     metrics.getExerciseMinutes(),
@@ -75,7 +67,7 @@ public class DailyHealthScoreInteractor implements DailyHealthScoreInputBoundary
             return;
         }
 
-        // Step 4: Build output data
+        // Build output data
         DailyHealthScoreOutputData outputData = new DailyHealthScoreOutputData(
                 date,
                 userId,
@@ -87,7 +79,7 @@ public class DailyHealthScoreInteractor implements DailyHealthScoreInputBoundary
                 metrics.getWaterIntake()
         );
 
-        // Step 5: Persist the computed score
+        // Persist the computed score
         try {
             userDataAccessObject.saveDailyHealthScore(outputData);
         } catch (Exception persistenceException) {
@@ -97,7 +89,7 @@ public class DailyHealthScoreInteractor implements DailyHealthScoreInputBoundary
             return;
         }
 
-        // Step 6: Present success
+        // Present success
         healthScorePresenter.prepareSuccessView(outputData);
     }
 }
