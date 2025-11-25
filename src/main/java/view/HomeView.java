@@ -132,8 +132,44 @@ public class HomeView extends JPanel {
 
         final healthHistoryInteractor historyInteractor = new healthHistoryInteractor(null, directPresenter);
 
-        // Initial load: show calories chart (week) on startup
-        historyInteractor.fetchHistory("calories", "week", "user1");
+        // Build a history panel that contains controls + the chart
+        JPanel historyPanel = new JPanel(new BorderLayout());
+        historyPanel.setBackground(COLOR_CONTENT_BACKGROUND);
+
+        JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 10));
+        controls.setBackground(COLOR_CONTENT_BACKGROUND);
+
+        String[] metrics = {"Water Intake", "Calories", "Exercise Minutes" };
+        JComboBox<String> metricCombo = new JComboBox<>(metrics);
+        metricCombo.setSelectedItem("Calories");
+
+        String[] ranges = { "week", "month", "year" };
+        JComboBox<String> rangeCombo = new JComboBox<>(ranges);
+        rangeCombo.setSelectedItem("week");
+
+        controls.add(new JLabel("Metric:"));
+        controls.add(metricCombo);
+        controls.add(Box.createHorizontalStrut(16));
+        controls.add(new JLabel("Range:"));
+        controls.add(rangeCombo);
+
+        historyPanel.add(controls, BorderLayout.NORTH);
+        historyPanel.add(historyView, BorderLayout.CENTER);
+
+        // refresh action: read combos and request data
+        String userId = "user1";
+        Runnable refresh = () -> {
+            String selectedMetric = (String) metricCombo.getSelectedItem();
+            String metricKey = mapMetricSelectionToKey(selectedMetric);
+            String selectedRange = (String) rangeCombo.getSelectedItem();
+            historyInteractor.fetchHistory(metricKey, selectedRange, userId);
+        };
+
+        metricCombo.addActionListener(e -> refresh.run());
+        rangeCombo.addActionListener(e -> refresh.run());
+
+        // Initial load
+        refresh.run();
 
         JPanel accountSettingsView = createPlaceholderView("Settings");
         JPanel goalsView = createPlaceholderView("Goals");
@@ -143,7 +179,7 @@ public class HomeView extends JPanel {
         mainContentPanel.add(inputMetricsView, "Metrics");
         mainContentPanel.add(myScoreView, "Score");
         mainContentPanel.add(insightsView, "Insights");
-        mainContentPanel.add(historyView, "History");
+        mainContentPanel.add(historyPanel, "History");
         mainContentPanel.add(accountSettingsView, "Settings");
         mainContentPanel.add(goalsView, "Goals");
         mainContentPanel.add(goalsView, "Goals");
@@ -160,8 +196,8 @@ public class HomeView extends JPanel {
 
         // Update chart data on-demand when History is clicked, then show it
         history.addActionListener(e -> {
-            // Request calorie data when History clicked
-            historyInteractor.fetchHistory("calories", "week", "user1");
+            // When History nav is clicked, refresh from current selections and show panel
+            refresh.run();
             mainCardLayout.show(mainContentPanel, "History");
         });
 
@@ -500,5 +536,16 @@ public class HomeView extends JPanel {
 
     public String getViewName() {
         return "home"; }
-}
 
+    // Helper to map user-friendly selection to interactor metric key
+    private static String mapMetricSelectionToKey(String selection) {
+        if (selection == null) return "calories";
+        switch (selection) {
+            case "Steps": return "steps";
+            case "Water Intake": return "water";
+            case "Exercise Minutes": return "exercise";
+            case "Calories":
+            default: return "calories";
+        }
+    }
+}
