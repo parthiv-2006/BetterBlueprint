@@ -1,7 +1,7 @@
 package data_access;
 
-import entity.User;
-import entity.UserFactory;
+import Entities.User;
+import Entities.UserFactory;
 import okhttp3.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,7 +51,7 @@ public class DBUserDataAccessObject implements SignupUserDataAccessInterface,
                 final String name = userJSONObject.getString(USERNAME);
                 final String password = userJSONObject.getString(PASSWORD);
 
-                return userFactory.create(name, password);
+                return userFactory.create(name, password, 0, 0, 0);
             }
             else {
                 throw new RuntimeException(responseBody.getString(MESSAGE));

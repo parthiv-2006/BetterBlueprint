@@ -9,10 +9,10 @@ import java.awt.event.MouseEvent;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.jetbrains.annotations.NotNull;
-import use_case.healthHistory.*;
-import view.HealthHistoryView.*;
+import use_case.healthHistory.healthHistoryOutputBoundary;
+import use_case.healthHistory.healthHistoryOutputData;
+import use_case.healthHistory.healthMetricRecord;
+import use_case.healthHistory.healthHistoryInteractor;
 
 public class HomeView extends JPanel {
 
@@ -99,57 +99,54 @@ public class HomeView extends JPanel {
         // Create HealthHistoryView (concrete type so we can update it)
         final HealthHistoryView historyView = new HealthHistoryView();
 
-        // Create the interactor + direct presenter that forwards data to the view
-        final healthHistoryInteractor historyInteractor = view.HealthHistoryView.getHealthHistoryInteractor(historyView);
+        // Create a simple presenter that forwards interactor output into the view
+        healthHistoryOutputBoundary directPresenter = new healthHistoryOutputBoundary() {
+            @Override
+            public void prepareSuccessView(healthHistoryOutputData data) {
+                List<String> formatted = new ArrayList<>();
+                List<Double> values = new ArrayList<>();
+                List<healthMetricRecord> records = data.getRecords();
+                DateTimeFormatter iso = DateTimeFormatter.ISO_LOCAL_DATE;
+                DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MM-dd");
 
-        // building a history panel that contains controls + the chart
-        JPanel historyPanel = new JPanel();
-        historyPanel.setLayout(new BorderLayout());
-        historyPanel.setBackground(COLOR_CONTENT_BACKGROUND);
+                if (records != null) {
+                    for (healthMetricRecord r : records) {
+                        String rawDate = r.getDate().toString();
+                        try {
+                            formatted.add(java.time.LocalDate.parse(rawDate, iso).format(fmt));
+                        } catch (Exception ex) {
+                            formatted.add(rawDate);
+                        }
+                        values.add(r.getValue());
+                    }
+                }
 
-        // control bar (top of history panel)
-        JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 10));
-        controls.setBackground(COLOR_CONTENT_BACKGROUND);
+                historyView.updateData(formatted, values, data.getMetricType());
+            }
 
-        String[] metrics = { "Calories", "Sleep Hours", "Water Intake", "Exercise Minutes" };
-        JComboBox<String> metricCombo = new JComboBox<>(metrics);
-
-        String[] ranges = { "week", "month", "year" };
-        JComboBox<String> rangeCombo = new JComboBox<>(ranges);
-        rangeCombo.setSelectedItem("week");
-
-        controls.add(new JLabel("Metric:"));
-        controls.add(metricCombo);
-        controls.add(Box.createHorizontalStrut(16));
-        controls.add(new JLabel("Range:"));
-        controls.add(rangeCombo);
-
-        historyPanel.add(controls, BorderLayout.NORTH);
-        historyPanel.add(historyView, BorderLayout.CENTER);
-
-        // Wire up combo changes to request the interactor to (re)load data
-        String userId = "user1"; // keep using user1; change if you provide auth
-        Runnable refresh = () -> {
-            String selectedMetric = ((String) metricCombo.getSelectedItem());
-            String metricKey = mapMetricSelectionToKey(selectedMetric);
-            String selectedRange = ((String) rangeCombo.getSelectedItem());
-            historyInteractor.fetchHistory(metricKey, selectedRange, userId);
+            @Override
+            public void prepareFailView(String errorMessage) {
+                historyView.updateData(new ArrayList<>(), new ArrayList<>(), "");
+            }
         };
 
-        metricCombo.addActionListener(e -> refresh.run());
-        rangeCombo.addActionListener(e -> refresh.run());
+        final healthHistoryInteractor historyInteractor = new healthHistoryInteractor(null, directPresenter);
 
-        // Initial load using defaults
-        refresh.run();
+        // Initial load: show calories chart (week) on startup
+        historyInteractor.fetchHistory("calories", "week", "user1");
 
-        // --- Add the historyPanel (instead of raw historyView) into the card layout ---
+        JPanel accountSettingsView = createPlaceholderView("Settings");
+        JPanel goalsView = createPlaceholderView("Goals");
+
+        // --- Add all views to the main CardLayout panel ---
         mainContentPanel.add(homeView, "Home");
         mainContentPanel.add(inputMetricsView, "Metrics");
         mainContentPanel.add(myScoreView, "Score");
         mainContentPanel.add(insightsView, "Insights");
-        mainContentPanel.add(historyPanel, "History");
-//        mainContentPanel.add(accountSettingsView, "Settings");
-//        mainContentPanel.add(goalsView, "Goals");
+        mainContentPanel.add(historyView, "History");
+        mainContentPanel.add(accountSettingsView, "Settings");
+        mainContentPanel.add(goalsView, "Goals");
+        mainContentPanel.add(goalsView, "Goals");
 
         // === 5. ASSEMBLE THE HOMEVIEW ===
         this.add(navbarPanel, BorderLayout.NORTH);
@@ -163,8 +160,8 @@ public class HomeView extends JPanel {
 
         // Update chart data on-demand when History is clicked, then show it
         history.addActionListener(e -> {
-            // When user clicks History nav button, show the panel and ensure latest selection is loaded
-            refresh.run();
+            // Request calorie data when History clicked
+            historyInteractor.fetchHistory("calories", "week", "user1");
             mainCardLayout.show(mainContentPanel, "History");
         });
 
@@ -503,16 +500,5 @@ public class HomeView extends JPanel {
 
     public String getViewName() {
         return "home"; }
-
-    // Helper to map user-friendly selection to interactor metric key
-    private static String mapMetricSelectionToKey(String selection) {
-        if (selection == null) return "calories";
-        switch (selection) {
-            case "Sleep Hours": return "sleep";
-            case "Water Intake": return "water";
-            case "Exercise Minutes": return "exercise";
-            case "Calories":
-            default: return "calories";
-        }
-    }
 }
+

@@ -1,26 +1,18 @@
 package Entities;
 
 /**
- * A simple entity representing a user. Users have a username password, age, height, and weight.
+ * A simple entity representing a user. Users have a username and password..
  */
-
 public class User {
-    private String username;
-    private String password;
-    private int age;
-    private int height;
-    private int weight;
+    final private String username;
+    final private String password;
+    private Integer age;
+    private Integer height;
+    private Integer weight;
 
-
-    /**
-     * Creates a new user with the given non-empty name and non-empty password.
-     * @param username the username
-     * @param password the password
-     * @throws IllegalArgumentException if the password or name are empty
-     */
     public User(String username, String password) {
         if ("".equals(username)) {
-            throw new IllegalArgumentException("Username cannot be empty");
+            throw new IllegalArgumentException("Usefrname cannot be empty");
         }
         if ("".equals(password)) {
             throw new IllegalArgumentException("Password cannot be empty");
@@ -29,39 +21,56 @@ public class User {
         this.password = password;
     }
 
-    /**
-     * Creates a user with all attributes.
-     * @param username the username
-     * @param password the password
-     * @param age the user's age in years
-     * @param height the user's height
-     * @param weight the user's weight
-     */
     public User(String username, String password, int age, int height, int weight) {
-        this(username, password);  // reuses validation logic
+        this(username, password);
+        validateAge(age);
+        validateHeight(height);
+        validateWeight(weight);
         this.age = age;
         this.height = height;
         this.weight = weight;
     }
 
-    public String getName() {
-        return username;
+    // Getters are fine
+    public String getName() { return username; }
+    public String getPassword() { return password; }
+    public int getAge() {
+        return age != null ? age : 0;
     }
 
-    public String getPassword() {
-        return password;
+    public int getHeight() {
+        return height != null ? height : 0;
     }
 
-    public int getAge() {return age;};
+    public int getWeight() {
+        return weight != null ? weight : 0;
+    }
 
-    public void setAge(int age) {this.age = age;}
+    // Business logic methods
+    public void updateAgeHeightWeight(int newAge, int newHeight, int newWeight) {
+        validateAge(newAge);
+        validateHeight(newHeight);
+        validateWeight(newWeight);
+        this.age = newAge;
+        this.height = newHeight;
+        this.weight = newWeight;
+    }
 
-    public int getHeight() {return height;}
+    private void validateAge(int age) {
+        if (age < 0 || age > 150) {
+            throw new IllegalArgumentException("Age must be between 0 and 150");
+        }
+    }
 
-    public void setHeight(int height) {this.height = height;}
+    private void validateHeight(int height) {
+        if (height <= 0) {
+            throw new IllegalArgumentException("Height must be positive");
+        }
+    }
 
-    public int getWeight() {return weight;}
-
-    public void setWeight(int weight) {this.weight = weight;}
-
+    private void validateWeight(int weight) {
+        if (weight <= 0) {
+            throw new IllegalArgumentException("Weight must be positive");
+        }
+    }
 }
