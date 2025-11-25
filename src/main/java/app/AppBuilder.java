@@ -99,22 +99,6 @@ public class AppBuilder {
     }
 
 
-//    public AppBuilder addHomeView() {
-//        // Create InputMetricsView first
-//        inputMetricsViewModel = new InputMetricsViewModel();
-//        inputMetricsView = new InputMetricsView(inputMetricsViewModel);
-//
-//        // Create DailyHealthScoreView
-//        dailyHealthScoreViewModel = new DailyHealthScoreViewModel();
-//        myScoreView = new MyScoreView(dailyHealthScoreViewModel, dailyHealthScoreController); // controller set later
-//
-//        // Create HomeView and pass InputMetricsView
-//        homeViewModel = new HomeViewModel();
-//        homeView = new HomeView(homeViewModel, inputMetricsView, myScoreView);
-//        cardPanel.add(homeView, homeView.getViewName());
-//        return this;
-//    }
-
     public AppBuilder addSignupUseCase() {
         final SignupOutputBoundary signupOutputBoundary = new SignupPresenter(viewManagerModel,
                 signupViewModel, loginViewModel);
@@ -148,12 +132,6 @@ public class AppBuilder {
         return this;
     }
 
-//    public AppBuilder addDailyHealthScoreView() {
-//        dailyHealthScoreViewModel = new DailyHealthScoreViewModel();
-//        myScoreView = new MyScoreView(dailyHealthScoreViewModel, dailyHealthScoreController); // controller set later
-//        cardPanel.add(myScoreView, "MyScoreView");
-//        return this;
-//    }
 
     public AppBuilder addDailyHealthScoreUseCase() {
 
@@ -188,100 +166,6 @@ public class AppBuilder {
         return this;
     }
 
-//    public AppBuilder addDailyHealthScoreUseCase() {
-//
-//        String apiKey = System.getenv("GEMINI_API_KEY");
-//        HealthScoreCalculator scoreCalculator = new GeminiHealthScoreCalculator(apiKey);
-//
-//        DailyHealthScoreUserDataAccessInterface metricsDAO =
-//                new DailyHealthScoreDataAccessObject();
-//
-//        // CONNECT PRESENTER
-//        DailyHealthScoreOutputBoundary presenter =
-//                new DailyHealthScorePresenter(dailyHealthScoreViewModel);
-//
-//        // CONNECT INTERACTOR
-//        DailyHealthScoreInputBoundary interactor =
-//                new DailyHealthScoreInteractor(metricsDAO, presenter, scoreCalculator);
-//
-//        // CREATE CONTROLLER
-//        dailyHealthScoreController = new DailyHealthScoreController(interactor);
-//
-//        // NOW inject into the MyScoreView
-//        if (myScoreView != null) {
-//            myScoreView.setController(dailyHealthScoreController);
-//        }
-//
-//        return this;
-//    }
-//
-
-//    public AppBuilder addDailyHealthScoreUseCase() {
-        // DAO for health metrics already exists
-        // Use GeminiHealthScoreCalculator as HealthScoreCalculator implementation
-//        String apiKey = System.getenv("GEMINI_API_KEY");
-//        HealthScoreCalculator scoreCalculator = new GeminiHealthScoreCalculator(apiKey);
-//        DailyHealthScoreUserDataAccessInterface dailyHealthScoreDataAccessObject = new DailyHealthScoreDataAccessObject();
-//
-//        // Presenter
-//        DailyHealthScorePresenter presenter = new DailyHealthScorePresenter(dailyHealthScoreViewModel);
-//
-//        // Interactor
-//        DailyHealthScoreInteractor interactor = new DailyHealthScoreInteractor(
-//               dailyHealthScoreDataAccessObject,
-//               presenter,
-//               scoreCalculator
-//            );
-//
-//            // Controller
-//            dailyHealthScoreController = new DailyHealthScoreController(interactor);
-//
-//            // Wire controller to view
-//            myScoreView = new MyScoreView(dailyHealthScoreViewModel, dailyHealthScoreController);
-//
-//            // Add the view to the card panel again to ensure it has controller
-//            cardPanel.add(myScoreView, "MyScoreView");
-//
-//            return this;
-        // Step 1: Create the view without controller
-//        myScoreView = new MyScoreView(dailyHealthScoreViewModel, null);
-//
-// Step 2: Create presenter & interactor
-//        DailyHealthScorePresenter presenter = new DailyHealthScorePresenter(dailyHealthScoreViewModel);
-//        DailyHealthScoreInteractor interactor = new DailyHealthScoreInteractor(
-//                dailyHealthScoreDataAccessObject,
-//                presenter,
-//                new GeminiHealthScoreCalculator(apiKey)
-//        );
-//
-// Step 3: Create controller
-//        dailyHealthScoreController = new DailyHealthScoreController(interactor);
-//
-// Step 4: Set controller in view
-//        myScoreView.setController(dailyHealthScoreController);
-//
-// Step 5: Add to card panel
-//        cardPanel.add(myScoreView, "MyScoreView");
-//
-//        return this;
-//
-//    }
-
-
-
-        /**
-        * Adds the Logout Use Case to the application.
-        * @return this builder
-        */
-//    public AppBuilder addLogoutUseCase() {
-//        final LogoutOutputBoundary logoutOutputBoundary = new LogoutPresenter(viewManagerModel,
-//                homeViewModel, loginViewModel);
-//
-//        final LogoutInputBoundary logoutInteractor =
-//                new LogoutInteractor(userDataAccessObject, logoutOutputBoundary);
-//
-//        return this;
-//    }
 
     public JFrame build() {
         final JFrame application = new JFrame("User Login Example");
