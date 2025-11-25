@@ -149,6 +149,9 @@ public class HomeView extends JPanel {
             }
         });
 
+        return button;
+    }
+
     /**
      * Creates and styles the "Start Tracking Now" button and adds its action listener.
      * This method resolves the long surrounding method warning from the IDE.
@@ -182,7 +185,7 @@ public class HomeView extends JPanel {
                 BorderFactory.createEmptyBorder(10, 20, 10, 20)
         ));
 
-        goToInputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Metrics"));
+        goToInputMetrics.addActionListener(e -> cardLayout.show(contentPanel, "Metrics"));
 
         // Hover effect for CTA button
         goToInputMetrics.addMouseListener(new MouseAdapter() {
