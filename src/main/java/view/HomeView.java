@@ -1,6 +1,8 @@
 package view;
 
+import interface_adapter.ViewManagerModel;
 import interface_adapter.home.HomeViewModel;
+import interface_adapter.settings.SettingsViewModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,10 +43,14 @@ public class HomeView extends JPanel {
     private final CardLayout mainCardLayout;
     private final JPanel mainContentPanel;
 
-    // The homeViewModel field was removed as it was assigned but not accessed.
-    // The parameter is still kept in case it is necessary later.
-    public HomeView(HomeViewModel homeViewModel, JPanel inputMetricsView) {
-        // homeViewModel parameter is not used in the current view logic but kept for future use.
+    private final ViewManagerModel viewManagerModel;
+    private final SettingsViewModel settingsViewModel;
+    private final HomeViewModel homeViewModel;
+
+    public HomeView(HomeViewModel homeViewModel, ViewManagerModel viewManagerModel, JPanel inputMetricsView, SettingsViewModel settingsViewModel, JPanel myScoreView) {
+        this.homeViewModel = homeViewModel;
+        this.viewManagerModel = viewManagerModel;
+        this.settingsViewModel = settingsViewModel;
         this.setLayout(new BorderLayout());
 
         // === 3. CREATE THE TOP NAVBAR ===
@@ -93,7 +99,7 @@ public class HomeView extends JPanel {
 
         // --- C. Create other placeholder views ---
         // inputMetricsView is passed as parameter (actual view, not placeholder)
-        JPanel myScoreView = createMyScorePlaceholderView();
+        JPanel myScorePanel = myScoreView;
         JPanel insightsView = createPlaceholderView("Insights");
 
         // Create HealthHistoryView (concrete type so we can update it)
@@ -201,7 +207,14 @@ public class HomeView extends JPanel {
             mainCardLayout.show(mainContentPanel, "History");
         });
 
-        accountSettings.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Settings"));
+        accountSettings.addActionListener(e -> {
+            String currentUsername = homeViewModel.getState().getUsername();
+            interface_adapter.settings.SettingsState settingsState = settingsViewModel.getState();
+            settingsState.setUsername(currentUsername);
+            settingsViewModel.setState(settingsState);
+            viewManagerModel.setState("settings");
+            viewManagerModel.firePropertyChange();
+        });
         goals.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Goals"));
 
         // Set "Home" as the default homepage
@@ -260,251 +273,251 @@ public class HomeView extends JPanel {
         });
     }
 
-        return button;
-    }
+        //return button;
+//}
 
+/**
+ * Creates and styles the "Start Tracking Now" button and adds its action listener.
+ * This method resolves the long surrounding method warning from the IDE.
+ */
+private JButton styleAndAddGoToInputMetricsButton(int n) {
     /**
-     * Creates and styles the "Start Tracking Now" button and adds its action listener.
-     * This method resolves the long surrounding method warning from the IDE.
+     * If n = 1, then the button displays 'Start Tracking Now'
+     * if n = 2, then the button displays 'Input More Data'
      */
-    private JButton styleAndAddGoToInputMetricsButton(int n) {
-        /**
-         * If n = 1, then the button displays 'Start Tracking Now'
-         * if n = 2, then the button displays 'Input More Data'
-         */
-        JButton goToInputMetrics;
+    JButton goToInputMetrics;
 
-        if (n == 1) {
-            goToInputMetrics = new JButton("Start Tracking Now");
+    if (n == 1) {
+        goToInputMetrics = new JButton("Start Tracking Now");
+    } else {
+        goToInputMetrics = new JButton("Input More Data");
+    }
+    goToInputMetrics.setFont(new Font("Segoe UI", Font.BOLD, 16));
+    goToInputMetrics.setForeground(Color.WHITE);
+    goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
+    goToInputMetrics.setFocusPainted(false);
+    goToInputMetrics.setBorderPainted(false);
+    goToInputMetrics.setOpaque(true);
+    goToInputMetrics.setAlignmentX(Component.CENTER_ALIGNMENT);
+    goToInputMetrics.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+    // Make button bigger with rounded appearance
+    goToInputMetrics.setMaximumSize(new Dimension(240, 55));
+    goToInputMetrics.setPreferredSize(new Dimension(240, 55));
+    goToInputMetrics.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(COLOR_PRIMARY_BUTTON, 2, true),
+            BorderFactory.createEmptyBorder(10, 20, 10, 20)
+    ));
+
+    goToInputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Metrics"));
+
+    // Hover effect for CTA button
+    goToInputMetrics.addMouseListener(new MouseAdapter() {
+        public void mouseEntered(MouseEvent evt) {
+            goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON_HOVER);
+            goToInputMetrics.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(COLOR_PRIMARY_BUTTON_HOVER, 2, true),
+                    BorderFactory.createEmptyBorder(10, 20, 10, 20)
+            ));
+        }
+        public void mouseExited(MouseEvent evt) {
+            goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
+            goToInputMetrics.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(COLOR_PRIMARY_BUTTON, 2, true),
+                    BorderFactory.createEmptyBorder(10, 20, 10, 20)
+            ));
+        }
+    });
+    return goToInputMetrics;
+}
+
+/**
+ * Creates the main content panel for the Home view, including logo, description, and CTA.
+ */
+private JPanel createHomeContentView() {
+    JPanel homeView = new JPanel();
+    homeView.setLayout(new BoxLayout(homeView, BoxLayout.Y_AXIS));
+    homeView.setBackground(COLOR_CONTENT_BACKGROUND);
+    homeView.setBorder(BorderFactory.createEmptyBorder(80, 80, 80, 80));
+
+    // -- Create a centered card panel --
+    JPanel cardPanel = new JPanel();
+    cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+    cardPanel.setBackground(COLOR_CARD);
+    cardPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(COLOR_BORDER, 1, true),
+            BorderFactory.createEmptyBorder(40, 50, 40, 50)
+    ));
+    cardPanel.setMaximumSize(new Dimension(800, 500));
+    cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+    // -- Panel for Logo and Description (side-by-side)
+    JPanel logoAndDescriptionPanel = new JPanel();
+    logoAndDescriptionPanel.setLayout(new BoxLayout(logoAndDescriptionPanel, BoxLayout.X_AXIS));
+    logoAndDescriptionPanel.setBackground(COLOR_CARD);
+    logoAndDescriptionPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+    // Add Logo
+    try {
+        java.net.URL logoUrl = getClass().getResource("/BetterBlueprint.png");
+
+        if (logoUrl != null) {
+            ImageIcon logoIcon = new ImageIcon(logoUrl);
+            Image scaledImage = logoIcon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
+            JLabel logoLabel = new JLabel(new ImageIcon(scaledImage));
+            logoLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
+            logoAndDescriptionPanel.add(logoLabel);
         } else {
-            goToInputMetrics = new JButton("Input More Data");
+            logoAndDescriptionPanel.add(new JLabel("Logo Not Found"));
         }
-        goToInputMetrics.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        goToInputMetrics.setForeground(Color.WHITE);
-        goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
-        goToInputMetrics.setFocusPainted(false);
-        goToInputMetrics.setBorderPainted(false);
-        goToInputMetrics.setOpaque(true);
-        goToInputMetrics.setAlignmentX(Component.CENTER_ALIGNMENT);
-        goToInputMetrics.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // Make button bigger with rounded appearance
-        goToInputMetrics.setMaximumSize(new Dimension(240, 55));
-        goToInputMetrics.setPreferredSize(new Dimension(240, 55));
-        goToInputMetrics.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(COLOR_PRIMARY_BUTTON, 2, true),
-                BorderFactory.createEmptyBorder(10, 20, 10, 20)
-        ));
-
-        goToInputMetrics.addActionListener(e -> cardLayout.show(contentPanel, "Metrics"));
-
-        // Hover effect for CTA button
-        goToInputMetrics.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent evt) {
-                goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON_HOVER);
-                goToInputMetrics.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(COLOR_PRIMARY_BUTTON_HOVER, 2, true),
-                        BorderFactory.createEmptyBorder(10, 20, 10, 20)
-                ));
-            }
-            public void mouseExited(MouseEvent evt) {
-                goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
-                goToInputMetrics.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(COLOR_PRIMARY_BUTTON, 2, true),
-                        BorderFactory.createEmptyBorder(10, 20, 10, 20)
-                ));
-            }
-        });
-        return goToInputMetrics;
+    } catch (Exception e) {
+        logoAndDescriptionPanel.add(new JLabel("Logo Error"));
     }
 
-    /**
-     * Creates the main content panel for the Home view, including logo, description, and CTA.
-     */
-    private JPanel createHomeContentView() {
-        JPanel homeView = new JPanel();
-        homeView.setLayout(new BoxLayout(homeView, BoxLayout.Y_AXIS));
-        homeView.setBackground(COLOR_CONTENT_BACKGROUND);
-        homeView.setBorder(BorderFactory.createEmptyBorder(80, 80, 80, 80));
+    logoAndDescriptionPanel.add(Box.createRigidArea(new Dimension(40, 0)));
 
-        // -- Create a centered card panel --
-        JPanel cardPanel = new JPanel();
-        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
-        cardPanel.setBackground(COLOR_CARD);
-        cardPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(COLOR_BORDER, 1, true),
-                BorderFactory.createEmptyBorder(40, 50, 40, 50)
-        ));
-        cardPanel.setMaximumSize(new Dimension(800, 500));
-        cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+    // -- Right side of header: Welcome Title and Description
+    JPanel textPanel = new JPanel();
+    textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
+    textPanel.setBackground(COLOR_CARD);
 
-        // -- Panel for Logo and Description (side-by-side)
-        JPanel logoAndDescriptionPanel = new JPanel();
-        logoAndDescriptionPanel.setLayout(new BoxLayout(logoAndDescriptionPanel, BoxLayout.X_AXIS));
-        logoAndDescriptionPanel.setBackground(COLOR_CARD);
-        logoAndDescriptionPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+    JLabel welcomeTitle = new JLabel("Welcome to BetterBlueprint");
+    welcomeTitle.setFont(new Font("Segoe UI", Font.BOLD, 32));
+    welcomeTitle.setForeground(COLOR_TEXT_DARK);
+    welcomeTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Add Logo
-        try {
-            java.net.URL logoUrl = getClass().getResource("/BetterBlueprint.png");
+    String descriptionText = "<html><body style='width: 380px; color: #6B7280; line-height: 1.6;'>" +
+            "Track your daily metrics, calculate personalized health scores, " +
+            "and receive AI-powered insights to improve your well-being." +
+            "</body></html>";
+    JLabel descriptionLabel = new JLabel(descriptionText);
+    descriptionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+    descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-            if (logoUrl != null) {
-                ImageIcon logoIcon = new ImageIcon(logoUrl);
-                Image scaledImage = logoIcon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
-                JLabel logoLabel = new JLabel(new ImageIcon(scaledImage));
-                logoLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
-                logoAndDescriptionPanel.add(logoLabel);
-            } else {
-                logoAndDescriptionPanel.add(new JLabel("Logo Not Found"));
-            }
-        } catch (Exception e) {
-            logoAndDescriptionPanel.add(new JLabel("Logo Error"));
-        }
+    textPanel.add(welcomeTitle);
+    textPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+    textPanel.add(descriptionLabel);
 
-        logoAndDescriptionPanel.add(Box.createRigidArea(new Dimension(40, 0)));
+    logoAndDescriptionPanel.add(textPanel);
 
-        // -- Right side of header: Welcome Title and Description
-        JPanel textPanel = new JPanel();
-        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
-        textPanel.setBackground(COLOR_CARD);
+    // -- Button to guide the user to Input Metrics --
+    JButton goToInputMetrics2 = styleAndAddGoToInputMetricsButton(1);
 
-        JLabel welcomeTitle = new JLabel("Welcome to BetterBlueprint");
-        welcomeTitle.setFont(new Font("Segoe UI", Font.BOLD, 32));
-        welcomeTitle.setForeground(COLOR_TEXT_DARK);
-        welcomeTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+    cardPanel.add(logoAndDescriptionPanel);
+    cardPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+    cardPanel.add(goToInputMetrics2);
 
-        String descriptionText = "<html><body style='width: 380px; color: #6B7280; line-height: 1.6;'>" +
-                "Track your daily metrics, calculate personalized health scores, " +
-                "and receive AI-powered insights to improve your well-being." +
-                "</body></html>";
-        JLabel descriptionLabel = new JLabel(descriptionText);
-        descriptionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    homeView.add(Box.createVerticalGlue());
+    homeView.add(cardPanel);
+    homeView.add(Box.createVerticalGlue());
 
-        textPanel.add(welcomeTitle);
-        textPanel.add(Box.createRigidArea(new Dimension(0, 15)));
-        textPanel.add(descriptionLabel);
+    return homeView;
+}
 
-        logoAndDescriptionPanel.add(textPanel);
+/**
+ * Creates a placeholder view for My Score.
+ */
+private JPanel createMyScorePlaceholderView() {
+    JPanel myScoreView = new JPanel();
+    myScoreView.setLayout(new BoxLayout(myScoreView, BoxLayout.Y_AXIS));
+    myScoreView.setBackground(COLOR_CONTENT_BACKGROUND);
+    myScoreView.setBorder(BorderFactory.createEmptyBorder(60, 60, 60, 60));
 
-        // -- Button to guide the user to Input Metrics --
-        JButton goToInputMetrics2 = styleAndAddGoToInputMetricsButton(1);
+    // Create card panel
+    JPanel cardPanel = new JPanel();
+    cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+    cardPanel.setBackground(COLOR_CARD);
+    cardPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(COLOR_BORDER, 1, true),
+            BorderFactory.createEmptyBorder(40, 50, 40, 50)
+    ));
+    cardPanel.setMaximumSize(new Dimension(600, 400));
+    cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        cardPanel.add(logoAndDescriptionPanel);
-        cardPanel.add(Box.createRigidArea(new Dimension(0, 40)));
-        cardPanel.add(goToInputMetrics2);
+    // Title
+    JLabel titleLabel = new JLabel("Your Health Score");
+    titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+    titleLabel.setForeground(COLOR_TEXT_DARK);
+    titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        homeView.add(Box.createVerticalGlue());
-        homeView.add(cardPanel);
-        homeView.add(Box.createVerticalGlue());
+    // Score placeholder
+    JLabel scorePlaceholder = new JLabel("No score available yet");
+    scorePlaceholder.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+    scorePlaceholder.setForeground(COLOR_TEXT_LIGHT);
+    scorePlaceholder.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        return homeView;
+    JLabel instructionLabel = new JLabel("Start tracking your metrics to see your score");
+    instructionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    instructionLabel.setForeground(COLOR_TEXT_LIGHT);
+    instructionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+    cardPanel.add(titleLabel);
+    cardPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+    cardPanel.add(scorePlaceholder);
+    cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+    cardPanel.add(instructionLabel);
+
+    myScoreView.add(Box.createVerticalGlue());
+    myScoreView.add(cardPanel);
+    myScoreView.add(Box.createVerticalGlue());
+
+    return myScoreView;
+}
+
+/**
+ * Creates a generic placeholder view for other tabs.
+ * @param labelText The text to display in the placeholder.
+ */
+private JPanel createPlaceholderView(String labelText) {
+    JPanel view = new JPanel();
+    view.setLayout(new BoxLayout(view, BoxLayout.Y_AXIS));
+    view.setBackground(COLOR_CONTENT_BACKGROUND);
+    view.setBorder(BorderFactory.createEmptyBorder(60, 60, 60, 60));
+
+    // Create card panel
+    JPanel cardPanel = new JPanel();
+    cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+    cardPanel.setBackground(COLOR_CARD);
+    cardPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(COLOR_BORDER, 1, true),
+            BorderFactory.createEmptyBorder(40, 50, 40, 50)
+    ));
+    cardPanel.setMaximumSize(new Dimension(600, 300));
+    cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+    JLabel titleLabel = new JLabel(labelText);
+    titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+    titleLabel.setForeground(COLOR_TEXT_DARK);
+    titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+    JLabel comingSoonLabel = new JLabel("Coming Soon");
+    comingSoonLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+    comingSoonLabel.setForeground(COLOR_TEXT_LIGHT);
+    comingSoonLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+    cardPanel.add(titleLabel);
+    cardPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+    cardPanel.add(comingSoonLabel);
+
+    view.add(Box.createVerticalGlue());
+    view.add(cardPanel);
+    view.add(Box.createVerticalGlue());
+
+    return view;
+}
+
+public String getViewName() {
+    return "home"; }
+
+// Helper to map user-friendly selection to interactor metric key
+private static String mapMetricSelectionToKey(String selection) {
+    if (selection == null) return "calories";
+    switch (selection) {
+        case "Steps": return "steps";
+        case "Water Intake": return "water";
+        case "Exercise Minutes": return "exercise";
+        case "Calories":
+        default: return "calories";
     }
-
-    /**
-     * Creates a placeholder view for My Score.
-     */
-    private JPanel createMyScorePlaceholderView() {
-        JPanel myScoreView = new JPanel();
-        myScoreView.setLayout(new BoxLayout(myScoreView, BoxLayout.Y_AXIS));
-        myScoreView.setBackground(COLOR_CONTENT_BACKGROUND);
-        myScoreView.setBorder(BorderFactory.createEmptyBorder(60, 60, 60, 60));
-
-        // Create card panel
-        JPanel cardPanel = new JPanel();
-        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
-        cardPanel.setBackground(COLOR_CARD);
-        cardPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(COLOR_BORDER, 1, true),
-                BorderFactory.createEmptyBorder(40, 50, 40, 50)
-        ));
-        cardPanel.setMaximumSize(new Dimension(600, 400));
-        cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Title
-        JLabel titleLabel = new JLabel("Your Health Score");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        titleLabel.setForeground(COLOR_TEXT_DARK);
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Score placeholder
-        JLabel scorePlaceholder = new JLabel("No score available yet");
-        scorePlaceholder.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        scorePlaceholder.setForeground(COLOR_TEXT_LIGHT);
-        scorePlaceholder.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel instructionLabel = new JLabel("Start tracking your metrics to see your score");
-        instructionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        instructionLabel.setForeground(COLOR_TEXT_LIGHT);
-        instructionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        cardPanel.add(titleLabel);
-        cardPanel.add(Box.createRigidArea(new Dimension(0, 30)));
-        cardPanel.add(scorePlaceholder);
-        cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        cardPanel.add(instructionLabel);
-
-        myScoreView.add(Box.createVerticalGlue());
-        myScoreView.add(cardPanel);
-        myScoreView.add(Box.createVerticalGlue());
-
-        return myScoreView;
-    }
-
-    /**
-     * Creates a generic placeholder view for other tabs.
-     * @param labelText The text to display in the placeholder.
-     */
-    private JPanel createPlaceholderView(String labelText) {
-        JPanel view = new JPanel();
-        view.setLayout(new BoxLayout(view, BoxLayout.Y_AXIS));
-        view.setBackground(COLOR_CONTENT_BACKGROUND);
-        view.setBorder(BorderFactory.createEmptyBorder(60, 60, 60, 60));
-
-        // Create card panel
-        JPanel cardPanel = new JPanel();
-        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
-        cardPanel.setBackground(COLOR_CARD);
-        cardPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(COLOR_BORDER, 1, true),
-                BorderFactory.createEmptyBorder(40, 50, 40, 50)
-        ));
-        cardPanel.setMaximumSize(new Dimension(600, 300));
-        cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel titleLabel = new JLabel(labelText);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        titleLabel.setForeground(COLOR_TEXT_DARK);
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel comingSoonLabel = new JLabel("Coming Soon");
-        comingSoonLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        comingSoonLabel.setForeground(COLOR_TEXT_LIGHT);
-        comingSoonLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        cardPanel.add(titleLabel);
-        cardPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        cardPanel.add(comingSoonLabel);
-
-        view.add(Box.createVerticalGlue());
-        view.add(cardPanel);
-        view.add(Box.createVerticalGlue());
-
-        return view;
-    }
-
-    public String getViewName() {
-        return "home"; }
-
-    // Helper to map user-friendly selection to interactor metric key
-    private static String mapMetricSelectionToKey(String selection) {
-        if (selection == null) return "calories";
-        switch (selection) {
-            case "Steps": return "steps";
-            case "Water Intake": return "water";
-            case "Exercise Minutes": return "exercise";
-            case "Calories":
-            default: return "calories";
-        }
-    }
+}
 }

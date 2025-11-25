@@ -1,5 +1,6 @@
 package app;
 
+import data_access.DailyHealthScoreDataAccessObject;
 import data_access.FileUserDataAccessObject;
 import data_access.HealthMetricsDataAccessObject;
 import Entities.UserFactory;
@@ -7,6 +8,10 @@ import data_access.HealthMetricsDataAccessObject;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.change_password.ChangePasswordController;
 import interface_adapter.change_password.ChangePasswordPresenter;
+import interface_adapter.daily_health_score.DailyHealthScoreController;
+import interface_adapter.daily_health_score.DailyHealthScorePresenter;
+import interface_adapter.daily_health_score.DailyHealthScoreViewModel;
+import interface_adapter.daily_health_score.GeminiHealthScoreCalculator;
 import interface_adapter.home.HomeViewModel;
 import interface_adapter.input_metrics.InputMetricsController;
 import interface_adapter.input_metrics.InputMetricsPresenter;
@@ -19,6 +24,7 @@ import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
+import use_case.daily_health_score.*;
 import use_case.input_metrics.InputMetricsInputBoundary;
 import use_case.input_metrics.InputMetricsInteractor;
 import use_case.input_metrics.InputMetricsOutputBoundary;
@@ -40,12 +46,7 @@ import use_case.settings.SettingsOutputBoundary;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
-import view.HomeView;
-import view.InputMetricsView;
-import view.LoginView;
-import view.SignupView;
-import view.SettingsView;
-import view.ViewManager;
+import view.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -73,6 +74,9 @@ public class AppBuilder {
     private InputMetricsViewModel inputMetricsViewModel;
     private SettingsView settingsView;
     private SettingsViewModel settingsViewModel;
+    private DailyHealthScoreViewModel dailyHealthScoreViewModel;
+    private MyScoreView myScoreView;
+    private DailyHealthScoreController dailyHealthScoreController;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
@@ -104,9 +108,9 @@ public class AppBuilder {
         inputMetricsViewModel = new InputMetricsViewModel();
         inputMetricsView = new InputMetricsView(inputMetricsViewModel);
 
-        // Create HomeView and pass InputMetricsView
+        // Create HomeView and pass InputMetricsView, ViewManagerModel, and SettingsViewModel
         homeViewModel = new HomeViewModel();
-        homeView = new HomeView(homeViewModel, inputMetricsView);
+        homeView = new HomeView(homeViewModel, viewManagerModel, inputMetricsView, settingsViewModel, myScoreView);
         cardPanel.add(homeView, homeView.getViewName());
         return this;
     }
@@ -178,6 +182,39 @@ public class AppBuilder {
                 new ChangePasswordController(changePasswordInteractor);
 
         settingsView.setChangePasswordController(changePasswordController);
+        return this;
+    }
+
+    public AppBuilder addDailyHealthScoreUseCase() {
+
+        // Create ViewModel only once
+        dailyHealthScoreViewModel = new DailyHealthScoreViewModel();
+
+        // Create the View once
+        myScoreView = new MyScoreView(dailyHealthScoreViewModel, null);
+
+        // Read API key from environment variable
+        String apiKey = System.getenv("GEMINI_API_KEY");
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new IllegalStateException("GEMINI_API_KEY environment variable is not set. " +
+                    "Please set it before running the application.");
+        }
+        HealthScoreCalculator scoreCalculator = new GeminiHealthScoreCalculator(apiKey);
+
+        DailyHealthScoreUserDataAccessInterface metricsDAO =
+                new DailyHealthScoreDataAccessObject(userDataAccessObject);
+
+        DailyHealthScoreOutputBoundary presenter =
+                new DailyHealthScorePresenter(dailyHealthScoreViewModel);
+
+        DailyHealthScoreInputBoundary interactor =
+                new DailyHealthScoreInteractor(metricsDAO, presenter, scoreCalculator);
+
+        dailyHealthScoreController = new DailyHealthScoreController(interactor, metricsDAO);
+
+        // NOW inject controller
+        myScoreView.setController(dailyHealthScoreController);
+
         return this;
     }
 

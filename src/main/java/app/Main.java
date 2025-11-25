@@ -8,6 +8,7 @@ public class Main {
         JFrame application = appBuilder
                 .addLoginView()
                 .addSignupView()
+                .addDailyHealthScoreUseCase()
                 .addSettingsView()
                 .addHomeView()
                 .addSignupUseCase()

@@ -1,27 +1,39 @@
 package interface_adapter.daily_health_score;
 
-import Entities.HealthMetrics;
 import use_case.daily_health_score.DailyHealthScoreInputBoundary;
 import use_case.daily_health_score.DailyHealthScoreInputData;
+import use_case.daily_health_score.DailyHealthScoreUserDataAccessInterface;
+
+import java.time.LocalDate;
 
 /**
- * A controller for the DailyHealthScore use case.
+ * Controller for the DailyHealthScore use case.
+ * Collects input from the UI, converts it to an InputData object,
+ * and calls the interactor.
  */
 public class DailyHealthScoreController {
-    private final DailyHealthScoreInputBoundary dailyHealthScoreUseCaseInteractor;
 
-    public DailyHealthScoreController(DailyHealthScoreInputBoundary dailyHealthScoreInteractor) {
-        this.dailyHealthScoreUseCaseInteractor = dailyHealthScoreInteractor;
+    private final DailyHealthScoreInputBoundary dailyHealthScoreInteractor;
+    private final DailyHealthScoreUserDataAccessInterface userDataAccess;
+
+    public DailyHealthScoreController(DailyHealthScoreInputBoundary interactor,
+                                      DailyHealthScoreUserDataAccessInterface userDataAccess) {
+        this.dailyHealthScoreInteractor = interactor;
+        this.userDataAccess = userDataAccess;
     }
 
     /**
-     * Executes the Daily Health Score Use Case
+     * Trigger the DailyHealthScore use case.
+     * Gets the current user automatically from the data access object.
+     *
+     * @param date The date for which the health score should be computed.
      */
-    public void execute(HealthMetrics healthMetrics) {
-        final DailyHealthScoreInputData dailyHealthScoreInputData =
-                new DailyHealthScoreInputData(healthMetrics);
+    public void computeDailyHealthScore(LocalDate date) {
+        String userId = userDataAccess.getCurrentUsername();
 
-        dailyHealthScoreUseCaseInteractor.execute(dailyHealthScoreInputData);
+        DailyHealthScoreInputData inputData =
+                new DailyHealthScoreInputData(date, userId);
 
+        dailyHealthScoreInteractor.execute(inputData);
     }
 }
