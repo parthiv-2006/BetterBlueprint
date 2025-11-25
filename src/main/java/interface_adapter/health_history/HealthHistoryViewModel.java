@@ -1,7 +1,5 @@
 package interface_adapter.health_history;
 import interface_adapter.ViewModel;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The View Model for the Health History View.

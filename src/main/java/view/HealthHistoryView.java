@@ -1,8 +1,15 @@
 package view;
 
 import interface_adapter.health_history.*;
+import use_case.healthHistory.healthHistoryInteractor;
+import use_case.healthHistory.healthHistoryOutputBoundary;
+import use_case.healthHistory.healthHistoryOutputData;
+import use_case.healthHistory.healthMetricRecord;
+
 import javax.swing.*;
 import java.awt.*;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
@@ -25,8 +32,6 @@ public class HealthHistoryView extends JPanel {
      * publishes new state. The ViewModel is expected to provide:
      *  - getState() -> HealthHistoryState
      *  - addPropertyChangeListener(PropertyChangeListener)
-     *
-     * If your ViewModel class uses a different listener API adjust this method accordingly.
      */
     public void setViewModel(HealthHistoryViewModel vm) {
         if (vm == null) return;
@@ -49,8 +54,6 @@ public class HealthHistoryView extends JPanel {
                 updateData(initial.getDates(), initial.getValues(), initial.getMetricType());
             }
         } catch (Exception e) {
-            // Defensive: if ViewModel doesn't expose addPropertyChangeListener as expected,
-            // silently ignore (existing manual updateData calls still work).
             System.err.println("HealthHistoryView: failed to attach ViewModel: " + e.getMessage());
         }
     }
@@ -80,7 +83,7 @@ public class HealthHistoryView extends JPanel {
 
         int padding = 50;
         int labelPadding = 40;
-        int bottomPadding = 60; // increased for date labels
+        int bottomPadding = 60;
 
         int graphWidth = width - padding * 2 - labelPadding;
         int graphHeight = height - padding - bottomPadding;
@@ -88,10 +91,8 @@ public class HealthHistoryView extends JPanel {
         double maxValue = values.stream().mapToDouble(v -> v).max().orElse(1);
         double minValue = values.stream().mapToDouble(v -> v).min().orElse(0);
 
-        // Avoid division by zero when all values equal or when single point
         double range = maxValue - minValue;
         if (range == 0) {
-            // give a small range so plotting works visually
             range = Math.max(1.0, Math.abs(maxValue) * 0.1);
             minValue = maxValue - range;
         }
@@ -99,7 +100,6 @@ public class HealthHistoryView extends JPanel {
         // Draw background
         g2.setColor(Color.WHITE);
         g2.fillRect(0, 0, width, height);
-
         // Draw grid lines
         g2.setColor(new Color(200, 200, 200));
 
@@ -132,11 +132,12 @@ public class HealthHistoryView extends JPanel {
         // Draw date labels (X-axis)
         for (int i = 0; i < dates.size(); i++) {
             int x = padding + labelPadding + (i * graphWidth / stepsX);
-            String label = dates.get(i);
-            // small bounding to avoid label overflow
+            int label = i + 1;
             int labelX = Math.max(padding + labelPadding, Math.min(x - 20, width - 60));
-            g2.drawString(label, labelX, padding + graphHeight + 20);
+            g2.drawString(String.valueOf(label), labelX, padding + graphHeight + 20);
         }
+
+        g2.drawString("Days", width / 2 - 15, height - 10);
 
         // Draw values (Y-axis labels)
         for (int i = 0; i <= gridCount; i++) {
@@ -169,12 +170,11 @@ public class HealthHistoryView extends JPanel {
         }
     }
 
-    // Map metricType to a friendly label (with units)
     private String humanMetricLabel(String metric) {
         if (metric == null) return "";
         switch (metric.toLowerCase()) {
             case "sleephours": return "Sleep (Hours)";
-            case "waterintake": return "Water Intake (Litres)"; // adjust units as needed
+            case "waterintake": return "Water Intake (Litres)";
             case "exerciseminutes": return "Exercise (Minutes)";
             case "calories": return "Calories (cal)";
             default: return metric;
@@ -185,14 +185,6 @@ public class HealthHistoryView extends JPanel {
     private String formatYValue(double v, String metric) {
         if (metric == null) return String.format("%.1f", v);
         switch (metric.toLowerCase()) {
-            case "sleep": case "sleephours":
-                return String.format("%.1f", v);
-            case "water": case "waterintake":
-                return String.format("%.0f", v);
-            case "exercise": case "exerciseminutes":
-                return String.format("%.0f", v);
-            case "calories":
-                return String.format("%.0f", v);
             default:
                 return String.format("%.1f", v);
         }
@@ -205,5 +197,40 @@ public class HealthHistoryView extends JPanel {
         int x = Math.max(0, (getWidth() - msgWidth) / 2);
         int y = getHeight() / 2;
         g.drawString(msg, x, y);
+    }
+
+    public static healthHistoryInteractor getHealthHistoryInteractor(HealthHistoryView historyView) {
+        healthHistoryOutputBoundary directPresenter = new healthHistoryOutputBoundary() {
+            @Override
+            public void prepareSuccessView(healthHistoryOutputData data) {
+                List<String> formatted = new ArrayList<>();
+                List<Double> values = new ArrayList<>();
+                List<healthMetricRecord> records = data.getRecords();
+                DateTimeFormatter iso = DateTimeFormatter.ISO_LOCAL_DATE;
+                DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MM-dd");
+
+                if (records != null) {
+                    for (healthMetricRecord r : records) {
+                        String rawDate = r.getDate().toString();
+                        try {
+                            formatted.add(java.time.LocalDate.parse(rawDate, iso).format(fmt));
+                        } catch (Exception ex) {
+                            formatted.add(rawDate);
+                        }
+                        values.add(r.getValue());
+                    }
+                }
+
+                historyView.updateData(formatted, values, data.getMetricType());
+            }
+
+            @Override
+            public void prepareFailView(String errorMessage) {
+                historyView.updateData(new ArrayList<>(), new ArrayList<>(), "");
+            }
+        };
+
+        final healthHistoryInteractor historyInteractor = new healthHistoryInteractor(null, directPresenter);
+        return historyInteractor;
     }
 }

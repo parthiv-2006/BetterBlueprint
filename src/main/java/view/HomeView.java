@@ -11,10 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
-import use_case.healthHistory.healthHistoryOutputBoundary;
-import use_case.healthHistory.healthHistoryOutputData;
-import use_case.healthHistory.healthMetricRecord;
-import use_case.healthHistory.healthHistoryInteractor;
+import use_case.healthHistory.*;
+import view.HealthHistoryView.*;
 
 public class HomeView extends JPanel {
 
@@ -102,9 +100,9 @@ public class HomeView extends JPanel {
         final HealthHistoryView historyView = new HealthHistoryView();
 
         // Create the interactor + direct presenter that forwards data to the view
-        final healthHistoryInteractor historyInteractor = getHealthHistoryInteractor(historyView);
+        final healthHistoryInteractor historyInteractor = view.HealthHistoryView.getHealthHistoryInteractor(historyView);
 
-        // --- NEW: build a history panel that contains controls + the chart ---
+        // building a history panel that contains controls + the chart
         JPanel historyPanel = new JPanel();
         historyPanel.setLayout(new BorderLayout());
         historyPanel.setBackground(COLOR_CONTENT_BACKGROUND);
@@ -175,42 +173,6 @@ public class HomeView extends JPanel {
 
         // Set "Home" as the default homepage
         mainCardLayout.show(mainContentPanel, "Home");
-    }
-
-    @NotNull
-    private static healthHistoryInteractor getHealthHistoryInteractor(HealthHistoryView historyView) {
-        healthHistoryOutputBoundary directPresenter = new healthHistoryOutputBoundary() {
-            @Override
-            public void prepareSuccessView(healthHistoryOutputData data) {
-                List<String> formatted = new ArrayList<>();
-                List<Double> values = new ArrayList<>();
-                List<healthMetricRecord> records = data.getRecords();
-                DateTimeFormatter iso = DateTimeFormatter.ISO_LOCAL_DATE;
-                DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MM-dd");
-
-                if (records != null) {
-                    for (healthMetricRecord r : records) {
-                        String rawDate = r.getDate().toString();
-                        try {
-                            formatted.add(java.time.LocalDate.parse(rawDate, iso).format(fmt));
-                        } catch (Exception ex) {
-                            formatted.add(rawDate);
-                        }
-                        values.add(r.getValue());
-                    }
-                }
-
-                historyView.updateData(formatted, values, data.getMetricType());
-            }
-
-            @Override
-            public void prepareFailView(String errorMessage) {
-                historyView.updateData(new ArrayList<>(), new ArrayList<>(), "");
-            }
-        };
-
-        final healthHistoryInteractor historyInteractor = new healthHistoryInteractor(directPresenter);
-        return historyInteractor;
     }
 
     /**

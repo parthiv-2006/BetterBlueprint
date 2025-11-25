@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 
+
 /**
  * Interactor for viewing health score history.
  */
@@ -30,29 +31,24 @@ public class healthHistoryInteractor implements healthHistoryInputBoundary {
         this.presenter = presenter;
     }
 
-    // Convenience constructor when no dataAccess layer is available (file-based loader)
-    public healthHistoryInteractor(healthHistoryOutputBoundary presenter) {
-        this.dataAccess = null;
-        this.presenter = presenter;
-    }
-
     @Override
     public void execute(healthHistoryInputData inputData) {
-        // delegate to the new fetchHistory implementation
         fetchHistory(inputData.getMetricType(), inputData.getTimeRange(), inputData.getUser());
     }
 
     /**
      * Fetch history for a metric/timeRange/user.
-     * If dataAccess is available, use it; otherwise, attempt to read ./health_metrics.json
-     * or classpath /health_metrics.json and parse entries.
      */
     public void fetchHistory(String metricType, String timeRange, String userId) {
         List<healthMetricRecord> records = new ArrayList<>();
 
+        // === Fixed: ensure the dataAccess branch is a proper block ===
         if (dataAccess != null) {
-            // existing dataAccess path (in-memory or DB-backed)
             List<HealthMetrics> metrics = dataAccess.getHealthMetricsByUser(userId);
+            if (metrics == null || metrics.isEmpty()) {
+                presenter.prepareSuccessView(new healthHistoryOutputData(timeRange, metricType, records));
+                return;
+            }
 
             LocalDate now = LocalDate.now();
             LocalDate boundary = switch (timeRange.toLowerCase()) {
@@ -72,7 +68,10 @@ public class healthHistoryInteractor implements healthHistoryInputBoundary {
                     case "water", "waterintake" -> val = m.getWaterIntake();
                     case "exercise", "exerciseminutes" -> val = m.getExerciseMinutes();
                     case "calories" -> val = (double) m.getCalories();
-                    default -> throw new IllegalArgumentException("Unknown metric: " + metricType);
+                    default -> {
+                        // Unknown metric: skip this metric entry rather than throw.
+                        continue;
+                    }
                 }
                 records.add(new healthMetricRecord(m.getDate(), val));
             }
@@ -81,7 +80,7 @@ public class healthHistoryInteractor implements healthHistoryInputBoundary {
             return;
         }
 
-        // File-based fallback: read health_metrics.json
+        // ...existing JSON fallback code unchanged...
         String content = null;
         try (InputStream is = getClass().getResourceAsStream("/health_metrics.json")) {
             if (is != null) {

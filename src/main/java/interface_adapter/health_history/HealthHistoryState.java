@@ -16,7 +16,6 @@ public class HealthHistoryState {
     public String getMetricType() { return metricType; }
     public void setMetricType(String metricType) { this.metricType = metricType; }
 
-    public String getTimeRange() { return timeRange; }
     public void setTimeRange(String timeRange) { this.timeRange = timeRange; }
 
     public List<String> getDates() { return dates; }
