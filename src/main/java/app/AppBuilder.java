@@ -1,9 +1,9 @@
 package app;
 
 import Entities.User;
+import Entities.UserFactory;
 import data_access.FileUserDataAccessObject;
 import data_access.HealthMetricsDataAccessObject;
-import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.goals.GoalsPresenter;
 import interface_adapter.home.HomeViewModel;
@@ -142,27 +142,7 @@ public class AppBuilder {
         return this;
     }
 
-    public AppBuilder addGoalsUseCase() {
-        String currentUsername = userDataAccessObject.getCurrentUsername();
-        entity.User entityUser = userDataAccessObject.get(currentUsername);
-
-        User currentUser = new User(
-                entityUser.getName(),
-                entityUser.getPassword(),
-                30,  // default age
-                170, // default height in cm
-                70   // default weight in kg
-        );
-
-        final GoalsPresenter goalsPresenter = new GoalsPresenter(goalsViewModel);
-        final GoalsInteractor goalsInteractor = new GoalsInteractor(goalsPresenter, currentUser);
-        final GoalsController goalsController = new GoalsController(goalsInteractor);
-
-        goalsView.setGoalsController(goalsController);
-
-        return this;
-    }
-
+    
     /**
      * Adds the Logout Use Case to the application.
      * @return this builder
@@ -190,4 +170,44 @@ public class AppBuilder {
     }
 
 
+    public AppBuilder addGoalsUseCase() {
+
+        String currentUsername = userDataAccessObject.getCurrentUsername();
+        Entities.User entityUser = userDataAccessObject.get(currentUsername);
+
+        if (entityUser == null) {
+            User currentUser = new User(
+                    "BOB",
+                    "123",
+                    30,  // default age
+                    170, // default height in cm
+                    70   // default weight in kg
+            );
+
+            final GoalsPresenter goalsPresenter = new GoalsPresenter(goalsViewModel);
+            final GoalsInteractor goalsInteractor = new GoalsInteractor(goalsPresenter, currentUser);
+            final GoalsController goalsController = new GoalsController(goalsInteractor);
+
+            goalsView.setGoalsController(goalsController);
+        }
+        else{
+            User currentUser = new User(
+                    entityUser.getName(),
+                    entityUser.getPassword(),
+                    30,  // default age
+                    170, // default height in cm
+                    70   // default weight in kg
+            );
+
+            final GoalsPresenter goalsPresenter = new GoalsPresenter(goalsViewModel);
+            final GoalsInteractor goalsInteractor = new GoalsInteractor(goalsPresenter, currentUser);
+            final GoalsController goalsController = new GoalsController(goalsInteractor);
+
+            goalsView.setGoalsController(goalsController);
+        }
+
+
+
+        return this;
+    }
 }

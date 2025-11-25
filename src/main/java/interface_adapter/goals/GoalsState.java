@@ -5,7 +5,6 @@ public class GoalsState {
     private String targetWeight;
     private String timeframe;
     private String errorMessage;
-    private String planText;
     private String dailyIntakeCalories;
     private String dailyBurnCalories;
     private String explanation;
@@ -23,9 +22,6 @@ public class GoalsState {
 
     public String getErrorMessage() { return errorMessage; }
     public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
-
-    public String getPlanText() { return planText; }
-    public void setPlanText(String planText) { this.planText = planText; }
 
     public String getDailyIntakeCalories() { return dailyIntakeCalories; }
     public void setDailyIntakeCalories(String value) { this.dailyIntakeCalories = value; }
