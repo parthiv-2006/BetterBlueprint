@@ -468,35 +468,16 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         errorMessageLabel.setText("");
 
         if (goalsController != null) {
-            goalsController.execute(
-                    selectedGoalType,
-                    target,
-                    timeframe
-            );
+            String targetForUseCase = needsTarget ? target : "";
+            goalsController.execute(selectedGoalType, targetForUseCase, timeframe);
         }
 
-        String targetDisplay;
-        if (needsTarget) {
-            targetDisplay = target + " kg";
-        } else {
-            targetDisplay = "(maintain current weight)";
-        }
-
-        // Summary at top
+        // Build the summary line using what the user entered
+        String targetDisplay = needsTarget ? (target + " kg") : "(maintain current weight)";
         resultSummaryLabel.setText(
                 "Goal: " + selectedGoalType +
                         "  |  Target: " + targetDisplay +
                         "  |  Timeframe: " + timeframe + " weeks"
-        );
-
-        // Explanation text
-        explanationLabel.setText(
-                "Follow this plan daily to reach your goal safely within " + timeframe + " weeks."
-        );
-
-        // Disclaimer (small)
-        disclaimerLabel.setText(
-                "*This is a general guideline and not medical advice. Consult a physician for personalized recommendations."
         );
 
         innerCardLayout.show(innerCardPanel, "RESULT");
@@ -537,22 +518,19 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
             errorMessageLabel.setText("");
         }
 
-        resultSummaryLabel.setText(
-                "Goal: " + state.getGoalType()
-                        + "  |  Target: " + state.getTargetWeight()
-                        + "  |  Timeframe: " + state.getTimeframe() + " weeks"
-        );
+        if (state.getDailyIntakeCalories() != null) {
+            intakeLabel.setText("Daily calories intake goal: " +
+                    state.getDailyIntakeCalories() + " kcal");
+        }
 
-        intakeLabel.setText("Daily calories intake goal: "
-                + state.getDailyIntakeCalories() + " kcal");
+        if (state.getDailyBurnCalories() != null) {
+            burnLabel.setText("Daily calories burn goal: " +
+                    state.getDailyBurnCalories() + " kcal");
+        }
 
-        burnLabel.setText("Daily calories burn goal: "
-                + state.getDailyBurnCalories() + " kcal");
-
-        explanationLabel.setText(state.getExplanation());
-
-        // Switch to RESULT when the state is updated by presenter
-        innerCardLayout.show(innerCardPanel, "RESULT");
+        if (state.getExplanation() != null) {
+            explanationLabel.setText(state.getExplanation());
+        }
     }
 
     public String getViewName() {

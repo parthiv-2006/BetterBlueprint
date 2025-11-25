@@ -31,4 +31,6 @@ public class GoalsState {
 
     public String getExplanation() { return explanation; }
     public void setExplanation(String value) { this.explanation = value; }
+
+
 }

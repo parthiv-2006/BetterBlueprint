@@ -172,42 +172,47 @@ public class AppBuilder {
 
     public AppBuilder addGoalsUseCase() {
 
+        // Try to get the currently logged-in username (may be null)
         String currentUsername = userDataAccessObject.getCurrentUsername();
-        Entities.User entityUser = userDataAccessObject.get(currentUsername);
 
-        if (entityUser == null) {
-            User currentUser = new User(
-                    "BOB",
-                    "123",
-                    30,  // default age
-                    170, // default height in cm
-                    70   // default weight in kg
-            );
-
-            final GoalsPresenter goalsPresenter = new GoalsPresenter(goalsViewModel);
-            final GoalsInteractor goalsInteractor = new GoalsInteractor(goalsPresenter, currentUser);
-            final GoalsController goalsController = new GoalsController(goalsInteractor);
-
-            goalsView.setGoalsController(goalsController);
-        }
-        else{
-            User currentUser = new User(
-                    entityUser.getName(),
-                    entityUser.getPassword(),
-                    30,  // default age
-                    170, // default height in cm
-                    70   // default weight in kg
-            );
-
-            final GoalsPresenter goalsPresenter = new GoalsPresenter(goalsViewModel);
-            final GoalsInteractor goalsInteractor = new GoalsInteractor(goalsPresenter, currentUser);
-            final GoalsController goalsController = new GoalsController(goalsInteractor);
-
-            goalsView.setGoalsController(goalsController);
+        User entityUser = null;
+        if (currentUsername != null) {
+            entityUser = userDataAccessObject.get(currentUsername);
         }
 
+        // --- default values if we know nothing about the user yet ---
+        String name = "Guest";
+        String password = "";
+        int age = 30;
+        int height = 170;
+        int weight = 70;
 
+        // If we found a stored user, use their name/password
+        if (entityUser != null) {
+            name = entityUser.getName();
+            password = entityUser.getPassword();
+
+            // Try to pull latest health metrics (may be null if never entered)
+            var latestMetrics = healthMetricsDataAccessObject.getLatestMetrics(currentUsername);
+
+            if (latestMetrics != null) {
+                age = latestMetrics.getAge();
+                height = latestMetrics.getHeight();
+                weight = latestMetrics.getWeight();
+            }
+        }
+
+        // Build the User object that the goals use case will use
+        User currentUser = new User(name, password, age, height, weight);
+
+        // Wire up Goals use case
+        GoalsPresenter goalsPresenter = new GoalsPresenter(goalsViewModel);
+        GoalsInteractor goalsInteractor = new GoalsInteractor(goalsPresenter, currentUser);
+        GoalsController goalsController = new GoalsController(goalsInteractor);
+
+        goalsView.setGoalsController(goalsController);
 
         return this;
     }
+
 }
