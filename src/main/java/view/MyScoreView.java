@@ -283,7 +283,7 @@ public class MyScoreView extends JPanel implements PropertyChangeListener {
                     exerciseLabel.setText("<html><b>Exercise:</b> " + state.getExerciseMinutes() + " min</html>");
                 }
                 if (state.getCalories() != null) {
-                    caloriesLabel.setText("<html><b>Calories:</b> " + state.getCalories() + " kcal</html>");
+                    caloriesLabel.setText("<html><b>Calories:</b> " + state.getCalories() + " cal</html>");
                 }
                 if (state.getWaterIntake() != null) {
                     waterLabel.setText("<html><b>Water:</b> " + state.getWaterIntake() + " L</html>");
