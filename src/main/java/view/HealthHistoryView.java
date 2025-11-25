@@ -6,7 +6,6 @@ import java.awt.*;
 import java.util.List;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-import use_case.healthHistory.healthHistoryInteractor.*;
 
 /**
  * The View for the Health History use case.
@@ -54,9 +53,6 @@ public class HealthHistoryView extends JPanel {
             // silently ignore (existing manual updateData calls still work).
             System.err.println("HealthHistoryView: failed to attach ViewModel: " + e.getMessage());
         }
-    }
-
-    public void setNavigation(CardLayout layout, JPanel container) {
     }
 
 
@@ -126,10 +122,13 @@ public class HealthHistoryView extends JPanel {
         g2.drawLine(padding + labelPadding, padding + graphHeight,
                 padding + labelPadding + graphWidth, padding + graphHeight);
 
-        // Draw axis labels
-        g2.drawString(metricType == null ? "" : metricType, padding, padding - 10);
-        g2.drawString("Date", width / 2 - 20, height - 10);
+        String title = humanMetricLabel(metricType);
+        g2.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        FontMetrics fm = g2.getFontMetrics();
+        int titleWidth = fm.stringWidth(title);
+        g2.drawString(title, Math.max(padding + labelPadding, (width - titleWidth) / 2), padding - 18);
 
+        g2.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         // Draw date labels (X-axis)
         for (int i = 0; i < dates.size(); i++) {
             int x = padding + labelPadding + (i * graphWidth / stepsX);
@@ -143,12 +142,12 @@ public class HealthHistoryView extends JPanel {
         for (int i = 0; i <= gridCount; i++) {
             double val = maxValue - (range) * i / gridCount;
             int y = padding + (i * graphHeight / gridCount);
-            g2.drawString(String.format("%.1f", val), padding, y + 5);
+            String yLabel = formatYValue(val, metricType);
+            g2.drawString(yLabel, padding, y + 5);
         }
 
         // Draw data points and connecting lines
-        g2.setColor(Color.BLUE);
-
+        g2.setColor(new Color(33, 150, 243)); // blue-ish
         int prevX = -1;
         int prevY = -1;
 
@@ -158,14 +157,44 @@ public class HealthHistoryView extends JPanel {
             int x = padding + labelPadding + (i * graphWidth / stepsX);
             int y = padding + (int) ((maxValue - value) / (range) * graphHeight);
 
-            g2.fillOval(x - 3, y - 3, 6, 6);
+            g2.fillOval(x - 4, y - 4, 8, 8);
 
             if (i > 0 && prevX >= 0) {
+                g2.setStroke(new BasicStroke(2));
                 g2.drawLine(prevX, prevY, x, y);
             }
 
             prevX = x;
             prevY = y;
+        }
+    }
+
+    // Map metricType to a friendly label (with units)
+    private String humanMetricLabel(String metric) {
+        if (metric == null) return "";
+        switch (metric.toLowerCase()) {
+            case "sleephours": return "Sleep (Hours)";
+            case "waterintake": return "Water Intake (Litres)"; // adjust units as needed
+            case "exerciseminutes": return "Exercise (Minutes)";
+            case "calories": return "Calories (cal)";
+            default: return metric;
+        }
+    }
+
+    // Format Y-axis values with suitable precision / units
+    private String formatYValue(double v, String metric) {
+        if (metric == null) return String.format("%.1f", v);
+        switch (metric.toLowerCase()) {
+            case "sleep": case "sleephours":
+                return String.format("%.1f", v);
+            case "water": case "waterintake":
+                return String.format("%.0f", v);
+            case "exercise": case "exerciseminutes":
+                return String.format("%.0f", v);
+            case "calories":
+                return String.format("%.0f", v);
+            default:
+                return String.format("%.1f", v);
         }
     }
 

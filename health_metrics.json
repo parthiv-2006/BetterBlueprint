@@ -1,42 +1,37 @@
 [
-  {
-    "date": "2025-11-24",
-    "sleepHours": 7.5,
-    "waterIntake": 2.1,
-    "calories": 2150,
-    "exerciseMinutes": 45,
-    "userId": "hello"
-  },
-  {
-    "date": "2025-11-23",
-    "sleepHours": 8.2,
-    "waterIntake": 1.8,
-    "calories": 1980,
-    "exerciseMinutes": 30,
-    "userId": "hello"
-  },
-  {
-    "date": "2025-11-22",
-    "sleepHours": 6.9,
-    "waterIntake": 2.5,
-    "calories": 2300,
-    "exerciseMinutes": 60,
-    "userId": "hello"
-  },
-  {
-    "date": "2025-11-21",
-    "sleepHours": 7.0,
-    "waterIntake": 1.6,
-    "calories": 1900,
-    "exerciseMinutes": 20,
-    "userId": "hello"
-  },
-  {
-    "date": "2025-11-20",
-    "sleepHours": 8.7,
-    "waterIntake": 2.9,
-    "calories": 2400,
-    "exerciseMinutes": 50,
-    "userId": "hello"
-  }
+  { "date": "2025-11-24", "sleepHours": 7.5, "waterIntake": 2.1, "calories": 2150, "exerciseMinutes": 45, "userId": "hello" },
+  { "date": "2025-11-23", "sleepHours": 8.2, "waterIntake": 1.8, "calories": 1980, "exerciseMinutes": 30, "userId": "hello" },
+  { "date": "2025-11-22", "sleepHours": 6.9, "waterIntake": 2.5, "calories": 2300, "exerciseMinutes": 60, "userId": "hello" },
+  { "date": "2025-11-21", "sleepHours": 7.0, "waterIntake": 1.6, "calories": 1900, "exerciseMinutes": 20, "userId": "hello" },
+  { "date": "2025-11-20", "sleepHours": 8.7, "waterIntake": 2.9, "calories": 2400, "exerciseMinutes": 50, "userId": "hello" },
+
+  { "date": "2025-11-19", "sleepHours": 7.3, "waterIntake": 2.0, "calories": 2050, "exerciseMinutes": 35, "userId": "hello" },
+  { "date": "2025-11-18", "sleepHours": 6.8, "waterIntake": 1.9, "calories": 1880, "exerciseMinutes": 15, "userId": "hello" },
+  { "date": "2025-11-17", "sleepHours": 8.4, "waterIntake": 2.7, "calories": 2500, "exerciseMinutes": 55, "userId": "hello" },
+  { "date": "2025-11-16", "sleepHours": 7.1, "waterIntake": 1.5, "calories": 1750, "exerciseMinutes": 20, "userId": "hello" },
+  { "date": "2025-11-15", "sleepHours": 7.9, "waterIntake": 2.3, "calories": 2200, "exerciseMinutes": 40, "userId": "hello" },
+
+  { "date": "2025-11-14", "sleepHours": 8.0, "waterIntake": 2.4, "calories": 2100, "exerciseMinutes": 35, "userId": "hello" },
+  { "date": "2025-11-13", "sleepHours": 6.5, "waterIntake": 1.7, "calories": 1850, "exerciseMinutes": 10, "userId": "hello" },
+  { "date": "2025-11-12", "sleepHours": 7.6, "waterIntake": 2.2, "calories": 2250, "exerciseMinutes": 45, "userId": "hello" },
+  { "date": "2025-11-11", "sleepHours": 8.1, "waterIntake": 2.6, "calories": 2400, "exerciseMinutes": 60, "userId": "hello" },
+  { "date": "2025-11-10", "sleepHours": 7.4, "waterIntake": 1.8, "calories": 1950, "exerciseMinutes": 25, "userId": "hello" },
+
+  { "date": "2025-11-09", "sleepHours": 7.2, "waterIntake": 2.0, "calories": 2050, "exerciseMinutes": 30, "userId": "hello" },
+  { "date": "2025-11-08", "sleepHours": 6.9, "waterIntake": 1.9, "calories": 1800, "exerciseMinutes": 15, "userId": "hello" },
+  { "date": "2025-11-07", "sleepHours": 8.3, "waterIntake": 2.8, "calories": 2500, "exerciseMinutes": 55, "userId": "hello" },
+  { "date": "2025-11-06", "sleepHours": 7.0, "waterIntake": 1.6, "calories": 1900, "exerciseMinutes": 20, "userId": "hello" },
+  { "date": "2025-11-05", "sleepHours": 7.8, "waterIntake": 2.3, "calories": 2150, "exerciseMinutes": 40, "userId": "hello" },
+
+  { "date": "2025-11-04", "sleepHours": 8.1, "waterIntake": 2.5, "calories": 2300, "exerciseMinutes": 50, "userId": "hello" },
+  { "date": "2025-11-03", "sleepHours": 7.4, "waterIntake": 1.7, "calories": 2000, "exerciseMinutes": 22, "userId": "hello" },
+  { "date": "2025-11-02", "sleepHours": 6.7, "waterIntake": 1.9, "calories": 1800, "exerciseMinutes": 10, "userId": "hello" },
+  { "date": "2025-11-01", "sleepHours": 7.9, "waterIntake": 2.4, "calories": 2200, "exerciseMinutes": 48, "userId": "hello" },
+  { "date": "2025-10-31", "sleepHours": 7.1, "waterIntake": 2.0, "calories": 2000, "exerciseMinutes": 30, "userId": "hello" },
+
+  { "date": "2025-10-30", "sleepHours": 8.3, "waterIntake": 2.7, "calories": 2400, "exerciseMinutes": 60, "userId": "hello" },
+  { "date": "2025-10-29", "sleepHours": 7.2, "waterIntake": 1.6, "calories": 1900, "exerciseMinutes": 15, "userId": "hello" },
+  { "date": "2025-10-28", "sleepHours": 8.0, "waterIntake": 2.5, "calories": 2150, "exerciseMinutes": 45, "userId": "hello" },
+  { "date": "2025-10-27", "sleepHours": 7.5, "waterIntake": 2.2, "calories": 2050, "exerciseMinutes": 35, "userId": "hello" },
+  { "date": "2025-10-26", "sleepHours": 7.9, "waterIntake": 2.3, "calories": 2100, "exerciseMinutes": 42, "userId": "hello" }
 ]

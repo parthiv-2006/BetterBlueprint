@@ -9,6 +9,8 @@ import java.awt.event.MouseEvent;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.jetbrains.annotations.NotNull;
 import use_case.healthHistory.healthHistoryOutputBoundary;
 import use_case.healthHistory.healthHistoryOutputData;
 import use_case.healthHistory.healthMetricRecord;
@@ -99,7 +101,84 @@ public class HomeView extends JPanel {
         // Create HealthHistoryView (concrete type so we can update it)
         final HealthHistoryView historyView = new HealthHistoryView();
 
-        // Create a simple presenter that forwards interactor output into the view
+        // Create the interactor + direct presenter that forwards data to the view
+        final healthHistoryInteractor historyInteractor = getHealthHistoryInteractor(historyView);
+
+        // --- NEW: build a history panel that contains controls + the chart ---
+        JPanel historyPanel = new JPanel();
+        historyPanel.setLayout(new BorderLayout());
+        historyPanel.setBackground(COLOR_CONTENT_BACKGROUND);
+
+        // control bar (top of history panel)
+        JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 10));
+        controls.setBackground(COLOR_CONTENT_BACKGROUND);
+
+        String[] metrics = { "Calories", "Sleep Hours", "Water Intake", "Exercise Minutes" };
+        JComboBox<String> metricCombo = new JComboBox<>(metrics);
+
+        String[] ranges = { "week", "month", "year" };
+        JComboBox<String> rangeCombo = new JComboBox<>(ranges);
+        rangeCombo.setSelectedItem("week");
+
+        controls.add(new JLabel("Metric:"));
+        controls.add(metricCombo);
+        controls.add(Box.createHorizontalStrut(16));
+        controls.add(new JLabel("Range:"));
+        controls.add(rangeCombo);
+
+        historyPanel.add(controls, BorderLayout.NORTH);
+        historyPanel.add(historyView, BorderLayout.CENTER);
+
+        // Wire up combo changes to request the interactor to (re)load data
+        String userId = "user1"; // keep using user1; change if you provide auth
+        Runnable refresh = () -> {
+            String selectedMetric = ((String) metricCombo.getSelectedItem());
+            String metricKey = mapMetricSelectionToKey(selectedMetric);
+            String selectedRange = ((String) rangeCombo.getSelectedItem());
+            historyInteractor.fetchHistory(metricKey, selectedRange, userId);
+        };
+
+        metricCombo.addActionListener(e -> refresh.run());
+        rangeCombo.addActionListener(e -> refresh.run());
+
+        // Initial load using defaults
+        refresh.run();
+
+        // --- Add the historyPanel (instead of raw historyView) into the card layout ---
+        mainContentPanel.add(homeView, "Home");
+        mainContentPanel.add(inputMetricsView, "Metrics");
+        mainContentPanel.add(myScoreView, "Score");
+        mainContentPanel.add(insightsView, "Insights");
+        mainContentPanel.add(historyPanel, "History");
+//        mainContentPanel.add(accountSettingsView, "Settings");
+//        mainContentPanel.add(goalsView, "Goals");
+
+        // === 5. ASSEMBLE THE HOMEVIEW ===
+        this.add(navbarPanel, BorderLayout.NORTH);
+        this.add(mainContentPanel, BorderLayout.CENTER);
+
+        // === 6. ADD ACTION LISTENERS ===
+        home.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Home"));
+        inputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Metrics"));
+        myScore.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Score"));
+        insights.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Insights"));
+
+        // Update chart data on-demand when History is clicked, then show it
+        history.addActionListener(e -> {
+            // When user clicks History nav button, show the panel and ensure latest selection is loaded
+            refresh.run();
+            mainCardLayout.show(mainContentPanel, "History");
+        });
+
+        accountSettings.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Settings"));
+        goals.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Goals"));
+
+        // Set "Home" as the default homepage
+        mainCardLayout.show(mainContentPanel, "Home");
+    }
+
+    @NotNull
+    private static healthHistoryInteractor getHealthHistoryInteractor(HealthHistoryView historyView) {
         healthHistoryOutputBoundary directPresenter = new healthHistoryOutputBoundary() {
             @Override
             public void prepareSuccessView(healthHistoryOutputData data) {
@@ -131,45 +210,7 @@ public class HomeView extends JPanel {
         };
 
         final healthHistoryInteractor historyInteractor = new healthHistoryInteractor(directPresenter);
-
-        // Initial load: show calories chart (week) on startup
-        historyInteractor.fetchHistory("calories", "week", "user1");
-
-        JPanel accountSettingsView = createPlaceholderView("Settings");
-        JPanel goalsView = createPlaceholderView("Goals");
-
-        // --- Add all views to the main CardLayout panel ---
-        mainContentPanel.add(homeView, "Home");
-        mainContentPanel.add(inputMetricsView, "Metrics");
-        mainContentPanel.add(myScoreView, "Score");
-        mainContentPanel.add(insightsView, "Insights");
-        mainContentPanel.add(historyView, "History");
-        mainContentPanel.add(accountSettingsView, "Settings");
-        mainContentPanel.add(goalsView, "Goals");
-        mainContentPanel.add(goalsView, "Goals");
-
-        // === 5. ASSEMBLE THE HOMEVIEW ===
-        this.add(navbarPanel, BorderLayout.NORTH);
-        this.add(mainContentPanel, BorderLayout.CENTER);
-
-        // === 6. ADD ACTION LISTENERS ===
-        home.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Home"));
-        inputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Metrics"));
-        myScore.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Score"));
-        insights.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Insights"));
-
-        // Update chart data on-demand when History is clicked, then show it
-        history.addActionListener(e -> {
-            // Request calorie data when History clicked
-            historyInteractor.fetchHistory("calories", "week", "user1");
-            mainCardLayout.show(mainContentPanel, "History");
-        });
-
-        accountSettings.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Settings"));
-        goals.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Goals"));
-
-        // Set "Home" as the default homepage
-        mainCardLayout.show(mainContentPanel, "Home");
+        return historyInteractor;
     }
 
     /**
@@ -500,5 +541,16 @@ public class HomeView extends JPanel {
 
     public String getViewName() {
         return "home"; }
-}
 
+    // Helper to map user-friendly selection to interactor metric key
+    private static String mapMetricSelectionToKey(String selection) {
+        if (selection == null) return "calories";
+        switch (selection) {
+            case "Sleep Hours": return "sleep";
+            case "Water Intake": return "water";
+            case "Exercise Minutes": return "exercise";
+            case "Calories":
+            default: return "calories";
+        }
+    }
+}
