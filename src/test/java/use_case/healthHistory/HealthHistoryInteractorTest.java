@@ -45,7 +45,6 @@ public class HealthHistoryInteractorTest {
     @Test
     void testFetchCalories_weekFiltersCorrectly() {
         MockPresenter presenter = new MockPresenter();
-        // dataAccess null -> interactor will read health_metrics.json
         healthHistoryInteractor interactor = new healthHistoryInteractor(null, presenter);
 
         interactor.fetchHistory("calories", "week", "user1");
@@ -55,7 +54,6 @@ public class HealthHistoryInteractorTest {
         assertNotNull(out);
         List<healthMetricRecord> records = out.getRecords();
         assertEquals("calories", out.getMetricType());
-        // only the record from 3 days ago is within last week
         assertEquals(1, records.size());
         assertEquals(200.0, records.get(0).getValue(), 0.001);
     }
@@ -85,7 +83,6 @@ public class HealthHistoryInteractorTest {
         healthHistoryOutputData out = presenter.outputData;
         assertNotNull(out);
         List<healthMetricRecord> records = out.getRecords();
-        // r1 (3d), r2 (10d) are within year; r3 (400d) is outside year -> expect 2
         assertEquals(2, records.size());
     }
 
@@ -102,7 +99,6 @@ public class HealthHistoryInteractorTest {
         assertTrue(out.getRecords().isEmpty());
     }
 
-    // simple presenter that captures outputData
     private static class MockPresenter implements healthHistoryOutputBoundary {
         boolean successCalled = false;
         healthHistoryOutputData outputData;
