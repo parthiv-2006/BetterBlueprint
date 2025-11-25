@@ -27,4 +27,16 @@ public class HealthHistoryOutputDataTest {
         assertEquals(123.45, out.getRecords().get(0).getValue(), 0.0001);
         assertEquals(LocalDate.of(2023, 1, 1), out.getRecords().get(0).getDate());
     }
+
+    @Test
+    void testOutputDataWithEmptyRecords() {
+        List<healthMetricRecord> records = Arrays.asList();
+
+        healthHistoryOutputData out = new healthHistoryOutputData("week", "steps", records);
+
+        assertEquals("week", out.getTimeRange());
+        assertEquals("steps", out.getMetricType());
+        assertNotNull(out.getRecords());
+        assertTrue(out.getRecords().isEmpty());
+    }
 }
