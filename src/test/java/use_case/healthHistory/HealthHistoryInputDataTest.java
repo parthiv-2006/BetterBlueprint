@@ -20,9 +20,9 @@ public class HealthHistoryInputDataTest {
 
     @Test
     void testDifferentValues() {
-        healthHistoryInputData input = new healthHistoryInputData("steps", "month", "user2");
+        healthHistoryInputData input = new healthHistoryInputData("waterIntake", "month", "user2");
 
-        assertEquals("steps", input.getMetricType());
+        assertEquals("waterIntake", input.getMetricType());
         assertEquals("month", input.getTimeRange());
         assertEquals("user2", input.getUser());
     }
