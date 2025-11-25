@@ -17,7 +17,7 @@ public interface healthHistoryOutputBoundary {
 
     /**
      * Called when the use case fails.
-     * @param errorMessage explanation of the failure
+     * @param errorMessage explains why the failure occured and what it is
      */
     default void prepareFailView(String errorMessage) {
         System.err.println("HealthScoreHistory Error: " + errorMessage);

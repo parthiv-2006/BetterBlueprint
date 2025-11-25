@@ -166,7 +166,6 @@ public class healthHistoryInteractor implements healthHistoryInputBoundary {
         presenter.prepareSuccessView(new healthHistoryOutputData(timeRange, metricType, records));
     }
 
-    // small internal holder
     private static class Record {
         LocalDate date;
         double value;
