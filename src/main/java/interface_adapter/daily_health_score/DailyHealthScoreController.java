@@ -20,7 +20,6 @@ public class DailyHealthScoreController {
                                      DailyHealthScoreUserDataAccessInterface userDataAccess) {
         this.dailyHealthScoreInteractor = interactor;
         this.userDataAccess = userDataAccess;
-        System.out.println("Controller created with interactor: " + interactor);
     }
 
     /**
@@ -31,7 +30,6 @@ public class DailyHealthScoreController {
      */
     public void computeDailyHealthScore(LocalDate date) {
         String userId = userDataAccess.getCurrentUsername();
-        System.out.println("Controller: Computing score for userId: " + userId + ", date: " + date);
 
         DailyHealthScoreInputData inputData =
                 new DailyHealthScoreInputData(date, userId);

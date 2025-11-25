@@ -44,21 +44,14 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
                 "Weight sleep and exercise slightly higher than calories and water.\n\n" +
                 "Respond with ONLY the integer score (0-100), nothing else.";
 
-        System.out.println("=== Sending to Gemini ===");
-        System.out.println("Sleep: " + sleepHours + " hrs, Exercise: " + exerciseMinutes + " min, Calories: " + calories + ", Water: " + waterIntake + " L");
-
         String result = callGemini(prompt).trim();
-
-        System.out.println("Gemini raw response: '" + result + "'");
 
         try {
             // First try to parse directly
             int score = Integer.parseInt(result);
-            System.out.println("Parsed score directly: " + score);
 
             // Validate range
             if (score < 0 || score > 100) {
-                System.out.println("Score out of range, using fallback");
                 return calculateFallbackScore(sleepHours, exerciseMinutes, calories, waterIntake);
             }
 
@@ -70,7 +63,6 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
                 try {
                     int score = Integer.parseInt(numbersOnly);
                     if (score >= 0 && score <= 100) {
-                        System.out.println("Extracted score: " + score);
                         return score;
                     }
                 } catch (NumberFormatException ex) {
@@ -78,7 +70,6 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
                 }
             }
 
-            System.out.println("Failed to parse, using fallback calculation");
             return calculateFallbackScore(sleepHours, exerciseMinutes, calories, waterIntake);
         }
     }
@@ -127,7 +118,6 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
             score += 10;
         }
 
-        System.out.println("Fallback score calculated: " + score);
         return score;
     }
 
@@ -147,8 +137,6 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
                 "Be positive and actionable.";
 
         String feedback = callGemini(prompt).trim();
-
-        System.out.println("Generated feedback: " + feedback);
 
         return feedback;
     }
@@ -181,9 +169,6 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
             HttpResponse<String> response =
                     client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            // Log response for debugging
-            System.out.println("Gemini API Response Status: " + response.statusCode());
-            System.out.println("Gemini API Response Body: " + response.body());
 
             if (response.statusCode() != 200) {
                 return "Error: " + response.body();
