@@ -132,7 +132,6 @@ public class HomeView extends JPanel {
 
         final healthHistoryInteractor historyInteractor = new healthHistoryInteractor(directPresenter);
 
-        // Initial load: show calories chart (week) on startup
         historyInteractor.fetchHistory("calories", "week", "user1");
 
         JPanel accountSettingsView = createPlaceholderView("Settings");
