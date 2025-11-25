@@ -4,11 +4,6 @@ A desktop Java application that allows users to log daily health metrics (sleep,
 
 ## Setup Instructions
 
-### Prerequisites
-- Java 11 or higher
-- Maven
-- A Google Gemini API key
-
 ### Setting Up Your Gemini API Key
 
 This application requires a Gemini API key to calculate health scores and generate personalized feedback. Follow these steps to set it up:
@@ -77,27 +72,6 @@ echo 'export GEMINI_API_KEY="your-api-key-here"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-#### 3. Verify the Setup
-
-To verify your environment variable is set correctly:
-
-**Windows (PowerShell):**
-```powershell
-echo $env:GEMINI_API_KEY
-```
-
-**Windows (Command Prompt):**
-```cmd
-echo %GEMINI_API_KEY%
-```
-
-**macOS/Linux:**
-```bash
-echo $GEMINI_API_KEY
-```
-
-You should see your API key printed. If not, check that you've set it correctly and restarted your IDE/terminal.
-
 ### Running the Application
 
 1. Clone the repository
@@ -111,16 +85,5 @@ IllegalStateException: GEMINI_API_KEY environment variable is not set.
 Please set it before running the application.
 ```
 
-## Features
-
-- User signup and login
-- Daily health metrics input (sleep, water, exercise, calories)
-- AI-powered health score calculation using Google Gemini
-- Personalized health insights and feedback
-- Historical health data tracking
-
-## Security Note
-
-⚠️ **Never commit your API key to version control!** The application uses environment variables to keep your API key secure. Always use environment variables for sensitive credentials.
 
 
