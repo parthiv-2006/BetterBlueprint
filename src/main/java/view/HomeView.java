@@ -1,6 +1,8 @@
 package view;
 
+import interface_adapter.ViewManagerModel;
 import interface_adapter.home.HomeViewModel;
+import interface_adapter.settings.SettingsViewModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,10 +43,14 @@ public class HomeView extends JPanel {
     private final CardLayout mainCardLayout;
     private final JPanel mainContentPanel;
 
-    // The homeViewModel field was removed as it was assigned but not accessed.
-    // The parameter is still kept in case it is necessary later.
-    public HomeView(HomeViewModel homeViewModel, JPanel inputMetricsView) {
-        // homeViewModel parameter is not used in the current view logic but kept for future use.
+    private final ViewManagerModel viewManagerModel;
+    private final SettingsViewModel settingsViewModel;
+    private final HomeViewModel homeViewModel;
+
+    public HomeView(HomeViewModel homeViewModel, ViewManagerModel viewManagerModel, JPanel inputMetricsView, SettingsViewModel settingsViewModel) {
+        this.homeViewModel = homeViewModel;
+        this.viewManagerModel = viewManagerModel;
+        this.settingsViewModel = settingsViewModel;
         this.setLayout(new BorderLayout());
 
         // === 3. CREATE THE TOP NAVBAR ===
@@ -201,7 +207,14 @@ public class HomeView extends JPanel {
             mainCardLayout.show(mainContentPanel, "History");
         });
 
-        accountSettings.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Settings"));
+        accountSettings.addActionListener(e -> {
+            String currentUsername = homeViewModel.getState().getUsername();
+            interface_adapter.settings.SettingsState settingsState = settingsViewModel.getState();
+            settingsState.setUsername(currentUsername);
+            settingsViewModel.setState(settingsState);
+            viewManagerModel.setState("settings");
+            viewManagerModel.firePropertyChange();
+        });
         goals.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Goals"));
 
         // Set "Home" as the default homepage

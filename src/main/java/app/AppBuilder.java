@@ -104,9 +104,9 @@ public class AppBuilder {
         inputMetricsViewModel = new InputMetricsViewModel();
         inputMetricsView = new InputMetricsView(inputMetricsViewModel);
 
-        // Create HomeView and pass InputMetricsView
+        // Create HomeView and pass InputMetricsView, ViewManagerModel, and SettingsViewModel
         homeViewModel = new HomeViewModel();
-        homeView = new HomeView(homeViewModel, inputMetricsView);
+        homeView = new HomeView(homeViewModel, viewManagerModel, inputMetricsView, settingsViewModel);
         cardPanel.add(homeView, homeView.getViewName());
         return this;
     }
