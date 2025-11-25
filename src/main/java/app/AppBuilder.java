@@ -106,7 +106,7 @@ public class AppBuilder {
 
         // Create HomeView and pass InputMetricsView
         homeViewModel = new HomeViewModel();
-//        homeView = new HomeView(homeViewModel, viewManagerModel, inputMetricsView, settingsViewModel);
+        homeView = new HomeView(homeViewModel, inputMetricsView);
         cardPanel.add(homeView, homeView.getViewName());
         return this;
     }
@@ -135,9 +135,9 @@ public class AppBuilder {
 
     public AppBuilder addInputMetricsUseCase() {
         final InputMetricsOutputBoundary inputMetricsOutputBoundary =
-            new InputMetricsPresenter(inputMetricsViewModel, viewManagerModel);
+                new InputMetricsPresenter(inputMetricsViewModel, viewManagerModel);
         final InputMetricsInputBoundary inputMetricsInteractor =
-            new InputMetricsInteractor(healthMetricsDataAccessObject, inputMetricsOutputBoundary);
+                new InputMetricsInteractor(healthMetricsDataAccessObject, inputMetricsOutputBoundary);
 
         InputMetricsController controller = new InputMetricsController(inputMetricsInteractor);
         inputMetricsView.setInputMetricsController(controller);

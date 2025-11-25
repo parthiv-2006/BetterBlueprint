@@ -448,50 +448,6 @@ public class HomeView extends JPanel {
         return myScoreView;
     }
 
-    private JPanel createMyHistoryPlaceholderView() {
-        JPanel myHistoryView = new JPanel();
-        myHistoryView.setLayout(new BoxLayout(myHistoryView, BoxLayout.Y_AXIS));
-        myHistoryView.setBackground(COLOR_CONTENT_BACKGROUND);
-        myHistoryView.setBorder(BorderFactory.createEmptyBorder(60, 60, 60, 60));
-
-        // Create card panel
-        JPanel cardPanel = new JPanel();
-        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
-        cardPanel.setBackground(COLOR_CARD);
-        cardPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(COLOR_BORDER, 1, true),
-                BorderFactory.createEmptyBorder(40, 50, 40, 50)
-        ));
-        cardPanel.setMaximumSize(new Dimension(600, 400));
-        cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Title
-        JLabel titleLabel = new JLabel("Your Charts");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        titleLabel.setForeground(COLOR_TEXT_DARK);
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Score placeholder
-        JLabel historyPlaceholder = new JLabel("Not enough data");
-        historyPlaceholder.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        historyPlaceholder.setForeground(COLOR_TEXT_LIGHT);
-        historyPlaceholder.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JButton styledGoToInputMetricsButton = styleAndAddGoToInputMetricsButton(2);
-
-        cardPanel.add(titleLabel);
-        cardPanel.add(Box.createRigidArea(new Dimension(0, 30)));
-        cardPanel.add(historyPlaceholder);
-        cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        cardPanel.add(styledGoToInputMetricsButton);
-
-        myHistoryView.add(Box.createVerticalGlue());
-        myHistoryView.add(cardPanel);
-        myHistoryView.add(Box.createVerticalGlue());
-
-        return myHistoryView;
-    }
-
     /**
      * Creates a generic placeholder view for other tabs.
      * @param labelText The text to display in the placeholder.
