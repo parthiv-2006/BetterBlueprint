@@ -1,8 +1,42 @@
-[{
+[
+  {
     "date": "2025-11-24",
-    "sleepHours": 22,
-    "waterIntake": 2,
-    "calories": 2,
-    "exerciseMinutes": 2,
+    "sleepHours": 7.5,
+    "waterIntake": 2.1,
+    "calories": 2150,
+    "exerciseMinutes": 45,
     "userId": "hello"
-}]
+  },
+  {
+    "date": "2025-11-23",
+    "sleepHours": 8.2,
+    "waterIntake": 1.8,
+    "calories": 1980,
+    "exerciseMinutes": 30,
+    "userId": "hello"
+  },
+  {
+    "date": "2025-11-22",
+    "sleepHours": 6.9,
+    "waterIntake": 2.5,
+    "calories": 2300,
+    "exerciseMinutes": 60,
+    "userId": "hello"
+  },
+  {
+    "date": "2025-11-21",
+    "sleepHours": 7.0,
+    "waterIntake": 1.6,
+    "calories": 1900,
+    "exerciseMinutes": 20,
+    "userId": "hello"
+  },
+  {
+    "date": "2025-11-20",
+    "sleepHours": 8.7,
+    "waterIntake": 2.9,
+    "calories": 2400,
+    "exerciseMinutes": 50,
+    "userId": "hello"
+  }
+]

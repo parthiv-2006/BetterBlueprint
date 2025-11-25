@@ -6,6 +6,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import use_case.healthHistory.healthHistoryOutputBoundary;
+import use_case.healthHistory.healthHistoryOutputData;
+import use_case.healthHistory.healthMetricRecord;
+import use_case.healthHistory.healthHistoryInteractor;
 
 public class HomeView extends JPanel {
 
@@ -36,7 +43,7 @@ public class HomeView extends JPanel {
 
     // The homeViewModel field was removed as it was assigned but not accessed.
     // The parameter is still kept in case it is necessary later.
-    public HomeView(HomeViewModel homeViewModel, JPanel inputMetricsView, HealthHistoryView  healthHistoryView) {
+    public HomeView(HomeViewModel homeViewModel, JPanel inputMetricsView) {
         // homeViewModel parameter is not used in the current view logic but kept for future use.
         this.setLayout(new BorderLayout());
 
@@ -88,7 +95,46 @@ public class HomeView extends JPanel {
         // inputMetricsView is passed as parameter (actual view, not placeholder)
         JPanel myScoreView = createMyScorePlaceholderView();
         JPanel insightsView = createPlaceholderView("Insights");
-        JPanel historyView = healthHistoryView;
+
+        // Create HealthHistoryView (concrete type so we can update it)
+        final HealthHistoryView historyView = new HealthHistoryView();
+
+        // Create a simple presenter that forwards interactor output into the view
+        healthHistoryOutputBoundary directPresenter = new healthHistoryOutputBoundary() {
+            @Override
+            public void prepareSuccessView(healthHistoryOutputData data) {
+                List<String> formatted = new ArrayList<>();
+                List<Double> values = new ArrayList<>();
+                List<healthMetricRecord> records = data.getRecords();
+                DateTimeFormatter iso = DateTimeFormatter.ISO_LOCAL_DATE;
+                DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MM-dd");
+
+                if (records != null) {
+                    for (healthMetricRecord r : records) {
+                        String rawDate = r.getDate().toString();
+                        try {
+                            formatted.add(java.time.LocalDate.parse(rawDate, iso).format(fmt));
+                        } catch (Exception ex) {
+                            formatted.add(rawDate);
+                        }
+                        values.add(r.getValue());
+                    }
+                }
+
+                historyView.updateData(formatted, values, data.getMetricType());
+            }
+
+            @Override
+            public void prepareFailView(String errorMessage) {
+                historyView.updateData(new ArrayList<>(), new ArrayList<>(), "");
+            }
+        };
+
+        final healthHistoryInteractor historyInteractor = new healthHistoryInteractor(directPresenter);
+
+        // Initial load: show calories chart (week) on startup
+        historyInteractor.fetchHistory("calories", "week", "user1");
+
         JPanel accountSettingsView = createPlaceholderView("Settings");
         JPanel goalsView = createPlaceholderView("Goals");
 
@@ -111,7 +157,14 @@ public class HomeView extends JPanel {
         inputMetrics.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Metrics"));
         myScore.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Score"));
         insights.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Insights"));
-        history.addActionListener(e -> mainCardLayout.show(mainContentPanel, "History"));
+
+        // Update chart data on-demand when History is clicked, then show it
+        history.addActionListener(e -> {
+            // Request calorie data when History clicked
+            historyInteractor.fetchHistory("calories", "week", "user1");
+            mainCardLayout.show(mainContentPanel, "History");
+        });
+
         accountSettings.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Settings"));
         goals.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Goals"));
 
@@ -448,3 +501,4 @@ public class HomeView extends JPanel {
     public String getViewName() {
         return "home"; }
 }
+
