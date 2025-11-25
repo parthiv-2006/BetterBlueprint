@@ -47,7 +47,7 @@ public class HomeView extends JPanel {
     private final SettingsViewModel settingsViewModel;
     private final HomeViewModel homeViewModel;
 
-    public HomeView(HomeViewModel homeViewModel, ViewManagerModel viewManagerModel, JPanel inputMetricsView, SettingsViewModel settingsViewModel) {
+    public HomeView(HomeViewModel homeViewModel, ViewManagerModel viewManagerModel, JPanel inputMetricsView, SettingsViewModel settingsViewModel, JPanel myScoreView) {
         this.homeViewModel = homeViewModel;
         this.viewManagerModel = viewManagerModel;
         this.settingsViewModel = settingsViewModel;
@@ -99,7 +99,7 @@ public class HomeView extends JPanel {
 
         // --- C. Create other placeholder views ---
         // inputMetricsView is passed as parameter (actual view, not placeholder)
-        JPanel myScoreView = createMyScorePlaceholderView();
+        JPanel myScorePanel = myScoreView;
         JPanel insightsView = createPlaceholderView("Insights");
 
         // Create HealthHistoryView (concrete type so we can update it)

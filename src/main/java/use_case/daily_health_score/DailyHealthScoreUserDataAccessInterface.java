@@ -1,27 +1,35 @@
 package use_case.daily_health_score;
 
-import Entities.HealthMetrics;
-import Entities.healthScore;
-
-/**
- * DAO interface for the Daily Health Score Use Case.
- */
+import java.time.LocalDate;
 
 public interface DailyHealthScoreUserDataAccessInterface {
 
     /**
-     * Checks if all the health metrics are recorded.
-     * @param healthMetrics the healthMetrics to check completion of
+     * Returns the health metrics for a given user and date.
+     * This is used by the DailyHealthScoreInteractor to retrieve
+     * the raw data needed to compute the daily health score.
+     *
+     * @param userId the ID of the user
+     * @param date the date of the metrics requested
+     * @return a DailyMetricsDTO containing the raw health metrics,
+     *         or null if no data exists for that date.
      */
-    boolean checkMetricsRecorded(HealthMetrics healthMetrics);
+    DailyMetricsDTO getMetricsForDate(String userId, LocalDate date);
 
 
     /**
-     * Calculates health score given the health metrics
-     * @param healthMetrics used to calculate the user's daily healthScore
-     * @return the HealthScore calculated using healthMetrics
+     * Saves or updates the computed health score for that day.
+     * This is optional depending on whether the score should be persisted,
+     * but is common in clean architecture to support future features.
+     *
+     * @param scoreData the output data containing the score & metrics
      */
-    healthScore calculateHealthScore(HealthMetrics healthMetrics);
+    void saveDailyHealthScore(DailyHealthScoreOutputData scoreData);
 
-
+    /**
+     * Returns the currently logged-in username.
+     *
+     * @return the username of the current user
+     */
+    String getCurrentUsername();
 }

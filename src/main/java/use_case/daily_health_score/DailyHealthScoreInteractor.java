@@ -1,50 +1,94 @@
 package use_case.daily_health_score;
 
-import Entities.HealthMetrics;
+import java.time.LocalDate;
 
 /**
  * The Daily Health Score Interactor.
- *
- * -------------------------------------------------------------------------------
- * Takes the Input Data and executes the use case, looking up information in the
- * Data Access object when necessary and manipulating Entities.
- * This might create new data that needs to be saved through a Data Access object.
- * When complete, create an Output Data object — the use case result —
- * and pass it to the Presenter.
- * -------------------------------------------------------------------------------
  */
 
 public class DailyHealthScoreInteractor implements DailyHealthScoreInputBoundary {
+
     private final DailyHealthScoreUserDataAccessInterface userDataAccessObject;
-    private final DailyHealthScoreOutputBoundary dailyHealthScorePresenter;   // ?
+    private final DailyHealthScoreOutputBoundary healthScorePresenter;
+    private final HealthScoreCalculator scoreCalculator;
 
-
-    // constructor
-    public DailyHealthScoreInteractor(DailyHealthScoreUserDataAccessInterface userDataAccessInterface,
-                                      DailyHealthScoreOutputBoundary dailyHealthScoreOutputBoundary) {
-        this.userDataAccessObject = userDataAccessInterface;
-        this.dailyHealthScorePresenter = dailyHealthScoreOutputBoundary;
+    public DailyHealthScoreInteractor(DailyHealthScoreUserDataAccessInterface userDataAccessObject,
+                                      DailyHealthScoreOutputBoundary outputBoundary,
+                                      HealthScoreCalculator scoreCalculator) {
+        this.userDataAccessObject = userDataAccessObject;
+        this.healthScorePresenter = outputBoundary;
+        this.scoreCalculator = scoreCalculator;
     }
 
-
-    // execute
     @Override
-    public void execute(DailyHealthScoreInputData dailyHealthScoreInputData) {
-        // should use Presenter.prepareFailView & Presenter.prepareSuccessView in here
-        // write the logic & what is required for successView & failView
-        final HealthMetrics healthMetrics = dailyHealthScoreInputData.getHealthMetrics();
+    public void execute(DailyHealthScoreInputData inputData) {
 
-        // THIS IS ONLY NECESSARY IF THE INPUT METRICS USE CASE DOESN'T ALREADY CHECK FOR COMPLETENESS
-        if (!userDataAccessObject.checkMetricsRecorded(healthMetrics)) {
-            dailyHealthScorePresenter.prepareFailView
-                    ("Health metrics not available. Please go to the Input Metrics " +
-                            "page to record your daily metrics.");
-        } else {
-            // calculates score (output data) & passes to presenter
-            final DailyHealthScoreOutputData outputData = new DailyHealthScoreOutputData
-                    (userDataAccessObject.calculateHealthScore(dailyHealthScoreInputData.getHealthMetrics()));
-            dailyHealthScorePresenter.prepareSuccessView(outputData);
+        String userId = inputData.getUserId();
+        LocalDate date = inputData.getDate();
+
+        // Load existing metrics
+        DailyMetricsDTO metrics = userDataAccessObject.getMetricsForDate(userId, date);
+
+        if (metrics == null) {
+            healthScorePresenter.prepareFailView(
+                    "No health metrics found for " + date + ". Please enter your daily health data first."
+            );
+            return;
         }
 
+        int score;
+        String feedback;
+
+
+        try {
+            // Compute score using Gemini API
+            score = scoreCalculator.calculateScore(
+                    metrics.getSleepHours(),
+                    metrics.getExerciseMinutes(),
+                    metrics.getCalories(),
+                    metrics.getWaterIntake()
+            );
+
+            // Generate feedback
+            feedback = scoreCalculator.generateFeedback(
+                    metrics.getSleepHours(),
+                    metrics.getExerciseMinutes(),
+                    metrics.getCalories(),
+                    metrics.getWaterIntake(),
+                    score
+            );
+
+        } catch (Exception apiException) {
+            // The Gemini service could throw IOException, APIException, InterruptedException, etc.
+            healthScorePresenter.prepareFailView(
+                    "Failed to generate health score due to an external service error. Please try again later."
+            );
+            return;
+        }
+
+        // Build output data
+        DailyHealthScoreOutputData outputData = new DailyHealthScoreOutputData(
+                date,
+                userId,
+                score,
+                feedback,
+                metrics.getSleepHours(),
+                metrics.getExerciseMinutes(),
+                metrics.getCalories(),
+                metrics.getWaterIntake()
+        );
+
+        // Persist the computed score
+        try {
+            userDataAccessObject.saveDailyHealthScore(outputData);
+        } catch (Exception persistenceException) {
+            healthScorePresenter.prepareFailView(
+                    "Health score calculated but could not be saved. Please try again."
+            );
+            return;
+        }
+
+        // Present success
+        healthScorePresenter.prepareSuccessView(outputData);
     }
 }
