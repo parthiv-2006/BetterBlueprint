@@ -12,7 +12,7 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
     private final String apiKey;
     private final HttpClient client;
     private static final String GEMINI_URL =
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=";
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=";
 
     public GeminiHealthScoreCalculator(String apiKey) {
         this.apiKey = apiKey;

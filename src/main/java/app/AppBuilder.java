@@ -172,7 +172,7 @@ public class AppBuilder {
         HealthScoreCalculator scoreCalculator = new GeminiHealthScoreCalculator(apiKey);
 
         DailyHealthScoreUserDataAccessInterface metricsDAO =
-                new DailyHealthScoreDataAccessObject();
+                new DailyHealthScoreDataAccessObject(userDataAccessObject);
 
         DailyHealthScoreOutputBoundary presenter =
                 new DailyHealthScorePresenter(dailyHealthScoreViewModel);
@@ -180,7 +180,7 @@ public class AppBuilder {
         DailyHealthScoreInputBoundary interactor =
                 new DailyHealthScoreInteractor(metricsDAO, presenter, scoreCalculator);
 
-        dailyHealthScoreController = new DailyHealthScoreController(interactor);
+        dailyHealthScoreController = new DailyHealthScoreController(interactor, metricsDAO);
 
         // NOW inject controller
         myScoreView.setController(dailyHealthScoreController);

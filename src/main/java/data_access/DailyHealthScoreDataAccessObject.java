@@ -20,8 +20,10 @@ import java.time.LocalDate;
 public class DailyHealthScoreDataAccessObject implements DailyHealthScoreUserDataAccessInterface {
 
     private static final String METRICS_FILE_PATH = "health_metrics.json";
+    private final FileUserDataAccessObject userDataAccessObject;
 
-    public DailyHealthScoreDataAccessObject() {
+    public DailyHealthScoreDataAccessObject(FileUserDataAccessObject userDataAccessObject) {
+        this.userDataAccessObject = userDataAccessObject;
         File file = new File(METRICS_FILE_PATH);
 
         if (!file.exists()) {
@@ -116,5 +118,10 @@ public class DailyHealthScoreDataAccessObject implements DailyHealthScoreUserDat
         } catch (IOException e) {
             throw new RuntimeException("Failed to save health score: " + e.getMessage());
         }
+    }
+
+    @Override
+    public String getCurrentUsername() {
+        return userDataAccessObject.getCurrentUsername();
     }
 }

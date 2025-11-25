@@ -25,4 +25,11 @@ public interface DailyHealthScoreUserDataAccessInterface {
      * @param scoreData the output data containing the score & metrics
      */
     void saveDailyHealthScore(DailyHealthScoreOutputData scoreData);
+
+    /**
+     * Returns the currently logged-in username.
+     *
+     * @return the username of the current user
+     */
+    String getCurrentUsername();
 }

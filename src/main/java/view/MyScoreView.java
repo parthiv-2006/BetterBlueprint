@@ -6,7 +6,6 @@ import interface_adapter.daily_health_score.DailyHealthScoreViewModel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -22,9 +21,11 @@ public class MyScoreView extends JPanel implements PropertyChangeListener {
     private final DailyHealthScoreViewModel viewModel;
     private DailyHealthScoreController controller;
 
-    private final JLabel dateLabel = new JLabel("Date:");
-    private final JLabel scoreLabel = new JLabel("Score:");
-    private final JLabel feedbackLabel = new JLabel("Feedback:");
+    private final JLabel titleLabel = new JLabel("Daily Health Score");
+    private final JLabel dateLabel = new JLabel("Date: " + LocalDate.now());
+    private final JLabel instructionLabel = new JLabel("Click the button below to compute your health score for today.");
+    private final JLabel scoreLabel = new JLabel();
+    private final JLabel feedbackLabel = new JLabel();
     private final JLabel errorLabel = new JLabel();
 
     private final JButton computeButton = new JButton("Compute Today's Score");
@@ -36,7 +37,6 @@ public class MyScoreView extends JPanel implements PropertyChangeListener {
 
         viewModel.addPropertyChangeListener(this);
         setupLayout();
-        // setupActions();
         System.out.println("MyScoreView created: " + this); // for testing
     }
 
@@ -52,7 +52,7 @@ public class MyScoreView extends JPanel implements PropertyChangeListener {
         computeButton.addActionListener(e -> {
             System.out.println("BUTTON PRESSED");   // for testing
             LocalDate today = LocalDate.now();
-            controller.computeDailyHealthScore(today, "user");
+            controller.computeDailyHealthScore(today);  // userId is retrieved automatically from logged-in user
         });
     }
 
@@ -97,8 +97,10 @@ public class MyScoreView extends JPanel implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
+        System.out.println("MyScoreView.propertyChange called: " + evt.getPropertyName());
         if ("dailyHealthScoreState".equals(evt.getPropertyName())) {
             DailyHealthScoreState state = (DailyHealthScoreState) evt.getNewValue();
+            System.out.println("State received - error: " + state.getErrorMessage() + ", score: " + state.getScore());
 
             if (state.getErrorMessage() != null) {
                 errorLabel.setText(state.getErrorMessage());
@@ -111,6 +113,7 @@ public class MyScoreView extends JPanel implements PropertyChangeListener {
                 scoreLabel.setText("Score: " + (state.getScore() != null ? state.getScore() : ""));
                 feedbackLabel.setText("<html>Feedback: " + (state.getFeedback() != null ? state.getFeedback() : "") + "</html>");
             }
+            System.out.println("UI updated");
         }
     }
 }
