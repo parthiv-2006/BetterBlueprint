@@ -57,34 +57,59 @@ public class MyScoreView extends JPanel implements PropertyChangeListener {
     }
 
     private void setupLayout() {
-        setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5,5,5,5);
-        gbc.anchor = GridBagConstraints.WEST;
+        setLayout(new BorderLayout());
+        setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50)); // Large margins
 
-        // Row 0: Button
-        gbc.gridx = 0; gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        add(computeButton, gbc);
+        // Main content panel
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Row 1: Error message
-        gbc.gridy = 1;
+        // Title
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        contentPanel.add(titleLabel);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        // Date (always shown)
+        dateLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        dateLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        contentPanel.add(dateLabel);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+
+        // Instruction label (shown initially, hidden after button click)
+        instructionLabel.setFont(new Font("Arial", Font.ITALIC, 14));
+        instructionLabel.setForeground(new Color(100, 100, 100));
+        instructionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        contentPanel.add(instructionLabel);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        // Compute button
+        computeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        computeButton.setFont(new Font("Arial", Font.BOLD, 14));
+        contentPanel.add(computeButton);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+
+        // Error label
         errorLabel.setForeground(Color.RED);
-        add(errorLabel, gbc);
+        errorLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        contentPanel.add(errorLabel);
 
-        // Row 2: Date
-        gbc.gridy = 2;
-        gbc.gridwidth = 1;
-        add(dateLabel, gbc);
+        // Score label (hidden initially)
+        scoreLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        scoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        scoreLabel.setVisible(false);
+        contentPanel.add(scoreLabel);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // Row 3: Score
-        gbc.gridy = 3;
-        add(scoreLabel, gbc);
+        // Feedback label (hidden initially, spans wider with HTML)
+        feedbackLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        feedbackLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        feedbackLabel.setVisible(false);
+        contentPanel.add(feedbackLabel);
 
-        // Row 4: Feedback
-        gbc.gridy = 4;
-        gbc.gridwidth = 2;
-        add(feedbackLabel, gbc);
+        add(contentPanel, BorderLayout.CENTER);
     }
 
 //    private void setupActions() {
@@ -103,16 +128,34 @@ public class MyScoreView extends JPanel implements PropertyChangeListener {
             System.out.println("State received - error: " + state.getErrorMessage() + ", score: " + state.getScore());
 
             if (state.getErrorMessage() != null) {
+                // Show error, keep button visible
                 errorLabel.setText(state.getErrorMessage());
-                dateLabel.setText("Date:");
-                scoreLabel.setText("Score:");
-                feedbackLabel.setText("Feedback:");
+                errorLabel.setVisible(true);
+                instructionLabel.setVisible(false);
+                scoreLabel.setVisible(false);
+                feedbackLabel.setVisible(false);
             } else {
-                errorLabel.setText("");
-                dateLabel.setText("Date: " + (state.getDate() != null ? state.getDate().toString() : ""));
+                // Success: Hide instruction and button, show score and feedback
+                instructionLabel.setVisible(false);
+                computeButton.setVisible(false);
+                errorLabel.setVisible(false);
+
                 scoreLabel.setText("Score: " + (state.getScore() != null ? state.getScore() : ""));
-                feedbackLabel.setText("<html>Feedback: " + (state.getFeedback() != null ? state.getFeedback() : "") + "</html>");
+                scoreLabel.setVisible(true);
+
+                // Format feedback with HTML for better text wrapping
+                // Remove \n characters and clean up the text
+                String feedbackText = state.getFeedback() != null ? state.getFeedback() : "";
+                feedbackText = feedbackText.replace("\\n", " ").replace("\n", " ").trim();
+                feedbackLabel.setText("<html><div style='width: 500px; text-align: center;'>" +
+                                     feedbackText + "</div></html>");
+                feedbackLabel.setVisible(true);
             }
+
+            // Revalidate and repaint to update the UI
+            revalidate();
+            repaint();
+
             System.out.println("UI updated");
         }
     }

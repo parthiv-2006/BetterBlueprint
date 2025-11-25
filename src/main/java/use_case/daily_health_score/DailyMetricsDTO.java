@@ -22,15 +22,5 @@ public class DailyMetricsDTO {
     public double getExerciseMinutes() { return exerciseMinutes; }
     public int getCalories() { return calories; }
     public double getWaterIntake() { return waterIntake; }
-
-    @Override
-    public String toString() {
-        return "DailyMetricsDTO{" +
-                "sleepHours=" + sleepHours +
-                ", exerciseMinutes=" + exerciseMinutes +
-                ", calories=" + calories +
-                ", waterIntake=" + waterIntake +
-                '}';
-    }
 }
 

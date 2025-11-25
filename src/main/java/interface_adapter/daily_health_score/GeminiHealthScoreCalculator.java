@@ -28,7 +28,7 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
                         "Sleep hours: " + sleepHours + "\n" +
                         "Exercise minutes: " + exerciseMinutes + "\n" +
                         "Calories consumed: " + calories + "\n" +
-                        "Water intake (litres): " + waterIntake + "\n\n" +
+                        "Water intake (litres): " + waterIntake + "\n" +
                         "Return ONLY an integer from 0 to 100 representing a daily health score.";
 
         String result = callGemini(prompt).trim();
@@ -50,8 +50,8 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
                         "Exercise minutes: " + exerciseMinutes + "\n" +
                         "Calories consumed: " + calories + "\n" +
                         "Water intake (litres): " + waterIntake + "\n" +
-                        "Daily health score: " + score + "\n\n" +
-                        "Provide a brief, encouraging explanation of the score and suggestions for improvement. Max 50 words";
+                        "Daily health score: " + score + "\n" +
+                        "Provide a brief, encouraging explanation of the score based ONLY on the given inputs and suggestions for improvement. Max 50 words";
 
         return callGemini(prompt).trim();
     }
