@@ -29,7 +29,7 @@ public class HealthInsightsInteractor implements HealthInsightsInputBoundary {
 
         try {
             // Get user data
-            User user = userDataAccess.getUserById(userId);
+            User user = userDataAccess.get(userId); // Changed to get() method
             if (user == null) {
                 healthInsightsOutputBoundary.prepareFailView("User not found");
                 return;
@@ -66,10 +66,11 @@ public class HealthInsightsInteractor implements HealthInsightsInputBoundary {
                 .append(", Height ").append(user.getHeight())
                 .append("cm, Weight ").append(user.getWeight()).append("kg. ");
 
-        // Add recent metrics
+        // Add recent metrics - CORRECT getter methods
         HealthMetrics recent = healthHistory.get(healthHistory.size() - 1);
-        data.append("Recent: Sleep ").append(recent.getSleepHours()).append("h, Water ")
-                .append(recent.getWaterIntake()).append("L, Exercise ").append(recent.getExerciseMinutes())
+        data.append("Recent: Sleep ").append(recent.getSleepHour()).append("h, Steps ")
+                .append(recent.getSteps()).append(", Water ")
+                .append(recent.getWaterLitres()).append("L, Exercise ").append(recent.getExerciseMinutes())
                 .append("min, Calories ").append(recent.getCalories()).append(". ");
 
         // Add trends if available
@@ -81,8 +82,8 @@ public class HealthInsightsInteractor implements HealthInsightsInputBoundary {
     }
 
     private String analyzeTrends(List<HealthMetrics> history) {
-        double avgSleep = history.stream().mapToDouble(HealthMetrics::getSleepHours).average().orElse(0);
-        double avgWater = history.stream().mapToDouble(HealthMetrics::getWaterIntake).average().orElse(0);
+        double avgSleep = history.stream().mapToDouble(HealthMetrics::getSleepHour).average().orElse(0);
+        double avgWater = history.stream().mapToDouble(HealthMetrics::getWaterLitres).average().orElse(0);
         return String.format("Avg sleep: %.1fh, Avg water: %.1fL", avgSleep, avgWater);
     }
 }

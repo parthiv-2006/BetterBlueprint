@@ -1,27 +1,22 @@
 package use_case.input_metrics;
 
-import java.time.LocalDate;
-
-/**
- * Output data for the Input Metrics use case.
- */
 public class InputMetricsOutputData {
-    private final String username;
-    private final LocalDate date;
+    private final String date;
+    private final String message;
     private final boolean success;
 
-    public InputMetricsOutputData(String username, LocalDate date, boolean success) {
-        this.username = username;
+    public InputMetricsOutputData(String date, String message, boolean success) {
         this.date = date;
+        this.message = message;
         this.success = success;
     }
 
-    public String getUsername() {
-        return username;
+    public String getDate() {
+        return date;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public String getMessage() {
+        return message;
     }
 
     public boolean isSuccess() {

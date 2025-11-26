@@ -1,21 +1,20 @@
 package use_case.input_metrics;
 
-/**
- * Input data for the Input Metrics use case.
- */
 public class InputMetricsInputData {
     private final String username;
-    private final double sleepHours;
-    private final double waterIntake;
-    private final int caloriesConsumed;
-    private final double exerciseDuration;
+    private final float sleepHours;
+    private final int steps; // ADDED steps field
+    private final float waterIntake;
+    private final int calories;
+    private final float exerciseDuration;
 
-    public InputMetricsInputData(String username, double sleepHours, double waterIntake,
-                                 int caloriesConsumed, double exerciseDuration) {
+    public InputMetricsInputData(String username, float sleepHours, int steps,
+                                 float waterIntake, int calories, float exerciseDuration) {
         this.username = username;
         this.sleepHours = sleepHours;
+        this.steps = steps; // ADDED steps parameter
         this.waterIntake = waterIntake;
-        this.caloriesConsumed = caloriesConsumed;
+        this.calories = calories;
         this.exerciseDuration = exerciseDuration;
     }
 
@@ -23,20 +22,23 @@ public class InputMetricsInputData {
         return username;
     }
 
-    public double getSleepHours() {
+    public float getSleepHours() {
         return sleepHours;
     }
 
-    public double getWaterIntake() {
+    public int getSteps() { // ADDED getter for steps
+        return steps;
+    }
+
+    public float getWaterIntake() {
         return waterIntake;
     }
 
-    public int getCaloriesConsumed() {
-        return caloriesConsumed;
+    public int getCalories() {
+        return calories;
     }
 
-    public double getExerciseDuration() {
+    public float getExerciseDuration() {
         return exerciseDuration;
     }
 }
-

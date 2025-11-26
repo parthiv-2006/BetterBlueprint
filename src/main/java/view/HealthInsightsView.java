@@ -12,17 +12,25 @@ import java.awt.event.ActionListener;
 public class HealthInsightsView extends JPanel implements ActionListener {
     public final String viewName = "health insights";
     private final HealthInsightsViewModel healthInsightsViewModel;
-    private final HealthInsightsController healthInsightsController;
+    private HealthInsightsController healthInsightsController;
+    private String currentUserId;// Changed to non-final
 
     private final JTextArea insightsArea;
     private final JButton generateButton;
     private final JButton backButton;
     private final JLabel errorLabel;
 
+    // Navigation fields
+    private CardLayout homeCardLayout;
+    private JPanel homeContentPanel;
+
     public HealthInsightsView(HealthInsightsViewModel healthInsightsViewModel,
                               HealthInsightsController healthInsightsController) {
         this.healthInsightsViewModel = healthInsightsViewModel;
         this.healthInsightsController = healthInsightsController;
+        this.healthInsightsViewModel.addPropertyChangeListener(evt -> {
+            updateViewFromState();
+        });
 
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -44,9 +52,11 @@ public class HealthInsightsView extends JPanel implements ActionListener {
         insightsArea.setWrapStyleWord(true);
         insightsArea.setFont(new Font("Arial", Font.PLAIN, 14));
         insightsArea.setText("Click 'Generate Insights' to get personalized health recommendations.");
+        insightsArea.setBackground(Color.WHITE);
 
         JScrollPane scrollPane = new JScrollPane(insightsArea);
         scrollPane.setPreferredSize(new Dimension(500, 300));
+        scrollPane.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         contentPanel.add(scrollPane, BorderLayout.CENTER);
 
         // Error label
@@ -71,22 +81,67 @@ public class HealthInsightsView extends JPanel implements ActionListener {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == generateButton) {
-            // For now, use a placeholder user ID
-            String currentUserId = "test_user";
-            healthInsightsController.execute(currentUserId);
-
-            updateViewFromState();
+            if (healthInsightsController != null) {
+                if (currentUserId != null && !currentUserId.isEmpty()) {
+                    System.out.println("Generating insights for user: " + currentUserId);
+                    insightsArea.setText("Generating insights...");
+                    errorLabel.setText("");
+                    healthInsightsController.execute(currentUserId);
+                    updateViewFromState();
+                } else {
+                    errorLabel.setText("No user logged in. Please log in first.");
+                    System.err.println("HealthInsightsView: No current user set!");
+                }
+            } else {
+                System.err.println("HealthInsightsController is null!");
+                errorLabel.setText("Health Insights feature is not properly initialized.");
+            }
         } else if (e.getSource() == backButton) {
-            System.out.println("Back button clicked - navigation to be implemented");
+            if (homeCardLayout != null && homeContentPanel != null) {
+                homeCardLayout.show(homeContentPanel, "Home");
+            } else {
+                System.out.println("Back button clicked - navigation to be implemented");
+            }
         }
     }
 
     private void updateViewFromState() {
         HealthInsightsState state = healthInsightsViewModel.getState();
-        insightsArea.setText(state.getInsights());
-        errorLabel.setText(state.getErrorMessage());
+        System.out.println("Updating view with insights: " + state.getInsights());
+        System.out.println("Error message: " + state.getErrorMessage());
+
+        if (state.getInsights() != null && !state.getInsights().isEmpty()) {
+            insightsArea.setText(state.getInsights());
+        }
+
+        if (state.getErrorMessage() != null && !state.getErrorMessage().isEmpty()) {
+            errorLabel.setText(state.getErrorMessage());
+        } else {
+            errorLabel.setText("");
+        }
+
+        // Force UI refresh
+        insightsArea.revalidate();
+        insightsArea.repaint();
+        this.revalidate();
+        this.repaint();
+    }
+
+    public void setCurrentUser(String userId) {
+        this.currentUserId = userId;
+        System.out.println("HealthInsightsView: Current user set to: " + userId);
+    }
+
+    public void setHealthInsightsController(HealthInsightsController controller) {
+        this.healthInsightsController = controller;
+    }
+
+    public void setHomeNavigation(CardLayout cardLayout, JPanel contentPanel) {
+        this.homeCardLayout = cardLayout;
+        this.homeContentPanel = contentPanel;
     }
 }

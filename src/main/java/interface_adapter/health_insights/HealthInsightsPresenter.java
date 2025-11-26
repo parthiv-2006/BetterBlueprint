@@ -13,20 +13,32 @@ public class HealthInsightsPresenter implements HealthInsightsOutputBoundary {
     @Override
     public void prepareSuccessView(HealthInsightsOutputData outputData) {
         HealthInsightsState state = healthInsightsViewModel.getState();
+
+        // ONLY set the insights, don't clear error message if it's working
         state.setInsights(outputData.getInsights());
-        state.setErrorMessage("");
+
+        // Only clear error if there was one before
+        if (state.getErrorMessage() != null && !state.getErrorMessage().isEmpty()) {
+            state.setErrorMessage("");
+        }
+
         healthInsightsViewModel.setState(state);
 
-        // For now, just print success - you'll integrate navigation later
-        System.out.println("Insights generated successfully");
+        // Fire property change to notify the view
+        healthInsightsViewModel.firePropertyChange();
+
+        System.out.println("Insights generated successfully: " + outputData.getInsights());
     }
 
     @Override
     public void prepareFailView(String errorMessage) {
         HealthInsightsState state = healthInsightsViewModel.getState();
         state.setErrorMessage(errorMessage);
-        state.setInsights("");
+        // Don't clear insights if they exist
         healthInsightsViewModel.setState(state);
+
+        // Fire property change to notify the view
+        healthInsightsViewModel.firePropertyChange();
 
         System.out.println("Error: " + errorMessage);
     }

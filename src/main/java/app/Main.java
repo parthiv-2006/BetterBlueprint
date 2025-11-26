@@ -10,7 +10,8 @@ public class Main {
                 .addSignupView()
                 .addDailyHealthScoreUseCase()
                 .addSettingsView()
-                .addHomeView()
+                .addHealthInsightsUseCase()  // MUST BE BEFORE HomeView
+                .addHomeView()               // Now HomeView will get the properly initialized HealthInsightsView
                 .addSignupUseCase()
                 .addLoginUseCase()
                 .addSettingsUseCase()
@@ -18,7 +19,6 @@ public class Main {
                 .addChangePasswordUseCase()
                 .addInputMetricsUseCase()
                 .build();
-
 
         application.pack();
         application.setLocationRelativeTo(null);

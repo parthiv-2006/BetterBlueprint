@@ -57,7 +57,7 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
             for (int i = 0; i < metricsArray.length(); i++) {
                 JSONObject obj = metricsArray.getJSONObject(i);
                 if (obj.getString("userId").equals(healthMetrics.getUserId()) &&
-                    obj.getString("date").equals(healthMetrics.getDate().toString())) {
+                        obj.getString("date").equals(healthMetrics.getDate().toString())) {
                     // Update existing entry
                     metricsArray.put(i, healthMetricsToJson(healthMetrics));
                     updated = true;
@@ -119,10 +119,18 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
         JSONObject json = new JSONObject();
         json.put("userId", metrics.getUserId());
         json.put("date", metrics.getDate().toString());
-        json.put("sleepHours", metrics.getSleepHours());
-        json.put("waterIntake", metrics.getWaterIntake());
+
+        // NEW field names (for your Health Insights)
+        json.put("sleepHour", metrics.getSleepHour());
+        json.put("steps", metrics.getSteps());
+        json.put("waterLitres", metrics.getWaterLitres());
         json.put("exerciseMinutes", metrics.getExerciseMinutes());
         json.put("calories", metrics.getCalories());
+
+        // OLD field names (for your teammate's Health Score - BACKWARD COMPATIBILITY)
+        json.put("sleepHours", metrics.getSleepHour());        // Same value as sleepHour
+        json.put("waterIntake", metrics.getWaterLitres());     // Same value as waterLitres
+
         return json;
     }
 
@@ -130,14 +138,50 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
      * Converts JSON to HealthMetrics object.
      */
     private HealthMetrics jsonToHealthMetrics(JSONObject json) {
+        // Handle both old and new field names for backward compatibility
+
+        float sleepHour;
+        if (json.has("sleepHour")) {
+            sleepHour = (float) json.getDouble("sleepHour");
+        } else if (json.has("sleepHours")) {
+            sleepHour = (float) json.getDouble("sleepHours"); // Fallback for old data
+        } else {
+            sleepHour = 0.0f;
+        }
+
+        int steps;
+        if (json.has("steps")) {
+            steps = json.getInt("steps");
+        } else {
+            steps = 0; // Default value if steps doesn't exist in old data
+        }
+
+        float waterLitres;
+        if (json.has("waterLitres")) {
+            waterLitres = (float) json.getDouble("waterLitres");
+        } else if (json.has("waterIntake")) {
+            waterLitres = (float) json.getDouble("waterIntake"); // Fallback for old data
+        } else {
+            waterLitres = 0.0f;
+        }
+
+        float exerciseMinutes;
+        if (json.has("exerciseMinutes")) {
+            exerciseMinutes = (float) json.getDouble("exerciseMinutes");
+        } else {
+            exerciseMinutes = 0.0f;
+        }
+
+        int calories = json.getInt("calories");
+
         return new HealthMetrics(
                 json.getString("userId"),
                 LocalDate.parse(json.getString("date")),
-                json.getDouble("sleepHours"),
-                json.getDouble("waterIntake"),
-                json.getDouble("exerciseMinutes"),
-                json.getInt("calories")
+                sleepHour,
+                steps,
+                waterLitres,
+                exerciseMinutes,
+                calories
         );
     }
 }
-
