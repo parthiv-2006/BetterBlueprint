@@ -145,14 +145,27 @@ public class AppBuilder {
         return this;
     }
 
+    // In your AppBuilder.java, make sure you're creating HealthInsightsView AFTER the controller is created
     public AppBuilder addHomeView() {
         // Create InputMetricsView first
         inputMetricsViewModel = new InputMetricsViewModel();
         inputMetricsView = new InputMetricsView(inputMetricsViewModel);
 
+        // IMPORTANT: HealthInsightsView must be created AFTER HealthInsightsController
+        // The controller should already be created in addHealthInsightsUseCase()
+        if (healthInsightsController == null) {
+            throw new IllegalStateException("HealthInsightsController must be created before HomeView");
+        }
+
         // Create HealthInsightsView WITH the controller
         healthInsightsViewModel = new HealthInsightsViewModel();
-        healthInsightsView = new HealthInsightsView(healthInsightsViewModel, healthInsightsController); // Pass the controller
+        healthInsightsView = new HealthInsightsView(healthInsightsViewModel, healthInsightsController);
+
+        // Create MyScoreView if not already created
+        if (myScoreView == null) {
+            dailyHealthScoreViewModel = new DailyHealthScoreViewModel();
+            myScoreView = new MyScoreView(dailyHealthScoreViewModel, dailyHealthScoreController);
+        }
 
         // Create HomeView and pass actual views
         homeViewModel = new HomeViewModel();

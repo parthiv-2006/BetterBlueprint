@@ -1,7 +1,6 @@
 package interface_adapter.health_insights;
 
 import interface_adapter.ViewModel;
-
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 

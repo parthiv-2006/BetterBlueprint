@@ -12,34 +12,32 @@ public class HealthInsightsPresenter implements HealthInsightsOutputBoundary {
 
     @Override
     public void prepareSuccessView(HealthInsightsOutputData outputData) {
-        HealthInsightsState state = healthInsightsViewModel.getState();
+        // Update state on EDT to ensure UI consistency
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            HealthInsightsState state = healthInsightsViewModel.getState();
 
-        // ONLY set the insights, don't clear error message if it's working
-        state.setInsights(outputData.getInsights());
-
-        // Only clear error if there was one before
-        if (state.getErrorMessage() != null && !state.getErrorMessage().isEmpty()) {
+            // Set the insights and clear any previous error
+            state.setInsights(outputData.getInsights());
             state.setErrorMessage("");
-        }
 
-        healthInsightsViewModel.setState(state);
+            healthInsightsViewModel.setState(state);
+            healthInsightsViewModel.firePropertyChange(); // Fire general property change
 
-        // Fire property change to notify the view
-        healthInsightsViewModel.firePropertyChange();
-
-        System.out.println("Insights generated successfully: " + outputData.getInsights());
+            System.out.println("Insights generated successfully: " + outputData.getInsights());
+        });
     }
 
     @Override
     public void prepareFailView(String errorMessage) {
-        HealthInsightsState state = healthInsightsViewModel.getState();
-        state.setErrorMessage(errorMessage);
-        // Don't clear insights if they exist
-        healthInsightsViewModel.setState(state);
+        // Update state on EDT to ensure UI consistency
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            HealthInsightsState state = healthInsightsViewModel.getState();
+            state.setErrorMessage(errorMessage);
+            // Don't clear insights if they exist
+            healthInsightsViewModel.setState(state);
+            healthInsightsViewModel.firePropertyChange(); // Fire general property change
 
-        // Fire property change to notify the view
-        healthInsightsViewModel.firePropertyChange();
-
-        System.out.println("Error: " + errorMessage);
+            System.out.println("Error: " + errorMessage);
+        });
     }
 }
