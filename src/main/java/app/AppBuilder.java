@@ -182,7 +182,7 @@ public class AppBuilder {
 
         // --- default values if we know nothing about the user yet ---
         String name = "Guest";
-        String password = "";
+        String password = "default";
         int age = 30;
         int height = 170;
         int weight = 70;
