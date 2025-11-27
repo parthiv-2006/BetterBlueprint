@@ -136,8 +136,6 @@ public class AppBuilder {
         // Create the view
         healthInsightsView = new HealthInsightsView(healthInsightsViewModel, healthInsightsController);
 
-        // IMPORTANT: Inject the controller into the view
-        healthInsightsView.setHealthInsightsController(healthInsightsController);
 
         // Add to card panel
         cardPanel.add(healthInsightsView, healthInsightsView.viewName);
@@ -151,21 +149,6 @@ public class AppBuilder {
         inputMetricsViewModel = new InputMetricsViewModel();
         inputMetricsView = new InputMetricsView(inputMetricsViewModel);
 
-        // IMPORTANT: HealthInsightsView must be created AFTER HealthInsightsController
-        // The controller should already be created in addHealthInsightsUseCase()
-        if (healthInsightsController == null) {
-            throw new IllegalStateException("HealthInsightsController must be created before HomeView");
-        }
-
-        // Create HealthInsightsView WITH the controller
-        healthInsightsViewModel = new HealthInsightsViewModel();
-        healthInsightsView = new HealthInsightsView(healthInsightsViewModel, healthInsightsController);
-
-        // Create MyScoreView if not already created
-        if (myScoreView == null) {
-            dailyHealthScoreViewModel = new DailyHealthScoreViewModel();
-            myScoreView = new MyScoreView(dailyHealthScoreViewModel, dailyHealthScoreController);
-        }
 
         // Create HomeView and pass actual views
         homeViewModel = new HomeViewModel();

@@ -8,9 +8,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
-public class HealthInsightsView extends JPanel implements ActionListener {
+public class HealthInsightsView extends JPanel implements PropertyChangeListener {
     public final String viewName = "health insights";
+
     private final HealthInsightsViewModel healthInsightsViewModel;
     private HealthInsightsController healthInsightsController;
     private String currentUserId;
@@ -19,7 +22,6 @@ public class HealthInsightsView extends JPanel implements ActionListener {
     private final JButton generateButton;
     private final JButton backButton;
     private final JLabel errorLabel;
-    private final JLabel statusLabel;
 
     // Navigation fields
     private CardLayout homeCardLayout;
@@ -29,10 +31,8 @@ public class HealthInsightsView extends JPanel implements ActionListener {
         this.healthInsightsViewModel = healthInsightsViewModel;
         this.healthInsightsController = healthInsightsController;
 
-        // Set up property change listener
-        this.healthInsightsViewModel.addPropertyChangeListener(evt -> {
-            updateViewFromState();
-        });
+        // Add property change listener to the view model
+        this.healthInsightsViewModel.addPropertyChangeListener(this);
 
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -47,19 +47,13 @@ public class HealthInsightsView extends JPanel implements ActionListener {
         JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
 
-        // Status label for loading messages
-        statusLabel = new JLabel("Click 'Generate Insights' to get personalized health recommendations.");
-        statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        statusLabel.setFont(new Font("Arial", Font.ITALIC, 14));
-        statusLabel.setForeground(Color.GRAY);
-
         // Insights display
         insightsArea = new JTextArea();
         insightsArea.setEditable(false);
         insightsArea.setLineWrap(true);
         insightsArea.setWrapStyleWord(true);
         insightsArea.setFont(new Font("Arial", Font.PLAIN, 14));
-        insightsArea.setText("");
+        insightsArea.setText("Click 'Generate Insights' to get personalized health recommendations.");
         insightsArea.setBackground(Color.WHITE);
 
         JScrollPane scrollPane = new JScrollPane(insightsArea);
@@ -67,78 +61,59 @@ public class HealthInsightsView extends JPanel implements ActionListener {
         scrollPane.setBorder(BorderFactory.createTitledBorder("Your Health Insights"));
         contentPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Status and error panel
-        JPanel statusPanel = new JPanel(new BorderLayout());
-        statusPanel.add(statusLabel, BorderLayout.NORTH);
-
+        // Error label
         errorLabel = new JLabel();
         errorLabel.setForeground(Color.RED);
         errorLabel.setHorizontalAlignment(SwingConstants.CENTER);
         errorLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        statusPanel.add(errorLabel, BorderLayout.SOUTH);
-
-        contentPanel.add(statusPanel, BorderLayout.SOUTH);
+        contentPanel.add(errorLabel, BorderLayout.SOUTH);
 
         add(contentPanel, BorderLayout.CENTER);
 
         // Button panel
         JPanel buttonPanel = new JPanel(new FlowLayout());
         generateButton = new JButton("Generate Insights");
-        generateButton.addActionListener(this);
-        buttonPanel.add(generateButton);
+        generateButton.addActionListener(this::handleGenerateInsights);
 
         backButton = new JButton("Back to Home");
-        backButton.addActionListener(this);
+        backButton.addActionListener(this::handleBackToHome);
+
+        buttonPanel.add(generateButton);
         buttonPanel.add(backButton);
-
         add(buttonPanel, BorderLayout.SOUTH);
+
+        // Initialize view with current state
+        updateViewFromState();
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == generateButton) {
-            handleGenerateInsights();
-        } else if (e.getSource() == backButton) {
-            handleBackToHome();
-        }
-    }
-
-    private void handleGenerateInsights() {
+    private void handleGenerateInsights(ActionEvent e) {
         if (healthInsightsController != null) {
             if (currentUserId != null && !currentUserId.isEmpty()) {
                 System.out.println("Generating insights for user: " + currentUserId);
 
-                // Update UI immediately on EDT
+                // Show loading state
                 SwingUtilities.invokeLater(() -> {
-                    insightsArea.setText("");
-                    statusLabel.setText("Generating insights... Please wait.");
-                    statusLabel.setForeground(Color.BLUE);
+                    insightsArea.setText("Generating insights... Please wait.");
                     errorLabel.setText("");
-                    generateButton.setEnabled(false);
                 });
 
-                // Execute on a separate thread to avoid blocking UI
-                new Thread(() -> {
-                    try {
-                        healthInsightsController.execute(currentUserId);
-                    } finally {
-                        // Re-enable button after processing
-                        SwingUtilities.invokeLater(() -> {
-                            generateButton.setEnabled(true);
-                        });
-                    }
-                }).start();
+                // Execute the controller
+                healthInsightsController.execute(currentUserId);
             } else {
-                errorLabel.setText("No user logged in. Please log in first.");
+                SwingUtilities.invokeLater(() -> {
+                    errorLabel.setText("No user logged in. Please log in first.");
+                });
                 System.err.println("HealthInsightsView: No current user set!");
             }
         } else {
+            SwingUtilities.invokeLater(() -> {
+                errorLabel.setText("Health Insights feature is not properly initialized.");
+            });
             System.err.println("HealthInsightsController is null!");
-            errorLabel.setText("Health Insights feature is not properly initialized.");
         }
     }
 
-    private void handleBackToHome() {
+    private void handleBackToHome(ActionEvent e) {
         if (homeCardLayout != null && homeContentPanel != null) {
             homeCardLayout.show(homeContentPanel, "Home");
         } else {
@@ -146,65 +121,43 @@ public class HealthInsightsView extends JPanel implements ActionListener {
         }
     }
 
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if ("state".equals(evt.getPropertyName())) {
+            updateViewFromState();
+        }
+    }
+
     private void updateViewFromState() {
-        // Always run on EDT
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(this::updateViewFromState);
-            return;
-        }
-
         HealthInsightsState state = healthInsightsViewModel.getState();
-        String insights = state.getInsights();
-        String error = state.getErrorMessage();
 
-        System.out.println("Updating view with insights: " + insights);
-        System.out.println("Error message: " + error);
+        SwingUtilities.invokeLater(() -> {
+            System.out.println("Updating view with insights: " + state.getInsights());
+            System.out.println("Error message: " + state.getErrorMessage());
 
-        if (error != null && !error.isEmpty()) {
-            // Show error
-            errorLabel.setText(error);
-            statusLabel.setText("Error generating insights");
-            statusLabel.setForeground(Color.RED);
-
-            if (insights != null && !insights.isEmpty()) {
-                insightsArea.setText(insights);
-            } else {
-                insightsArea.setText("");
+            // Update insights text
+            if (state.getInsights() != null && !state.getInsights().isEmpty()) {
+                insightsArea.setText(state.getInsights());
             }
-        } else if (insights != null && !insights.isEmpty()) {
-            // Show success
-            insightsArea.setText(insights);
-            errorLabel.setText("");
-            statusLabel.setText("Insights generated successfully!");
-            statusLabel.setForeground(new Color(0, 128, 0)); // Dark green
-        } else {
-            // No insights yet
-            insightsArea.setText("");
-            errorLabel.setText("");
-            statusLabel.setText("Click 'Generate Insights' to get personalized health recommendations.");
-            statusLabel.setForeground(Color.GRAY);
-        }
 
-        // Force UI refresh
-        insightsArea.revalidate();
-        insightsArea.repaint();
-        errorLabel.revalidate();
-        errorLabel.repaint();
-        statusLabel.revalidate();
-        statusLabel.repaint();
+            // Update error message
+            if (state.getErrorMessage() != null && !state.getErrorMessage().isEmpty()) {
+                errorLabel.setText(state.getErrorMessage());
+            } else {
+                errorLabel.setText("");
+            }
+
+            // Force UI refresh
+            insightsArea.revalidate();
+            insightsArea.repaint();
+            this.revalidate();
+            this.repaint();
+        });
     }
 
     public void setCurrentUser(String userId) {
         this.currentUserId = userId;
         System.out.println("HealthInsightsView: Current user set to: " + userId);
-
-        // Update UI when user changes
-        SwingUtilities.invokeLater(() -> {
-            insightsArea.setText("");
-            errorLabel.setText("");
-            statusLabel.setText("Click 'Generate Insights' to get personalized health recommendations for " + userId);
-            statusLabel.setForeground(Color.GRAY);
-        });
     }
 
     public void setHealthInsightsController(HealthInsightsController controller) {

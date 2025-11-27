@@ -1,6 +1,7 @@
 package interface_adapter.health_insights;
 
 import interface_adapter.ViewModel;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
@@ -24,10 +25,12 @@ public class HealthInsightsViewModel extends ViewModel<HealthInsightsState> {
         support.addPropertyChangeListener(listener);
     }
 
+    @Override
     public HealthInsightsState getState() {
         return super.getState();
     }
 
+    @Override
     public void setState(HealthInsightsState state) {
         super.setState(state);
     }

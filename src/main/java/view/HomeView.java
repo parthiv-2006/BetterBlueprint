@@ -3,7 +3,6 @@ package view;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.home.HomeViewModel;
 import interface_adapter.settings.SettingsViewModel;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -17,19 +16,18 @@ import use_case.healthHistory.healthMetricRecord;
 import use_case.healthHistory.healthHistoryInteractor;
 
 public class HomeView extends JPanel {
-
     // --- 1. DEFINE BLUE/GREEN THEME COLOR PALETTE ---
-    private static final Color COLOR_NAV_BAR = new Color(37, 99, 235);        // Blue-600
-    private static final Color COLOR_NAV_BAR_HOVER = new Color(29, 78, 216);  // Blue-700
+    private static final Color COLOR_NAV_BAR = new Color(37, 99, 235); // Blue-600
+    private static final Color COLOR_NAV_BAR_HOVER = new Color(29, 78, 216); // Blue-700
     private static final Color COLOR_NAV_BAR_TEXT = Color.WHITE;
     private static final Color COLOR_CONTENT_BACKGROUND = new Color(239, 246, 255); // Light blue tint
     private static final Color COLOR_PRIMARY_BUTTON = new Color(34, 197, 94); // Green-500
     private static final Color COLOR_PRIMARY_BUTTON_HOVER = new Color(22, 163, 74); // Green-600
     private static final Color COLOR_SECONDARY_BUTTON = new Color(37, 99, 235); // Blue-600
-    private static final Color COLOR_TEXT_DARK = new Color(31, 41, 55);       // Dark gray
-    private static final Color COLOR_TEXT_LIGHT = new Color(107, 114, 128);   // Gray-500
+    private static final Color COLOR_TEXT_DARK = new Color(31, 41, 55); // Dark gray
+    private static final Color COLOR_TEXT_LIGHT = new Color(107, 114, 128); // Gray-500
     private static final Color COLOR_CARD = Color.WHITE;
-    private static final Color COLOR_BORDER = new Color(191, 219, 254);       // Light blue border
+    private static final Color COLOR_BORDER = new Color(191, 219, 254); // Light blue border
 
     // --- 2. DEFINE UI COMPONENTS ---
     public final JButton home;
@@ -39,20 +37,18 @@ public class HomeView extends JPanel {
     public final JButton insights;
     public final JButton history;
     public final JButton goals;
-
     private final CardLayout mainCardLayout;
     private final JPanel mainContentPanel;
-
     private final ViewManagerModel viewManagerModel;
     private final SettingsViewModel settingsViewModel;
     private final HomeViewModel homeViewModel;
+    private final JPanel healthInsightsView;
 
-    public HomeView(HomeViewModel homeViewModel, ViewManagerModel viewManagerModel,
-                    JPanel inputMetricsView, SettingsViewModel settingsViewModel,
-                    JPanel myScoreView, JPanel healthInsightsView) { // ADDED healthInsightsView parameter
+    public HomeView(HomeViewModel homeViewModel, ViewManagerModel viewManagerModel, JPanel inputMetricsView, SettingsViewModel settingsViewModel, JPanel myScoreView, JPanel healthInsightsView) {
         this.homeViewModel = homeViewModel;
         this.viewManagerModel = viewManagerModel;
         this.settingsViewModel = settingsViewModel;
+        this.healthInsightsView = healthInsightsView;
         this.setLayout(new BorderLayout());
 
         // === 3. CREATE THE TOP NAVBAR ===
@@ -102,8 +98,10 @@ public class HomeView extends JPanel {
         // --- C. Create other placeholder views ---
         // inputMetricsView is passed as parameter (actual view, not placeholder)
         JPanel myScorePanel = myScoreView;
+
         // Use the actual HealthInsightsView passed as parameter instead of placeholder
         JPanel insightsView = healthInsightsView;
+
         // Set up navigation for HealthInsightsView
         if (healthInsightsView instanceof HealthInsightsView) {
             HealthInsightsView insightsViewInstance = (HealthInsightsView) healthInsightsView;
@@ -139,7 +137,6 @@ public class HomeView extends JPanel {
                         values.add(r.getValue());
                     }
                 }
-
                 historyView.updateData(formatted, values, data.getMetricType());
             }
 
@@ -227,10 +224,12 @@ public class HomeView extends JPanel {
             viewManagerModel.setState("settings");
             viewManagerModel.firePropertyChange();
         });
+
         goals.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Goals"));
 
         // Set "Home" as the default homepage
         mainCardLayout.show(mainContentPanel, "Home");
+
         homeViewModel.addPropertyChangeListener(evt -> {
             if (healthInsightsView instanceof HealthInsightsView) {
                 String newUsername = homeViewModel.getState().getUsername();
@@ -302,12 +301,12 @@ public class HomeView extends JPanel {
          * if n = 2, then the button displays 'Input More Data'
          */
         JButton goToInputMetrics;
-
         if (n == 1) {
             goToInputMetrics = new JButton("Start Tracking Now");
         } else {
             goToInputMetrics = new JButton("Input More Data");
         }
+
         goToInputMetrics.setFont(new Font("Segoe UI", Font.BOLD, 16));
         goToInputMetrics.setForeground(Color.WHITE);
         goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
@@ -336,6 +335,7 @@ public class HomeView extends JPanel {
                         BorderFactory.createEmptyBorder(10, 20, 10, 20)
                 ));
             }
+
             public void mouseExited(MouseEvent evt) {
                 goToInputMetrics.setBackground(COLOR_PRIMARY_BUTTON);
                 goToInputMetrics.setBorder(BorderFactory.createCompoundBorder(
@@ -344,6 +344,7 @@ public class HomeView extends JPanel {
                 ));
             }
         });
+
         return goToInputMetrics;
     }
 
@@ -376,7 +377,6 @@ public class HomeView extends JPanel {
         // Add Logo
         try {
             java.net.URL logoUrl = getClass().getResource("/BetterBlueprint.png");
-
             if (logoUrl != null) {
                 ImageIcon logoIcon = new ImageIcon(logoUrl);
                 Image scaledImage = logoIcon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
@@ -406,6 +406,7 @@ public class HomeView extends JPanel {
                 "Track your daily metrics, calculate personalized health scores, " +
                 "and receive AI-powered insights to improve your well-being." +
                 "</body></html>";
+
         JLabel descriptionLabel = new JLabel(descriptionText);
         descriptionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -483,8 +484,15 @@ public class HomeView extends JPanel {
             case "Steps": return "steps";
             case "Water Intake": return "water";
             case "Exercise Minutes": return "exercise";
-            case "Calories":
-            default: return "calories";
+            case "Calories": default: return "calories";
+        }
+    }
+
+    // === ADD THE NEW METHOD HERE ===
+    public void updateCurrentUser(String username) {
+        homeViewModel.getState().setUsername(username);
+        if (healthInsightsView instanceof HealthInsightsView) {
+            ((HealthInsightsView) healthInsightsView).setCurrentUser(username);
         }
     }
 }
