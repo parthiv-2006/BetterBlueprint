@@ -5,6 +5,7 @@ import Entities.User;
 import data_access.HealthDataAccessInterface;
 import data_access.UserDataAccessInterface;
 import services.GeminiAPIService;
+
 import java.util.List;
 
 public class HealthInsightsInteractor implements HealthInsightsInputBoundary {
@@ -28,61 +29,68 @@ public class HealthInsightsInteractor implements HealthInsightsInputBoundary {
         String userId = inputData.getUserId();
 
         try {
-            // Get user data
-            User user = userDataAccess.getUserById(userId);
+            User user = userDataAccess.get(userId);
             if (user == null) {
                 healthInsightsOutputBoundary.prepareFailView("User not found");
                 return;
             }
 
-            // Get health metrics history
             List<HealthMetrics> healthHistory = healthDataAccess.getHealthMetricsByUser(userId);
             if (healthHistory.isEmpty()) {
                 healthInsightsOutputBoundary.prepareFailView("No health data available. Please log some metrics first.");
                 return;
             }
 
-            // Generate insights
-            String insights = generateAIInsights(user, healthHistory);
+            String analysisData = prepareAnalysisData(user, healthHistory);
 
-            HealthInsightsOutputData outputData = new HealthInsightsOutputData(insights);
-            healthInsightsOutputBoundary.prepareSuccessView(outputData);
+            // Use async API call
+            geminiAPIService.getHealthInsightsAsync(analysisData, new GeminiAPIService.InsightsCallback() {
+                @Override
+                public void onSuccess(String insights) {
+                    HealthInsightsOutputData outputData = new HealthInsightsOutputData(insights);
+                    healthInsightsOutputBoundary.prepareSuccessView(outputData);
+                }
+
+                @Override
+                public void onError(String errorMessage) {
+                    healthInsightsOutputBoundary.prepareFailView("Error generating insights: " + errorMessage);
+                }
+            });
 
         } catch (Exception e) {
             healthInsightsOutputBoundary.prepareFailView("Error generating insights: " + e.getMessage());
         }
     }
 
-    private String generateAIInsights(User user, List<HealthMetrics> healthHistory) {
-        String analysisData = prepareAnalysisData(user, healthHistory);
-        return geminiAPIService.getHealthInsights(analysisData);
-    }
-
     private String prepareAnalysisData(User user, List<HealthMetrics> healthHistory) {
         StringBuilder data = new StringBuilder();
 
-        // Add user profile
-        data.append("User Profile: Age ").append(user.getAge())
-                .append(", Height ").append(user.getHeight())
-                .append("cm, Weight ").append(user.getWeight()).append("kg. ");
+        data.append("User Profile: ").append(user.getAge()).append(" years old, ")
+                .append(user.getHeight()).append("cm tall, ").append(user.getWeight()).append("kg. ");
 
-        // Add recent metrics
         HealthMetrics recent = healthHistory.get(healthHistory.size() - 1);
-        data.append("Recent: Sleep ").append(recent.getSleepHours()).append("h, Water ")
-                .append(recent.getWaterIntake()).append("L, Exercise ").append(recent.getExerciseMinutes())
-                .append("min, Calories ").append(recent.getCalories()).append(". ");
+        data.append("Most Recent Daily Metrics: ")
+                .append("Sleep: ").append(recent.getSleepHour()).append(" hours, ")
+                .append("Steps: ").append(recent.getSteps()).append(", ")
+                .append("Water Intake: ").append(recent.getWaterLitres()).append(" liters, ")
+                .append("Exercise: ").append(recent.getExerciseMinutes()).append(" minutes, ")
+                .append("Calories: ").append(recent.getCalories()).append(". ");
 
-        // Add trends if available
         if (healthHistory.size() >= 3) {
-            data.append("Trends: ").append(analyzeTrends(healthHistory));
+            data.append("Historical Trends: ").append(analyzeTrends(healthHistory));
         }
 
         return data.toString();
     }
 
     private String analyzeTrends(List<HealthMetrics> history) {
-        double avgSleep = history.stream().mapToDouble(HealthMetrics::getSleepHours).average().orElse(0);
-        double avgWater = history.stream().mapToDouble(HealthMetrics::getWaterIntake).average().orElse(0);
-        return String.format("Avg sleep: %.1fh, Avg water: %.1fL", avgSleep, avgWater);
+        double avgSleep = history.stream().mapToDouble(HealthMetrics::getSleepHour).average().orElse(0);
+        double avgSteps = history.stream().mapToDouble(HealthMetrics::getSteps).average().orElse(0);
+        double avgWater = history.stream().mapToDouble(HealthMetrics::getWaterLitres).average().orElse(0);
+        double avgExercise = history.stream().mapToDouble(HealthMetrics::getExerciseMinutes).average().orElse(0);
+        double avgCalories = history.stream().mapToDouble(HealthMetrics::getCalories).average().orElse(0);
+
+        return String.format("Average Sleep: %.1f hours, Average Steps: %.0f, Average Water: %.1fL, Average Exercise: %.1f minutes, Average Calories: %.0f.",
+                avgSleep, avgSteps, avgWater, avgExercise, avgCalories);
     }
 }

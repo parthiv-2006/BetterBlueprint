@@ -4,6 +4,7 @@ import Entities.HealthMetrics;
 import java.util.List;
 
 public interface HealthDataAccessInterface {
-    List<HealthMetrics> getHealthMetricsByUser(String userId);
     void saveHealthMetrics(HealthMetrics healthMetrics);
+    List<HealthMetrics> getHealthMetricsByUser(String userId);
+    String getCurrentUsername();
 }

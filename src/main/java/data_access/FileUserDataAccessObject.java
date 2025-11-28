@@ -20,7 +20,8 @@ public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
         LoginUserDataAccessInterface,
         ChangePasswordUserDataAccessInterface,
         LogoutUserDataAccessInterface,
-        SettingsUserDataAccessInterface {
+        SettingsUserDataAccessInterface,
+        UserDataAccessInterface { // ADD THIS INTERFACE
 
     private static final String HEADER = "username,password,age,height,weight";
 

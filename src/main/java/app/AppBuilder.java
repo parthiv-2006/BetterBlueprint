@@ -4,7 +4,6 @@ import data_access.DailyHealthScoreDataAccessObject;
 import data_access.FileUserDataAccessObject;
 import data_access.HealthMetricsDataAccessObject;
 import Entities.UserFactory;
-import data_access.HealthMetricsDataAccessObject;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.change_password.ChangePasswordController;
 import interface_adapter.change_password.ChangePasswordPresenter;
@@ -12,6 +11,9 @@ import interface_adapter.daily_health_score.DailyHealthScoreController;
 import interface_adapter.daily_health_score.DailyHealthScorePresenter;
 import interface_adapter.daily_health_score.DailyHealthScoreViewModel;
 import interface_adapter.daily_health_score.GeminiHealthScoreCalculator;
+import interface_adapter.health_insights.HealthInsightsController;
+import interface_adapter.health_insights.HealthInsightsPresenter;
+import interface_adapter.health_insights.HealthInsightsViewModel;
 import interface_adapter.home.HomeViewModel;
 import interface_adapter.input_metrics.InputMetricsController;
 import interface_adapter.input_metrics.InputMetricsPresenter;
@@ -34,6 +36,9 @@ import interface_adapter.settings.SettingsViewModel;
 import use_case.change_password.ChangePasswordInputBoundary;
 import use_case.change_password.ChangePasswordInteractor;
 import use_case.change_password.ChangePasswordOutputBoundary;
+import use_case.health_insights.HealthInsightsInputBoundary;
+import use_case.health_insights.HealthInsightsInteractor;
+import use_case.health_insights.HealthInsightsOutputBoundary;
 import use_case.login.LoginInputBoundary;
 import use_case.login.LoginInteractor;
 import use_case.login.LoginOutputBoundary;
@@ -46,6 +51,7 @@ import use_case.settings.SettingsOutputBoundary;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
+import services.GeminiAPIService;
 import view.*;
 
 import javax.swing.*;
@@ -57,7 +63,6 @@ public class AppBuilder {
     private final UserFactory userFactory = new UserFactory();
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
     private final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
-
     private final FileUserDataAccessObject userDataAccessObject = new FileUserDataAccessObject("users.csv", userFactory);
     // DAO version using local file storage
     private final HealthMetricsDataAccessObject healthMetricsDataAccessObject = new HealthMetricsDataAccessObject(userDataAccessObject);
@@ -77,6 +82,9 @@ public class AppBuilder {
     private DailyHealthScoreViewModel dailyHealthScoreViewModel;
     private MyScoreView myScoreView;
     private DailyHealthScoreController dailyHealthScoreController;
+    private HealthInsightsView healthInsightsView;
+    private HealthInsightsViewModel healthInsightsViewModel;
+    private HealthInsightsController healthInsightsController;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
@@ -103,17 +111,52 @@ public class AppBuilder {
         return this;
     }
 
+    public AppBuilder addHealthInsightsUseCase() {
+        // Create Health Insights components
+        healthInsightsViewModel = new HealthInsightsViewModel();
+
+        // Create the service
+        GeminiAPIService geminiAPIService = new GeminiAPIService();
+
+        // Create the interactor
+        HealthInsightsOutputBoundary healthInsightsOutputBoundary =
+                new HealthInsightsPresenter(healthInsightsViewModel);
+
+        HealthInsightsInputBoundary healthInsightsInteractor =
+                new HealthInsightsInteractor(
+                        healthInsightsOutputBoundary,
+                        healthMetricsDataAccessObject,
+                        userDataAccessObject,
+                        geminiAPIService
+                );
+
+        // Create the controller
+        healthInsightsController = new HealthInsightsController(healthInsightsInteractor);
+
+        // Create the view
+        healthInsightsView = new HealthInsightsView(healthInsightsViewModel, healthInsightsController);
+
+
+        // Add to card panel
+        cardPanel.add(healthInsightsView, healthInsightsView.viewName);
+
+        return this;
+    }
+
+    // In your AppBuilder.java, make sure you're creating HealthInsightsView AFTER the controller is created
     public AppBuilder addHomeView() {
         // Create InputMetricsView first
         inputMetricsViewModel = new InputMetricsViewModel();
         inputMetricsView = new InputMetricsView(inputMetricsViewModel);
 
-        // Create HomeView and pass InputMetricsView, ViewManagerModel, and SettingsViewModel
+
+        // Create HomeView and pass actual views
         homeViewModel = new HomeViewModel();
-        homeView = new HomeView(homeViewModel, viewManagerModel, inputMetricsView, settingsViewModel, myScoreView);
+        homeView = new HomeView(homeViewModel, viewManagerModel, inputMetricsView, settingsViewModel, myScoreView, healthInsightsView);
         cardPanel.add(homeView, homeView.getViewName());
         return this;
     }
+
 
     public AppBuilder addSignupUseCase() {
         final SignupOutputBoundary signupOutputBoundary = new SignupPresenter(viewManagerModel,
@@ -186,7 +229,6 @@ public class AppBuilder {
     }
 
     public AppBuilder addDailyHealthScoreUseCase() {
-
         // Create ViewModel only once
         dailyHealthScoreViewModel = new DailyHealthScoreViewModel();
 
@@ -224,6 +266,7 @@ public class AppBuilder {
 
         application.add(cardPanel);
 
+        // CHANGE BACK: Set the initial state to signup view (not login)
         viewManagerModel.setState(signupView.getViewName());
         viewManagerModel.firePropertyChange();
 

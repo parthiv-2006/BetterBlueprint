@@ -1,51 +1,60 @@
 package Entities;
 
-
 import java.time.LocalDate;
 
-/**
- * Represents a user's daily health metrics
- */
 public class HealthMetrics {
     private final String userId;
     private final LocalDate date;
-    private double sleepHours;
-    private double waterIntake; // in liters
-    private double exerciseMinutes; // in minutes
+    private double sleepHour;
+    private int steps;
+    private double waterLitres;
+    private double exerciseMinutes;
     private int calories;
 
-    // Constructor
-    public HealthMetrics(String userId, LocalDate date, double sleepHours, double waterIntake,
-                         double exerciseMinutes, int calories) {
+    public HealthMetrics(String userId, LocalDate date, double sleepHour, int steps,
+                         double waterLitres, double exerciseMinutes, int calories) {
         this.userId = userId;
         this.date = date;
-        setSleepHours(sleepHours);
-        setWaterIntake(waterIntake);
-        setExerciseMinutes(exerciseMinutes);
-        setCalories(calories);
+        this.sleepHour = sleepHour;
+        this.steps = steps;
+        this.waterLitres = waterLitres;
+        this.exerciseMinutes = exerciseMinutes;
+        this.calories = calories;
     }
 
-    // Getters
+    // NEW getters (your implementation)
     public String getUserId() { return userId; }
     public LocalDate getDate() { return date; }
-    public double getSleepHours() { return sleepHours; }
-    public double getWaterIntake() { return waterIntake; }
+    public double getSleepHour() { return sleepHour; }
+    public int getSteps() { return steps; }
+    public double getWaterLitres() { return waterLitres; }
     public double getExerciseMinutes() { return exerciseMinutes; }
     public int getCalories() { return calories; }
 
+    // OLD getters (for your teammate's compatibility - KEEP THESE)
+    public double getSleepHours() { return sleepHour; }        // For DailyHealthScore
+    public double getWaterIntake() { return waterLitres; }     // For DailyHealthScore
+
     // Setters
-    public void setSleepHours(double sleepHours) {
-        if (sleepHours < 0 || sleepHours > 24) {
+    public void setSleepHour(double sleepHour) {
+        if (sleepHour < 0 || sleepHour > 24) {
             throw new IllegalArgumentException("Sleep hours must be between 0 and 24");
         }
-        this.sleepHours = sleepHours;
+        this.sleepHour = sleepHour;
     }
 
-    public void setWaterIntake(double waterIntake) {
-        if (waterIntake < 0) {
+    public void setSteps(int steps) {
+        if (steps < 0) {
+            throw new IllegalArgumentException("Steps cannot be negative");
+        }
+        this.steps = steps;
+    }
+
+    public void setWaterLitres(double waterLitres) {
+        if (waterLitres < 0) {
             throw new IllegalArgumentException("Water intake cannot be negative");
         }
-        this.waterIntake = waterIntake;
+        this.waterLitres = waterLitres;
     }
 
     public void setExerciseMinutes(double exerciseMinutes) {
@@ -62,14 +71,11 @@ public class HealthMetrics {
         this.calories = calories;
     }
 
-    /**
-     * Validates all health metrics
-     * @return true if all metrics are valid, false otherwise
-     */
     public boolean validateMetrics() {
         try {
-            setSleepHours(this.sleepHours);
-            setWaterIntake(this.waterIntake);
+            setSleepHour(this.sleepHour);
+            setSteps(this.steps);
+            setWaterLitres(this.waterLitres);
             setExerciseMinutes(this.exerciseMinutes);
             setCalories(this.calories);
             return true;
@@ -78,13 +84,10 @@ public class HealthMetrics {
         }
     }
 
-    /**
-     * Returns a summary string of the health metrics
-     */
     public String getSummary() {
         return String.format(
-                "Health Summary for %s: Sleep: %.1f hours, Water: %.1fL, Exercise: %.1f minutes, Calories: %d",
-                date, sleepHours, waterIntake, exerciseMinutes, calories
+                "Health Summary for %s: Sleep: %.1f hours, Steps: %d, Water: %.1fL, Exercise: %.1f minutes, Calories: %d",
+                date, sleepHour, steps, waterLitres, exerciseMinutes, calories
         );
     }
 

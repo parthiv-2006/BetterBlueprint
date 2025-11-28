@@ -3,7 +3,9 @@ package data_access;
 import Entities.User;
 
 public interface UserDataAccessInterface {
-    User getUserById(String userId);
-    User getUserByUsername(String username);
-    void saveUser(User user);
+    User get(String username);
+    boolean existsByName(String identifier);
+    void save(User user);
+    String getCurrentUsername();
+    void setCurrentUsername(String name);
 }
