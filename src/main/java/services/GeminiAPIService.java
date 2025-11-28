@@ -3,6 +3,8 @@ package services;
 import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import javax.swing.*;
 import java.util.concurrent.TimeUnit;
 
 public class GeminiAPIService {
@@ -22,13 +24,28 @@ public class GeminiAPIService {
         if (this.apiKey == null || this.apiKey.isEmpty()) {
             throw new IllegalStateException("GEMINI_API_KEY environment variable is not set.");
         }
-
-        System.out.println("✅ GeminiAPIService initialized with working API key!");
     }
 
-    public String getHealthInsights(String healthData) {
-        System.out.println("🚀 Calling REAL Gemini API with data: " + healthData);
+    public void getHealthInsightsAsync(String healthData, InsightsCallback callback) {
+        new SwingWorker<String, Void>() {
+            @Override
+            protected String doInBackground() throws Exception {
+                return getHealthInsights(healthData);
+            }
 
+            @Override
+            protected void done() {
+                try {
+                    String insights = get();
+                    callback.onSuccess(insights);
+                } catch (Exception e) {
+                    callback.onError(e.getMessage());
+                }
+            }
+        }.execute();
+    }
+
+    private String getHealthInsights(String healthData) {
         try {
             String prompt = "You are a health coach. Analyze this health data and provide 2-3 specific, actionable insights. " +
                     "Focus on sleep hours, steps, water intake, exercise minutes, and calories. " +
@@ -46,22 +63,15 @@ public class GeminiAPIService {
 
             try (Response response = client.newCall(request).execute()) {
                 if (!response.isSuccessful()) {
-                    System.err.println("❌ API request failed: " + response.code() + " - " + response.message());
                     String errorBody = response.body().string();
-                    System.err.println("Error details: " + errorBody);
-                    return getFallbackInsights(healthData);
+                    throw new RuntimeException("API request failed: " + response.code() + " - " + errorBody);
                 }
 
                 String responseBody = response.body().string();
-                System.out.println("✅ API call successful! Parsing response...");
-
-                String insights = parseApiResponse(responseBody);
-                System.out.println("🎯 REAL Gemini API Insights: " + insights);
-                return insights;
+                return parseApiResponse(responseBody);
             }
         } catch (Exception e) {
-            System.err.println("❌ API error: " + e.getMessage());
-            return getFallbackInsights(healthData);
+            throw new RuntimeException("API error: " + e.getMessage());
         }
     }
 
@@ -78,7 +88,6 @@ public class GeminiAPIService {
         contents.put(content);
         requestBody.put("contents", contents);
 
-        // Generation config for better responses
         JSONObject generationConfig = new JSONObject();
         generationConfig.put("temperature", 0.7);
         generationConfig.put("topP", 0.95);
@@ -99,13 +108,12 @@ public class GeminiAPIService {
 
             return text.trim();
         } catch (Exception e) {
-            System.err.println("❌ Error parsing API response: " + e.getMessage());
-            return "I analyzed your health data and found areas for improvement. Focus on consistent sleep, regular activity, and balanced nutrition.";
+            return "Based on your health metrics, I recommend focusing on consistent sleep patterns, regular physical activity, and balanced nutrition for optimal wellness.";
         }
     }
 
-    private String getFallbackInsights(String healthData) {
-        // Simple fallback - you shouldn't need this now!
-        return "Based on your health metrics, I recommend focusing on consistent sleep patterns, regular physical activity, and balanced nutrition for optimal wellness.";
+    public interface InsightsCallback {
+        void onSuccess(String insights);
+        void onError(String errorMessage);
     }
 }

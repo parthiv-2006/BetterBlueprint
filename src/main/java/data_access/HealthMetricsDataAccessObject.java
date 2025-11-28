@@ -29,12 +29,11 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
         if (!file.exists()) {
             try {
                 file.createNewFile();
-                // Initialize with empty JSON array
                 try (FileWriter writer = new FileWriter(file)) {
                     writer.write("[]");
                 }
             } catch (IOException e) {
-                System.err.println("Error creating health metrics file: " + e.getMessage());
+                throw new RuntimeException("Error creating health metrics file: " + e.getMessage());
             }
         }
     }
@@ -42,7 +41,6 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
     @Override
     public void saveHealthMetrics(HealthMetrics healthMetrics) {
         try {
-            // Read existing data
             String content = new String(Files.readAllBytes(Paths.get(METRICS_FILE_PATH)));
             JSONArray metricsArray;
 
@@ -72,7 +70,7 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
 
             // Write back to file
             try (FileWriter writer = new FileWriter(METRICS_FILE_PATH)) {
-                writer.write(metricsArray.toString(4)); // Pretty print with 4 spaces
+                writer.write(metricsArray.toString(4));
             }
 
         } catch (IOException e) {
@@ -101,7 +99,7 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
             }
 
         } catch (IOException e) {
-            System.err.println("Error reading health metrics: " + e.getMessage());
+            throw new RuntimeException("Error reading health metrics: " + e.getMessage());
         }
 
         return userMetrics;
@@ -127,7 +125,7 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
         json.put("exerciseMinutes", metrics.getExerciseMinutes());
         json.put("calories", metrics.getCalories());
 
-        // OLD field names (for your teammate's Health Score - BACKWARD COMPATIBILITY)
+        // OLD field names (for your teammate's Health Score - MAINTAIN COMPATIBILITY)
         json.put("sleepHours", metrics.getSleepHour());        // Same value as sleepHour
         json.put("waterIntake", metrics.getWaterLitres());     // Same value as waterLitres
 
@@ -139,40 +137,28 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
      */
     private HealthMetrics jsonToHealthMetrics(JSONObject json) {
         // Handle both old and new field names for backward compatibility
-
-        float sleepHour;
+        double sleepHour;
         if (json.has("sleepHour")) {
-            sleepHour = (float) json.getDouble("sleepHour");
+            sleepHour = json.getDouble("sleepHour");
         } else if (json.has("sleepHours")) {
-            sleepHour = (float) json.getDouble("sleepHours"); // Fallback for old data
+            sleepHour = json.getDouble("sleepHours"); // Fallback for old data
         } else {
-            sleepHour = 0.0f;
+            sleepHour = 0.0;
         }
 
-        int steps;
-        if (json.has("steps")) {
-            steps = json.getInt("steps");
-        } else {
-            steps = 0; // Default value if steps doesn't exist in old data
-        }
+        int steps = json.optInt("steps", 0);
 
-        float waterLitres;
+        double waterLitres;
         if (json.has("waterLitres")) {
-            waterLitres = (float) json.getDouble("waterLitres");
+            waterLitres = json.getDouble("waterLitres");
         } else if (json.has("waterIntake")) {
-            waterLitres = (float) json.getDouble("waterIntake"); // Fallback for old data
+            waterLitres = json.getDouble("waterIntake"); // Fallback for old data
         } else {
-            waterLitres = 0.0f;
+            waterLitres = 0.0;
         }
 
-        float exerciseMinutes;
-        if (json.has("exerciseMinutes")) {
-            exerciseMinutes = (float) json.getDouble("exerciseMinutes");
-        } else {
-            exerciseMinutes = 0.0f;
-        }
-
-        int calories = json.getInt("calories");
+        double exerciseMinutes = json.optDouble("exerciseMinutes", 0.0);
+        int calories = json.optInt("calories", 0);
 
         return new HealthMetrics(
                 json.getString("userId"),

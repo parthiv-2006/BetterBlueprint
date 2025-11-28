@@ -5,14 +5,14 @@ import java.time.LocalDate;
 public class HealthMetrics {
     private final String userId;
     private final LocalDate date;
-    private float sleepHour;
+    private double sleepHour;
     private int steps;
-    private float waterLitres;
-    private float exerciseMinutes;
+    private double waterLitres;
+    private double exerciseMinutes;
     private int calories;
 
-    public HealthMetrics(String userId, LocalDate date, float sleepHour, int steps,
-                         float waterLitres, float exerciseMinutes, int calories) {
+    public HealthMetrics(String userId, LocalDate date, double sleepHour, int steps,
+                         double waterLitres, double exerciseMinutes, int calories) {
         this.userId = userId;
         this.date = date;
         this.sleepHour = sleepHour;
@@ -25,18 +25,18 @@ public class HealthMetrics {
     // NEW getters (your implementation)
     public String getUserId() { return userId; }
     public LocalDate getDate() { return date; }
-    public float getSleepHour() { return sleepHour; }
+    public double getSleepHour() { return sleepHour; }
     public int getSteps() { return steps; }
-    public float getWaterLitres() { return waterLitres; }
-    public float getExerciseMinutes() { return exerciseMinutes; }
+    public double getWaterLitres() { return waterLitres; }
+    public double getExerciseMinutes() { return exerciseMinutes; }
     public int getCalories() { return calories; }
 
-    // OLD getters (for your teammate's compatibility)
-    public float getSleepHours() { return sleepHour; }        // For DailyHealthScore
-    public float getWaterIntake() { return waterLitres; }     // For DailyHealthScore
+    // OLD getters (for your teammate's compatibility - KEEP THESE)
+    public double getSleepHours() { return sleepHour; }        // For DailyHealthScore
+    public double getWaterIntake() { return waterLitres; }     // For DailyHealthScore
 
     // Setters
-    public void setSleepHour(float sleepHour) {
+    public void setSleepHour(double sleepHour) {
         if (sleepHour < 0 || sleepHour > 24) {
             throw new IllegalArgumentException("Sleep hours must be between 0 and 24");
         }
@@ -50,14 +50,14 @@ public class HealthMetrics {
         this.steps = steps;
     }
 
-    public void setWaterLitres(float waterLitres) {
+    public void setWaterLitres(double waterLitres) {
         if (waterLitres < 0) {
             throw new IllegalArgumentException("Water intake cannot be negative");
         }
         this.waterLitres = waterLitres;
     }
 
-    public void setExerciseMinutes(float exerciseMinutes) {
+    public void setExerciseMinutes(double exerciseMinutes) {
         if (exerciseMinutes < 0) {
             throw new IllegalArgumentException("Exercise minutes cannot be negative");
         }

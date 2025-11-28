@@ -5,9 +5,11 @@ import interface_adapter.health_insights.HealthInsightsState;
 import interface_adapter.health_insights.HealthInsightsViewModel;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -18,107 +20,192 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
     private HealthInsightsController healthInsightsController;
     private String currentUserId;
 
-    private final JTextArea insightsArea;
-    private final JButton generateButton;
-    private final JButton backButton;
-    private final JLabel errorLabel;
-
     // Navigation fields
     private CardLayout homeCardLayout;
     private JPanel homeContentPanel;
+
+    // Color scheme - matching MyScoreView
+    private static final Color PRIMARY_COLOR = new Color(37, 99, 235); // Blue-600
+    private static final Color PRIMARY_HOVER = new Color(29, 78, 216); // Blue-700
+    private static final Color SECONDARY_COLOR = new Color(34, 197, 94); // Green-500
+    private static final Color BACKGROUND_COLOR = new Color(239, 246, 255); // Light blue tint
+    private static final Color CARD_COLOR = new Color(255, 255, 255);
+    private static final Color TEXT_COLOR = new Color(31, 41, 55);
+    private static final Color ERROR_COLOR = new Color(239, 68, 68);
+    private static final Color BORDER_COLOR = new Color(191, 219, 254); // Light blue border
+    private static final Color SUBTITLE_COLOR = new Color(107, 114, 128);
+
+    // UI Components
+    private final JLabel titleLabel = new JLabel("Health Insights");
+    private final JLabel instructionLabel = new JLabel("Click the button below to generate personalized health insights.");
+    private final JTextArea insightsTextArea;
+    private final JLabel errorLabel = new JLabel();
+    private final JButton generateButton;
+    private final JButton backButton;
 
     public HealthInsightsView(HealthInsightsViewModel healthInsightsViewModel, HealthInsightsController healthInsightsController) {
         this.healthInsightsViewModel = healthInsightsViewModel;
         this.healthInsightsController = healthInsightsController;
 
-        // Add property change listener to the view model
         this.healthInsightsViewModel.addPropertyChangeListener(this);
 
-        setLayout(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        // Create buttons with consistent styling
+        generateButton = createStyledButton("Generate Insights");
+        backButton = createStyledButton("Back to Home");
 
-        // Title
-        JLabel titleLabel = new JLabel("Health Insights");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        add(titleLabel, BorderLayout.NORTH);
+        // Setup insights text area
+        insightsTextArea = new JTextArea();
+        insightsTextArea.setEditable(false);
+        insightsTextArea.setLineWrap(true);
+        insightsTextArea.setWrapStyleWord(true);
+        insightsTextArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        insightsTextArea.setText("Your personalized health insights will appear here.");
+        insightsTextArea.setBackground(CARD_COLOR);
+        insightsTextArea.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+                new EmptyBorder(15, 15, 15, 15)
+        ));
 
-        // Main content panel
-        JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+        setupLayout();
+        updateViewFromState();
+    }
 
-        // Insights display
-        insightsArea = new JTextArea();
-        insightsArea.setEditable(false);
-        insightsArea.setLineWrap(true);
-        insightsArea.setWrapStyleWord(true);
-        insightsArea.setFont(new Font("Arial", Font.PLAIN, 14));
-        insightsArea.setText("Click 'Generate Insights' to get personalized health recommendations.");
-        insightsArea.setBackground(Color.WHITE);
+    private void setupLayout() {
+        // Set up the main panel with background
+        setLayout(new GridBagLayout());
+        setBackground(BACKGROUND_COLOR);
 
-        JScrollPane scrollPane = new JScrollPane(insightsArea);
-        scrollPane.setPreferredSize(new Dimension(500, 300));
-        scrollPane.setBorder(BorderFactory.createTitledBorder("Your Health Insights"));
-        contentPanel.add(scrollPane, BorderLayout.CENTER);
+        // Create a card-style center panel (matching MyScoreView)
+        JPanel cardPanel = new JPanel();
+        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+        cardPanel.setBackground(CARD_COLOR);
+        cardPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+                new EmptyBorder(40, 50, 40, 50)
+        ));
+        cardPanel.setMaximumSize(new Dimension(700, 700));
+
+        // Title (matching MyScoreView styling)
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        titleLabel.setForeground(TEXT_COLOR);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Instruction label
+        instructionLabel.setFont(new Font("Segoe UI", Font.ITALIC, 14));
+        instructionLabel.setForeground(SUBTITLE_COLOR);
+        instructionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Error label
-        errorLabel = new JLabel();
-        errorLabel.setForeground(Color.RED);
-        errorLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        errorLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        contentPanel.add(errorLabel, BorderLayout.SOUTH);
+        errorLabel.setForeground(ERROR_COLOR);
+        errorLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        errorLabel.setBorder(new EmptyBorder(10, 20, 10, 20));
+        errorLabel.setVisible(false);
 
-        add(contentPanel, BorderLayout.CENTER);
+        // Insights text area in scroll pane
+        JScrollPane scrollPane = new JScrollPane(insightsTextArea);
+        scrollPane.setPreferredSize(new Dimension(600, 300));
+        scrollPane.setMaximumSize(new Dimension(600, 300));
+        scrollPane.setAlignmentX(Component.CENTER_ALIGNMENT);
+        scrollPane.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                "Your Health Insights"
+        ));
 
         // Button panel
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        generateButton = new JButton("Generate Insights");
-        generateButton.addActionListener(this::handleGenerateInsights);
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        buttonPanel.setBackground(CARD_COLOR);
+        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        buttonPanel.setMaximumSize(new Dimension(500, 60));
 
-        backButton = new JButton("Back to Home");
-        backButton.addActionListener(this::handleBackToHome);
-
+        // Add buttons to button panel
         buttonPanel.add(generateButton);
         buttonPanel.add(backButton);
-        add(buttonPanel, BorderLayout.SOUTH);
 
-        // Initialize view with current state
-        updateViewFromState();
+        // Add components to card panel with spacing (matching MyScoreView layout)
+        cardPanel.add(titleLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        cardPanel.add(instructionLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+        cardPanel.add(scrollPane);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 25)));
+        cardPanel.add(errorLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        cardPanel.add(buttonPanel);
+
+        // Add card to main panel
+        this.add(cardPanel);
+    }
+
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.setMaximumSize(new Dimension(200, 45));
+        button.setPreferredSize(new Dimension(200, 45));
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setBackground(PRIMARY_COLOR);
+        button.setForeground(Color.WHITE);
+
+        // Add hover effect (matching MyScoreView)
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(PRIMARY_HOVER);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(PRIMARY_COLOR);
+            }
+        });
+
+        // Add action listeners
+        if (text.equals("Generate Insights")) {
+            button.addActionListener(this::handleGenerateInsights);
+        } else if (text.equals("Back to Home")) {
+            button.addActionListener(this::handleBackToHome);
+        }
+
+        return button;
     }
 
     private void handleGenerateInsights(ActionEvent e) {
         if (healthInsightsController != null) {
             if (currentUserId != null && !currentUserId.isEmpty()) {
-                System.out.println("Generating insights for user: " + currentUserId);
-
                 // Show loading state
-                SwingUtilities.invokeLater(() -> {
-                    insightsArea.setText("Generating insights... Please wait.");
-                    errorLabel.setText("");
-                });
+                insightsTextArea.setText("Generating insights... Please wait.");
+                errorLabel.setText("");
+                errorLabel.setVisible(false);
 
                 // Execute the controller
                 healthInsightsController.execute(currentUserId);
             } else {
-                SwingUtilities.invokeLater(() -> {
-                    errorLabel.setText("No user logged in. Please log in first.");
-                });
-                System.err.println("HealthInsightsView: No current user set!");
+                errorLabel.setText("No user logged in. Please log in first.");
+                errorLabel.setVisible(true);
             }
         } else {
-            SwingUtilities.invokeLater(() -> {
-                errorLabel.setText("Health Insights feature is not properly initialized.");
-            });
-            System.err.println("HealthInsightsController is null!");
+            errorLabel.setText("Health Insights feature is not properly initialized.");
+            errorLabel.setVisible(true);
         }
     }
 
     private void handleBackToHome(ActionEvent e) {
+        // Use navigation if available, otherwise just print
         if (homeCardLayout != null && homeContentPanel != null) {
             homeCardLayout.show(homeContentPanel, "Home");
         } else {
-            System.out.println("Back button clicked - navigation to be implemented");
+            System.out.println("Back to Home requested - navigation not set up");
         }
+    }
+
+    // ADD THIS METHOD to fix the error
+    public void setHomeNavigation(CardLayout cardLayout, JPanel contentPanel) {
+        this.homeCardLayout = cardLayout;
+        this.homeContentPanel = contentPanel;
     }
 
     @Override
@@ -132,40 +219,27 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
         HealthInsightsState state = healthInsightsViewModel.getState();
 
         SwingUtilities.invokeLater(() -> {
-            System.out.println("Updating view with insights: " + state.getInsights());
-            System.out.println("Error message: " + state.getErrorMessage());
-
             // Update insights text
             if (state.getInsights() != null && !state.getInsights().isEmpty()) {
-                insightsArea.setText(state.getInsights());
+                insightsTextArea.setText(state.getInsights());
             }
 
             // Update error message
             if (state.getErrorMessage() != null && !state.getErrorMessage().isEmpty()) {
                 errorLabel.setText(state.getErrorMessage());
+                errorLabel.setVisible(true);
             } else {
-                errorLabel.setText("");
+                errorLabel.setVisible(false);
             }
 
             // Force UI refresh
-            insightsArea.revalidate();
-            insightsArea.repaint();
-            this.revalidate();
-            this.repaint();
+            revalidate();
+            repaint();
         });
     }
 
     public void setCurrentUser(String userId) {
         this.currentUserId = userId;
-        System.out.println("HealthInsightsView: Current user set to: " + userId);
     }
 
-    public void setHealthInsightsController(HealthInsightsController controller) {
-        this.healthInsightsController = controller;
-    }
-
-    public void setHomeNavigation(CardLayout cardLayout, JPanel contentPanel) {
-        this.homeCardLayout = cardLayout;
-        this.homeContentPanel = contentPanel;
-    }
 }
