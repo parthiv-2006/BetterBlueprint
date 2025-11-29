@@ -20,6 +20,7 @@ public class InputMetricsView extends JPanel implements PropertyChangeListener {
     private final InputMetricsViewModel inputMetricsViewModel;
 
     private final JTextField sleepHoursField = new JTextField(20);
+    private final JTextField stepsField = new JTextField(20); // ADDED steps field
     private final JTextField waterIntakeField = new JTextField(20);
     private final JTextField caloriesField = new JTextField(20);
     private final JTextField exerciseDurationField = new JTextField(20);
@@ -77,12 +78,14 @@ public class InputMetricsView extends JPanel implements PropertyChangeListener {
 
         // Style input fields
         styleTextField(sleepHoursField);
+        styleTextField(stepsField); // ADDED: style steps field
         styleTextField(waterIntakeField);
         styleTextField(caloriesField);
         styleTextField(exerciseDurationField);
 
         // Create input panels
         JPanel sleepPanel = createInputPanel(InputMetricsViewModel.SLEEP_LABEL, sleepHoursField);
+        JPanel stepsPanel = createInputPanel(InputMetricsViewModel.STEPS_LABEL, stepsField); // ADDED: steps panel
         JPanel waterPanel = createInputPanel(InputMetricsViewModel.WATER_LABEL, waterIntakeField);
         JPanel caloriesPanel = createInputPanel(InputMetricsViewModel.CALORIES_LABEL, caloriesField);
         JPanel exercisePanel = createInputPanel(InputMetricsViewModel.EXERCISE_LABEL, exerciseDurationField);
@@ -132,6 +135,8 @@ public class InputMetricsView extends JPanel implements PropertyChangeListener {
         cardPanel.add(Box.createRigidArea(new Dimension(0, 30)));
         cardPanel.add(sleepPanel);
         cardPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        cardPanel.add(stepsPanel); // ADDED: steps panel
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 15)));
         cardPanel.add(waterPanel);
         cardPanel.add(Box.createRigidArea(new Dimension(0, 15)));
         cardPanel.add(caloriesPanel);
@@ -153,16 +158,17 @@ public class InputMetricsView extends JPanel implements PropertyChangeListener {
 
         try {
             // Parse input values
-            double sleepHours = Double.parseDouble(sleepHoursField.getText().trim());
-            double waterIntake = Double.parseDouble(waterIntakeField.getText().trim());
+            float sleepHours = Float.parseFloat(sleepHoursField.getText().trim());
+            int steps = Integer.parseInt(stepsField.getText().trim()); // ADDED: parse steps
+            float waterIntake = Float.parseFloat(waterIntakeField.getText().trim());
             int calories = Integer.parseInt(caloriesField.getText().trim());
-            double exerciseDuration = Double.parseDouble(exerciseDurationField.getText().trim());
+            float exerciseDuration = Float.parseFloat(exerciseDurationField.getText().trim());
 
             // Get current username from state or use empty string (interactor will fetch it)
             String username = inputMetricsViewModel.getState().getUsername();
 
-            // Execute the use case
-            inputMetricsController.execute(username, sleepHours, waterIntake, calories, exerciseDuration);
+            // Execute the use case - UPDATED to include steps
+            inputMetricsController.execute(username, sleepHours, steps, waterIntake, calories, exerciseDuration);
 
         } catch (NumberFormatException e) {
             errorMessageLabel.setText("Please enter valid numbers for all fields.");
@@ -281,6 +287,30 @@ public class InputMetricsView extends JPanel implements PropertyChangeListener {
             }
         });
 
+        // ADDED: Document listener for steps field
+        stepsField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            private void update() {
+                InputMetricsState state = inputMetricsViewModel.getState();
+                state.setSteps(stepsField.getText());
+                inputMetricsViewModel.setState(state);
+            }
+
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                update();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                update();
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                update();
+            }
+        });
+
         waterIntakeField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             private void update() {
                 InputMetricsState state = inputMetricsViewModel.getState();
@@ -362,6 +392,7 @@ public class InputMetricsView extends JPanel implements PropertyChangeListener {
                 errorMessageLabel.setForeground(SUCCESS_COLOR);
                 // Clear fields on success
                 sleepHoursField.setText("");
+                stepsField.setText(""); // ADDED: clear steps field
                 waterIntakeField.setText("");
                 caloriesField.setText("");
                 exerciseDurationField.setText("");
@@ -391,4 +422,3 @@ public class InputMetricsView extends JPanel implements PropertyChangeListener {
         this.homeContentPanel = contentPanel;
     }
 }
-

@@ -9,6 +9,7 @@ public class InputMetricsViewModel extends ViewModel<InputMetricsState> {
 
     public static final String TITLE_LABEL = "Input Daily Health Metrics";
     public static final String SLEEP_LABEL = "Sleep (hours)";
+    public static final String STEPS_LABEL = "Steps"; // ADDED this line
     public static final String WATER_LABEL = "Water Intake (liters)";
     public static final String CALORIES_LABEL = "Calories Consumed";
     public static final String EXERCISE_LABEL = "Exercise Duration (minutes)";
@@ -21,4 +22,3 @@ public class InputMetricsViewModel extends ViewModel<InputMetricsState> {
         setState(new InputMetricsState());
     }
 }
-

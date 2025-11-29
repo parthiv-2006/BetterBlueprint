@@ -29,12 +29,11 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
         if (!file.exists()) {
             try {
                 file.createNewFile();
-                // Initialize with empty JSON array
                 try (FileWriter writer = new FileWriter(file)) {
                     writer.write("[]");
                 }
             } catch (IOException e) {
-                System.err.println("Error creating health metrics file: " + e.getMessage());
+                throw new RuntimeException("Error creating health metrics file: " + e.getMessage());
             }
         }
     }
@@ -42,7 +41,6 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
     @Override
     public void saveHealthMetrics(HealthMetrics healthMetrics) {
         try {
-            // Read existing data
             String content = new String(Files.readAllBytes(Paths.get(METRICS_FILE_PATH)));
             JSONArray metricsArray;
 
@@ -57,7 +55,7 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
             for (int i = 0; i < metricsArray.length(); i++) {
                 JSONObject obj = metricsArray.getJSONObject(i);
                 if (obj.getString("userId").equals(healthMetrics.getUserId()) &&
-                    obj.getString("date").equals(healthMetrics.getDate().toString())) {
+                        obj.getString("date").equals(healthMetrics.getDate().toString())) {
                     // Update existing entry
                     metricsArray.put(i, healthMetricsToJson(healthMetrics));
                     updated = true;
@@ -72,7 +70,7 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
 
             // Write back to file
             try (FileWriter writer = new FileWriter(METRICS_FILE_PATH)) {
-                writer.write(metricsArray.toString(4)); // Pretty print with 4 spaces
+                writer.write(metricsArray.toString(4));
             }
 
         } catch (IOException e) {
@@ -101,7 +99,7 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
             }
 
         } catch (IOException e) {
-            System.err.println("Error reading health metrics: " + e.getMessage());
+            throw new RuntimeException("Error reading health metrics: " + e.getMessage());
         }
 
         return userMetrics;
@@ -119,10 +117,18 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
         JSONObject json = new JSONObject();
         json.put("userId", metrics.getUserId());
         json.put("date", metrics.getDate().toString());
-        json.put("sleepHours", metrics.getSleepHours());
-        json.put("waterIntake", metrics.getWaterIntake());
+
+        // NEW field names (for your Health Insights)
+        json.put("sleepHour", metrics.getSleepHour());
+        json.put("steps", metrics.getSteps());
+        json.put("waterLitres", metrics.getWaterLitres());
         json.put("exerciseMinutes", metrics.getExerciseMinutes());
         json.put("calories", metrics.getCalories());
+
+        // OLD field names (for your teammate's Health Score - MAINTAIN COMPATIBILITY)
+        json.put("sleepHours", metrics.getSleepHour());        // Same value as sleepHour
+        json.put("waterIntake", metrics.getWaterLitres());     // Same value as waterLitres
+
         return json;
     }
 
@@ -130,17 +136,41 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
      * Converts JSON to HealthMetrics object.
      */
     private HealthMetrics jsonToHealthMetrics(JSONObject json) {
+        // Handle both old and new field names for backward compatibility
+        double sleepHour;
+        if (json.has("sleepHour")) {
+            sleepHour = json.getDouble("sleepHour");
+        } else if (json.has("sleepHours")) {
+            sleepHour = json.getDouble("sleepHours"); // Fallback for old data
+        } else {
+            sleepHour = 0.0;
+        }
+
+        int steps = json.optInt("steps", 0);
+
+        double waterLitres;
+        if (json.has("waterLitres")) {
+            waterLitres = json.getDouble("waterLitres");
+        } else if (json.has("waterIntake")) {
+            waterLitres = json.getDouble("waterIntake"); // Fallback for old data
+        } else {
+            waterLitres = 0.0;
+        }
+
+        double exerciseMinutes = json.optDouble("exerciseMinutes", 0.0);
+        int calories = json.optInt("calories", 0);
+
         return new HealthMetrics(
                 json.getString("userId"),
                 LocalDate.parse(json.getString("date")),
-                json.getDouble("sleepHours"),
-                json.getDouble("waterIntake"),
-                json.getDouble("exerciseMinutes"),
-                json.getInt("calories")
+                sleepHour,
+                steps,
+                waterLitres,
+                exerciseMinutes,
+                calories
         );
     }
 
-    @Override
     public HealthMetrics getLatestMetrics(String userId) {
         List<HealthMetrics> allMetrics = getHealthMetricsByUser(userId);
 
@@ -160,4 +190,3 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
     }
 
 }
-

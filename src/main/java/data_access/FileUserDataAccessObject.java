@@ -5,6 +5,7 @@ import Entities.UserFactory;
 import use_case.change_password.ChangePasswordUserDataAccessInterface;
 import use_case.login.LoginUserDataAccessInterface;
 import use_case.logout.LogoutUserDataAccessInterface;
+import use_case.settings.SettingsUserDataAccessInterface;
 import use_case.signup.SignupUserDataAccessInterface;
 
 import java.io.*;
@@ -18,7 +19,9 @@ import java.util.Map;
 public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
         LoginUserDataAccessInterface,
         ChangePasswordUserDataAccessInterface,
-        LogoutUserDataAccessInterface{
+        LogoutUserDataAccessInterface,
+        SettingsUserDataAccessInterface,
+        UserDataAccessInterface { // ADD THIS INTERFACE
 
     private static final String HEADER = "username,password,age,height,weight";
 

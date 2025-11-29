@@ -1,26 +1,41 @@
 package interface_adapter.health_insights;
 
-public class HealthInsightsViewModel {
-    private HealthInsightsState state;
+import interface_adapter.ViewModel;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+
+public class HealthInsightsViewModel extends ViewModel<HealthInsightsState> {
+    private final PropertyChangeSupport support = new PropertyChangeSupport(this);
     private final String viewName;
 
     public HealthInsightsViewModel() {
+        super("health insights");
         this.viewName = "health insights";
-        this.state = new HealthInsightsState();
+        this.setState(new HealthInsightsState());
     }
 
+    @Override
+    public void firePropertyChange() {
+        support.firePropertyChange("state", null, this.getState());
+    }
+
+    @Override
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        support.addPropertyChangeListener(listener);
+    }
+
+    @Override
     public HealthInsightsState getState() {
-        return state;
+        return super.getState();
     }
 
+    @Override
     public void setState(HealthInsightsState state) {
-        this.state = state;
+        super.setState(state);
     }
 
     public String getViewName() {
         return viewName;
-    }
-
-    public void addPropertyChangeListener(Object listener) {
     }
 }

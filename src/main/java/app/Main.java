@@ -8,14 +8,18 @@ public class Main {
         JFrame application = appBuilder
                 .addLoginView()
                 .addSignupView()
-                .addHomeView()
+                .addDailyHealthScoreUseCase()
+                .addSettingsView()
+                .addHealthInsightsUseCase()  // MUST BE BEFORE HomeView
+                .addHomeView()               // Now HomeView will get the properly initialized HealthInsightsView
                 .addSignupUseCase()
                 .addLoginUseCase()
+                .addSettingsUseCase()
+                .addLogoutUseCase()
+                .addChangePasswordUseCase()
                 .addInputMetricsUseCase()
                 .addGoalsUseCase()
-//                .addLogoutUseCase()
                 .build();
-
 
         application.pack();
         application.setLocationRelativeTo(null);
