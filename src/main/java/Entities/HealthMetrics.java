@@ -22,7 +22,6 @@ public class HealthMetrics {
         this.calories = calories;
     }
 
-    // NEW getters (your implementation)
     public String getUserId() { return userId; }
     public LocalDate getDate() { return date; }
     public double getSleepHour() { return sleepHour; }
@@ -31,11 +30,10 @@ public class HealthMetrics {
     public double getExerciseMinutes() { return exerciseMinutes; }
     public int getCalories() { return calories; }
 
-    // OLD getters (for your teammate's compatibility - KEEP THESE)
+
     public double getSleepHours() { return sleepHour; }        // For DailyHealthScore
     public double getWaterIntake() { return waterLitres; }     // For DailyHealthScore
 
-    // Setters
     public void setSleepHour(double sleepHour) {
         if (sleepHour < 0 || sleepHour > 24) {
             throw new IllegalArgumentException("Sleep hours must be between 0 and 24");

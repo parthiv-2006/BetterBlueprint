@@ -43,7 +43,6 @@ public class HealthInsightsInteractor implements HealthInsightsInputBoundary {
 
             String analysisData = prepareAnalysisData(user, healthHistory);
 
-            // Use async API call
             geminiAPIService.getHealthInsightsAsync(analysisData, new GeminiAPIService.InsightsCallback() {
                 @Override
                 public void onSuccess(String insights) {

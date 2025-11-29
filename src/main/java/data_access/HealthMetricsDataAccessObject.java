@@ -24,7 +24,6 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
     public HealthMetricsDataAccessObject(FileUserDataAccessObject userDataAccessObject) {
         this.userDataAccessObject = userDataAccessObject;
 
-        // Create file if it doesn't exist
         File file = new File(METRICS_FILE_PATH);
         if (!file.exists()) {
             try {
@@ -50,25 +49,21 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
                 metricsArray = new JSONArray(content);
             }
 
-            // Check if metrics for this user and date already exist
             boolean updated = false;
             for (int i = 0; i < metricsArray.length(); i++) {
                 JSONObject obj = metricsArray.getJSONObject(i);
                 if (obj.getString("userId").equals(healthMetrics.getUserId()) &&
                         obj.getString("date").equals(healthMetrics.getDate().toString())) {
-                    // Update existing entry
                     metricsArray.put(i, healthMetricsToJson(healthMetrics));
                     updated = true;
                     break;
                 }
             }
 
-            // If not updated, add new entry
             if (!updated) {
                 metricsArray.put(healthMetricsToJson(healthMetrics));
             }
 
-            // Write back to file
             try (FileWriter writer = new FileWriter(METRICS_FILE_PATH)) {
                 writer.write(metricsArray.toString(4));
             }
@@ -118,16 +113,14 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
         json.put("userId", metrics.getUserId());
         json.put("date", metrics.getDate().toString());
 
-        // NEW field names (for your Health Insights)
         json.put("sleepHour", metrics.getSleepHour());
         json.put("steps", metrics.getSteps());
         json.put("waterLitres", metrics.getWaterLitres());
         json.put("exerciseMinutes", metrics.getExerciseMinutes());
         json.put("calories", metrics.getCalories());
 
-        // OLD field names (for your teammate's Health Score - MAINTAIN COMPATIBILITY)
-        json.put("sleepHours", metrics.getSleepHour());        // Same value as sleepHour
-        json.put("waterIntake", metrics.getWaterLitres());     // Same value as waterLitres
+        json.put("sleepHours", metrics.getSleepHour());
+        json.put("waterIntake", metrics.getWaterLitres());
 
         return json;
     }

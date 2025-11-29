@@ -10,8 +10,8 @@ public class Main {
                 .addSignupView()
                 .addDailyHealthScoreUseCase()
                 .addSettingsView()
-                .addHealthInsightsUseCase()  // MUST BE BEFORE HomeView
-                .addHomeView()               // Now HomeView will get the properly initialized HealthInsightsView
+                .addHealthInsightsUseCase()
+                .addHomeView()
                 .addSignupUseCase()
                 .addLoginUseCase()
                 .addSettingsUseCase()
