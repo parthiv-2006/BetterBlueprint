@@ -20,11 +20,9 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
     private HealthInsightsController healthInsightsController;
     private String currentUserId;
 
-    // Navigation fields
     private CardLayout homeCardLayout;
     private JPanel homeContentPanel;
 
-    // Color scheme - matching MyScoreView
     private static final Color PRIMARY_COLOR = new Color(37, 99, 235); // Blue-600
     private static final Color PRIMARY_HOVER = new Color(29, 78, 216); // Blue-700
     private static final Color SECONDARY_COLOR = new Color(34, 197, 94); // Green-500
@@ -35,7 +33,6 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
     private static final Color BORDER_COLOR = new Color(191, 219, 254); // Light blue border
     private static final Color SUBTITLE_COLOR = new Color(107, 114, 128);
 
-    // UI Components
     private final JLabel titleLabel = new JLabel("Health Insights");
     private final JLabel instructionLabel = new JLabel("Click the button below to generate personalized health insights.");
     private final JTextArea insightsTextArea;
@@ -49,11 +46,9 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
 
         this.healthInsightsViewModel.addPropertyChangeListener(this);
 
-        // Create buttons with consistent styling
         generateButton = createStyledButton("Generate Insights");
         backButton = createStyledButton("Back to Home");
 
-        // Setup insights text area
         insightsTextArea = new JTextArea();
         insightsTextArea.setEditable(false);
         insightsTextArea.setLineWrap(true);
@@ -71,11 +66,9 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
     }
 
     private void setupLayout() {
-        // Set up the main panel with background
         setLayout(new GridBagLayout());
         setBackground(BACKGROUND_COLOR);
 
-        // Create a card-style center panel (matching MyScoreView)
         JPanel cardPanel = new JPanel();
         cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
         cardPanel.setBackground(CARD_COLOR);
@@ -85,24 +78,20 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
         ));
         cardPanel.setMaximumSize(new Dimension(700, 700));
 
-        // Title (matching MyScoreView styling)
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
         titleLabel.setForeground(TEXT_COLOR);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Instruction label
         instructionLabel.setFont(new Font("Segoe UI", Font.ITALIC, 14));
         instructionLabel.setForeground(SUBTITLE_COLOR);
         instructionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Error label
         errorLabel.setForeground(ERROR_COLOR);
         errorLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         errorLabel.setBorder(new EmptyBorder(10, 20, 10, 20));
         errorLabel.setVisible(false);
 
-        // Insights text area in scroll pane
         JScrollPane scrollPane = new JScrollPane(insightsTextArea);
         scrollPane.setPreferredSize(new Dimension(600, 300));
         scrollPane.setMaximumSize(new Dimension(600, 300));
@@ -112,18 +101,15 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
                 "Your Health Insights"
         ));
 
-        // Button panel
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));
         buttonPanel.setBackground(CARD_COLOR);
         buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttonPanel.setMaximumSize(new Dimension(500, 60));
 
-        // Add buttons to button panel
         buttonPanel.add(generateButton);
         buttonPanel.add(backButton);
 
-        // Add components to card panel with spacing (matching MyScoreView layout)
         cardPanel.add(titleLabel);
         cardPanel.add(Box.createRigidArea(new Dimension(0, 15)));
         cardPanel.add(instructionLabel);
@@ -134,7 +120,6 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
         cardPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         cardPanel.add(buttonPanel);
 
-        // Add card to main panel
         this.add(cardPanel);
     }
 
@@ -150,7 +135,6 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
         button.setBackground(PRIMARY_COLOR);
         button.setForeground(Color.WHITE);
 
-        // Add hover effect (matching MyScoreView)
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -163,7 +147,6 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
             }
         });
 
-        // Add action listeners
         if (text.equals("Generate Insights")) {
             button.addActionListener(this::handleGenerateInsights);
         } else if (text.equals("Back to Home")) {
@@ -176,12 +159,10 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
     private void handleGenerateInsights(ActionEvent e) {
         if (healthInsightsController != null) {
             if (currentUserId != null && !currentUserId.isEmpty()) {
-                // Show loading state
                 insightsTextArea.setText("Generating insights... Please wait.");
                 errorLabel.setText("");
                 errorLabel.setVisible(false);
 
-                // Execute the controller
                 healthInsightsController.execute(currentUserId);
             } else {
                 errorLabel.setText("No user logged in. Please log in first.");
@@ -194,7 +175,6 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
     }
 
     private void handleBackToHome(ActionEvent e) {
-        // Use navigation if available, otherwise just print
         if (homeCardLayout != null && homeContentPanel != null) {
             homeCardLayout.show(homeContentPanel, "Home");
         } else {
@@ -202,7 +182,6 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
         }
     }
 
-    // ADD THIS METHOD to fix the error
     public void setHomeNavigation(CardLayout cardLayout, JPanel contentPanel) {
         this.homeCardLayout = cardLayout;
         this.homeContentPanel = contentPanel;
@@ -219,20 +198,16 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
         HealthInsightsState state = healthInsightsViewModel.getState();
 
         SwingUtilities.invokeLater(() -> {
-            // Update insights text
             if (state.getInsights() != null && !state.getInsights().isEmpty()) {
                 insightsTextArea.setText(state.getInsights());
             }
 
-            // Update error message
             if (state.getErrorMessage() != null && !state.getErrorMessage().isEmpty()) {
                 errorLabel.setText(state.getErrorMessage());
                 errorLabel.setVisible(true);
             } else {
                 errorLabel.setVisible(false);
             }
-
-            // Force UI refresh
             revalidate();
             repaint();
         });
