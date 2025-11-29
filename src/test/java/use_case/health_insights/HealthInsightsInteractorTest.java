@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import services.GeminiAPIService;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -39,16 +40,13 @@ class HealthInsightsInteractorTest {
 
     @Test
     void testExecute_UserNotFound() {
-        // Arrange
         String userId = "non_existent_user";
         HealthInsightsInputData inputData = new HealthInsightsInputData(userId);
 
         mockUserDataAccess.setUserToReturn(null);
 
-        // Act
         interactor.execute(inputData);
 
-        // Assert
         assertTrue(mockOutputBoundary.isFailViewCalled());
         assertEquals("User not found", mockOutputBoundary.getErrorMessage());
         assertFalse(mockGeminiAPIService.wasCalled());
@@ -56,18 +54,15 @@ class HealthInsightsInteractorTest {
 
     @Test
     void testExecute_NoHealthDataAvailable() {
-        // Arrange
         String userId = "user_with_no_data";
         HealthInsightsInputData inputData = new HealthInsightsInputData(userId);
-        User user = new User(userId, "Test User", 25, 170, 70);
+        User user = new User(userId, "password123", 25, 170, 70);
 
         mockUserDataAccess.setUserToReturn(user);
         mockHealthDataAccess.setHealthMetricsToReturn(Collections.emptyList());
 
-        // Act
         interactor.execute(inputData);
 
-        // Assert
         assertTrue(mockOutputBoundary.isFailViewCalled());
         assertEquals("No health data available. Please log some metrics first.", mockOutputBoundary.getErrorMessage());
         assertFalse(mockGeminiAPIService.wasCalled());
@@ -75,24 +70,21 @@ class HealthInsightsInteractorTest {
 
     @Test
     void testExecute_SuccessfulInsightsGeneration() {
-        // Arrange
         String userId = "valid_user";
         HealthInsightsInputData inputData = new HealthInsightsInputData(userId);
-        User user = new User(userId, "Test User", 25, 170, 70);
+        User user = new User(userId, "password123", 25, 170, 70);
 
         List<HealthMetrics> healthHistory = Arrays.asList(
-                new HealthMetrics(userId, 7.5, 8000, 2.0, 45, 2000),
-                new HealthMetrics(userId, 8.0, 10000, 2.5, 60, 2200)
+                new HealthMetrics(userId, LocalDate.now().minusDays(1), 7.5, 8000, 2.0, 45, 2000),
+                new HealthMetrics(userId, LocalDate.now(), 8.0, 10000, 2.5, 60, 2200)
         );
 
         mockUserDataAccess.setUserToReturn(user);
         mockHealthDataAccess.setHealthMetricsToReturn(healthHistory);
         mockGeminiAPIService.setInsightsToReturn("Great job! Your sleep has improved from 7.5 to 8.0 hours.");
 
-        // Act
         interactor.execute(inputData);
 
-        // Assert
         assertTrue(mockOutputBoundary.isSuccessViewCalled());
         assertTrue(mockGeminiAPIService.wasCalled());
         assertEquals("Great job! Your sleep has improved from 7.5 to 8.0 hours.",
@@ -101,13 +93,12 @@ class HealthInsightsInteractorTest {
 
     @Test
     void testExecute_APIError() {
-        // Arrange
         String userId = "valid_user";
         HealthInsightsInputData inputData = new HealthInsightsInputData(userId);
-        User user = new User(userId, "Test User", 25, 170, 70);
+        User user = new User(userId, "password123", 25, 170, 70);
 
         List<HealthMetrics> healthHistory = Arrays.asList(
-                new HealthMetrics(userId, 7.5, 8000, 2.0, 45, 2000)
+                new HealthMetrics(userId, LocalDate.now(), 7.5, 8000, 2.0, 45, 2000)
         );
 
         mockUserDataAccess.setUserToReturn(user);
@@ -115,10 +106,8 @@ class HealthInsightsInteractorTest {
         mockGeminiAPIService.setShouldThrowError(true);
         mockGeminiAPIService.setErrorMessage("API timeout");
 
-        // Act
         interactor.execute(inputData);
 
-        // Assert
         assertTrue(mockOutputBoundary.isFailViewCalled());
         assertEquals("Error generating insights: API timeout", mockOutputBoundary.getErrorMessage());
         assertTrue(mockGeminiAPIService.wasCalled());
@@ -126,17 +115,14 @@ class HealthInsightsInteractorTest {
 
     @Test
     void testExecute_GeneralException() {
-        // Arrange
         String userId = "valid_user";
         HealthInsightsInputData inputData = new HealthInsightsInputData(userId);
 
         mockUserDataAccess.setShouldThrowException(true);
         mockUserDataAccess.setExceptionMessage("Database connection failed");
 
-        // Act
         interactor.execute(inputData);
 
-        // Assert
         assertTrue(mockOutputBoundary.isFailViewCalled());
         assertEquals("Error generating insights: Database connection failed", mockOutputBoundary.getErrorMessage());
         assertFalse(mockGeminiAPIService.wasCalled());
@@ -144,25 +130,21 @@ class HealthInsightsInteractorTest {
 
     @Test
     void testPrepareAnalysisData_WithMultipleMetrics() {
-        // Arrange
         String userId = "test_user";
-        User user = new User(userId, "Test User", 30, 180, 75);
+        User user = new User(userId, "password123", 30, 180, 75);
 
         List<HealthMetrics> healthHistory = Arrays.asList(
-                new HealthMetrics(userId, 6.0, 5000, 1.5, 30, 1800),
-                new HealthMetrics(userId, 7.0, 7000, 2.0, 45, 2000),
-                new HealthMetrics(userId, 8.0, 9000, 2.5, 60, 2200)
+                new HealthMetrics(userId, LocalDate.now().minusDays(2), 6.0, 5000, 1.5, 30, 1800),
+                new HealthMetrics(userId, LocalDate.now().minusDays(1), 7.0, 7000, 2.0, 45, 2000),
+                new HealthMetrics(userId, LocalDate.now(), 8.0, 9000, 2.5, 60, 2200)
         );
 
-        // This tests the data preparation logic indirectly through the successful execution
         mockUserDataAccess.setUserToReturn(user);
         mockHealthDataAccess.setHealthMetricsToReturn(healthHistory);
         mockGeminiAPIService.setInsightsToReturn("Test insights");
 
-        // Act
         interactor.execute(new HealthInsightsInputData(userId));
 
-        // Assert - Verify the API was called (which means data was prepared correctly)
         assertTrue(mockGeminiAPIService.wasCalled());
         String analysisData = mockGeminiAPIService.getLastHealthData();
         assertNotNull(analysisData);
@@ -171,29 +153,16 @@ class HealthInsightsInteractorTest {
         assertTrue(analysisData.contains("Average Steps: 7000"));
     }
 
-    // ==================== MOCK CLASSES ====================
-
     private static class MockOutputBoundary implements HealthInsightsOutputBoundary {
         private boolean successViewCalled = false;
         private boolean failViewCalled = false;
         private HealthInsightsOutputData outputData;
         private String errorMessage;
 
-        public boolean isSuccessViewCalled() {
-            return successViewCalled;
-        }
-
-        public boolean isFailViewCalled() {
-            return failViewCalled;
-        }
-
-        public HealthInsightsOutputData getOutputData() {
-            return outputData;
-        }
-
-        public String getErrorMessage() {
-            return errorMessage;
-        }
+        public boolean isSuccessViewCalled() { return successViewCalled; }
+        public boolean isFailViewCalled() { return failViewCalled; }
+        public HealthInsightsOutputData getOutputData() { return outputData; }
+        public String getErrorMessage() { return errorMessage; }
 
         @Override
         public void prepareSuccessView(HealthInsightsOutputData outputData) {
@@ -224,27 +193,25 @@ class HealthInsightsInteractorTest {
         public void saveHealthMetrics(HealthMetrics healthMetrics) {
             // Not used in these tests
         }
+
+        @Override
+        public String getCurrentUsername() {
+            return "test_user";
+        }
     }
 
     private static class MockUserDataAccess implements UserDataAccessInterface {
         private User userToReturn;
         private boolean shouldThrowException = false;
         private String exceptionMessage = "";
+        private String currentUsername = "test_user";
 
-        public void setUserToReturn(User user) {
-            this.userToReturn = user;
-        }
-
-        public void setShouldThrowException(boolean shouldThrow) {
-            this.shouldThrowException = shouldThrow;
-        }
-
-        public void setExceptionMessage(String message) {
-            this.exceptionMessage = message;
-        }
+        public void setUserToReturn(User user) { this.userToReturn = user; }
+        public void setShouldThrowException(boolean shouldThrow) { this.shouldThrowException = shouldThrow; }
+        public void setExceptionMessage(String message) { this.exceptionMessage = message; }
 
         @Override
-        public User get(String userId) {
+        public User get(String username) {
             if (shouldThrowException) {
                 throw new RuntimeException(exceptionMessage);
             }
@@ -252,8 +219,23 @@ class HealthInsightsInteractorTest {
         }
 
         @Override
+        public boolean existsByName(String identifier) {
+            return userToReturn != null && userToReturn.getName().equals(identifier);
+        }
+
+        @Override
         public void save(User user) {
             // Not used in these tests
+        }
+
+        @Override
+        public String getCurrentUsername() {
+            return currentUsername;
+        }
+
+        @Override
+        public void setCurrentUsername(String name) {
+            this.currentUsername = name;
         }
     }
 
@@ -264,25 +246,11 @@ class HealthInsightsInteractorTest {
         private String errorMessage = "";
         private String lastHealthData = "";
 
-        public void setInsightsToReturn(String insights) {
-            this.insightsToReturn = insights;
-        }
-
-        public void setShouldThrowError(boolean shouldThrow) {
-            this.shouldThrowError = shouldThrow;
-        }
-
-        public void setErrorMessage(String message) {
-            this.errorMessage = message;
-        }
-
-        public boolean wasCalled() {
-            return wasCalled;
-        }
-
-        public String getLastHealthData() {
-            return lastHealthData;
-        }
+        public void setInsightsToReturn(String insights) { this.insightsToReturn = insights; }
+        public void setShouldThrowError(boolean shouldThrow) { this.shouldThrowError = shouldThrow; }
+        public void setErrorMessage(String message) { this.errorMessage = message; }
+        public boolean wasCalled() { return wasCalled; }
+        public String getLastHealthData() { return lastHealthData; }
 
         @Override
         public void getHealthInsightsAsync(String healthData, InsightsCallback callback) {
