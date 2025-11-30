@@ -2,37 +2,74 @@ package interface_adapter.goals;
 
 public class GoalsState {
     private String goalType;
-    private String targetWeight;
+    private String target;
     private String timeframe;
     private String errorMessage;
     private String dailyIntakeCalories;
     private String dailyBurnCalories;
+    private String differenceText;
     private String explanation;
     private boolean shouldRedirectToSettings = false;
     private String redirectMessage = null;
     private String currentWeightLabel;
     private int currentWeight = 0;
+    private boolean resultReady = false;
 
-    public String getGoalType() { return goalType; }
-    public void setGoalType(String goalType) { this.goalType = goalType; }
+    public String getGoalType() {
+        return goalType;
+    }
 
-    public String getTargetWeight() { return targetWeight; }
-    public void setTargetWeight(String targetWeight) { this.targetWeight = targetWeight; }
+    public void setGoalType(String goalType) {
+        this.goalType = goalType;
+    }
 
-    public String getTimeframe() { return timeframe; }
-    public void setTimeframe(String timeframe) { this.timeframe = timeframe; }
+    public String getTarget() {
+        return target;
+    }
 
-    public String getErrorMessage() { return errorMessage; }
-    public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+    public void setTarget(String target) {
+        this.target = target;
+    }
 
-    public String getDailyIntakeCalories() { return dailyIntakeCalories; }
-    public void setDailyIntakeCalories(String value) { this.dailyIntakeCalories = value; }
+    public String getTimeframe() {
+        return timeframe;
+    }
 
-    public String getDailyBurnCalories() { return dailyBurnCalories; }
-    public void setDailyBurnCalories(String value) { this.dailyBurnCalories = value; }
+    public void setTimeframe(String timeframe) {
+        this.timeframe = timeframe;
+    }
 
-    public String getExplanation() { return explanation; }
-    public void setExplanation(String value) { this.explanation = value; }
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public String getDailyIntakeCalories() {
+        return dailyIntakeCalories;
+    }
+
+    public void setDailyIntakeCalories(String value) {
+        this.dailyIntakeCalories = value;
+    }
+
+    public String getDailyBurnCalories() {
+        return dailyBurnCalories;
+    }
+
+    public void setDailyBurnCalories(String value) {
+        this.dailyBurnCalories = value;
+    }
+
+    public String getExplanation() {
+        return explanation;
+    }
+
+    public void setExplanation(String value) {
+        this.explanation = value;
+    }
 
     public boolean shouldRedirectToSettings() {
         return shouldRedirectToSettings;
@@ -65,4 +102,21 @@ public class GoalsState {
     public void setCurrentWeight(int currentWeight) {
         this.currentWeight = currentWeight;
     }
+
+    public String getDifferenceText() {
+        return differenceText;
+    }
+
+    public void setDifferenceText(String differenceText) {
+        this.differenceText = differenceText;
+    }
+
+    public boolean isResultReady() {
+        return resultReady;
+    }
+
+    public void setResultReady(boolean resultReady) {
+        this.resultReady = resultReady;
+    }
 }
+

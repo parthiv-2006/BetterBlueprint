@@ -5,6 +5,9 @@ public interface GoalsOutputBoundary {
 
     void prepareFailView(String errorMessage);
 
+    void presentError(String errorMessage);
+
     void redirectToSettings(String message);
 
+    void prepareSuccessView(GoalsOutputData outputData);
 }

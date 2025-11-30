@@ -15,28 +15,74 @@ public class GoalsPresenter implements GoalsOutputBoundary {
     public void present(GoalsOutputData outputData) {
         GoalsState state = goalsViewModel.getState();
 
+        // Basic info from use case
         state.setGoalType(outputData.getGoalType());
         state.setDailyIntakeCalories(outputData.getDailyIntakeCalories());
         state.setDailyBurnCalories(outputData.getDailyBurnCalories());
         state.setExplanation(outputData.getExplanation());
-        state.setCurrentWeight(outputData.getCurrentWeightKg());
         state.setErrorMessage(null);
 
-        // Current weight label
+        // Weight info → label for UI
         if (outputData.getCurrentWeightKg() > 0) {
+            state.setCurrentWeight(outputData.getCurrentWeightKg());
             state.setCurrentWeightLabel(
                     "Current weight: " + outputData.getCurrentWeightKg() + " kg"
             );
         } else {
+            state.setCurrentWeight(0);
             state.setCurrentWeightLabel(
                     "Current weight: not set — open Settings"
             );
         }
 
-        // Redirect flags
-        state.setShouldRedirectToSettings(outputData.shouldRedirectToSettings());
-        state.setRedirectMessage(outputData.getRedirectMessage());
+        // Target and timeframe
+        state.setTarget(outputData.getTarget());
+        state.setTimeframe(outputData.getTimeframe());
 
+        // Difference text – all math lives here, not in the View
+        try {
+            double intake = Double.parseDouble(outputData.getDailyIntakeCalories());
+            double burn = Double.parseDouble(outputData.getDailyBurnCalories());
+            double diff = intake - burn;
+
+            String diffText;
+            if (diff > 0) {
+                diffText = "Caloric difference: +" + String.format("%.0f", diff) + " kcal (surplus)";
+            } else if (diff < 0) {
+                diffText = "Caloric difference: " + String.format("%.0f", diff) + " kcal (deficit)";
+            } else {
+                diffText = "Caloric difference: 0 kcal (balanced)";
+            }
+            state.setDifferenceText(diffText);
+        } catch (NumberFormatException e) {
+            state.setDifferenceText("Caloric difference: -- kcal");
+        }
+
+        // Result is ready to show
+        state.setResultReady(true);
+
+        // No redirect on success
+        state.setShouldRedirectToSettings(false);
+        state.setRedirectMessage(null);
+
+        goalsViewModel.setState(state);
+        goalsViewModel.firePropertyChange();
+    }
+
+    @Override
+    public void prepareFailView(String errorMessage) {
+        GoalsState state = goalsViewModel.getState();
+        state.setErrorMessage(errorMessage);
+        state.setResultReady(false);
+        goalsViewModel.setState(state);
+        goalsViewModel.firePropertyChange();
+    }
+
+    @Override
+    public void presentError(String errorMessage) {
+        GoalsState state = goalsViewModel.getState();
+        state.setErrorMessage(errorMessage);
+        state.setResultReady(false);
         goalsViewModel.setState(state);
         goalsViewModel.firePropertyChange();
     }
@@ -46,17 +92,13 @@ public class GoalsPresenter implements GoalsOutputBoundary {
         GoalsState state = goalsViewModel.getState();
         state.setShouldRedirectToSettings(true);
         state.setRedirectMessage(message);
-
+        state.setResultReady(false);
         goalsViewModel.setState(state);
         goalsViewModel.firePropertyChange();
     }
 
-    public void prepareFailView(String errorMessage) {
-        GoalsState state = goalsViewModel.getState();
-        state.setErrorMessage(errorMessage);
-        goalsViewModel.setState(state);
-        goalsViewModel.firePropertyChange();
+    @Override
+    public void prepareSuccessView(GoalsOutputData outputData) {
+        present(outputData);
     }
 }
-
-
