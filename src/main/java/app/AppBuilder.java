@@ -83,10 +83,8 @@ public class AppBuilder {
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
     private final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
     private final FileUserDataAccessObject userDataAccessObject = new FileUserDataAccessObject("users.csv", userFactory);
-    // DAO version using local file storage
     private final HealthMetricsDataAccessObject healthMetricsDataAccessObject = new HealthMetricsDataAccessObject(userDataAccessObject);
 
-    // DAO version using a shared external database
 
     private SignupView signupView;
     private SignupViewModel signupViewModel;
@@ -133,13 +131,10 @@ public class AppBuilder {
     }
 
     public AppBuilder addHealthInsightsUseCase() {
-        // Create Health Insights components
         healthInsightsViewModel = new HealthInsightsViewModel();
 
-        // Create the service
         GeminiAPIService geminiAPIService = new GeminiAPIService();
 
-        // Create the interactor
         HealthInsightsOutputBoundary healthInsightsOutputBoundary =
                 new HealthInsightsPresenter(healthInsightsViewModel);
 
@@ -151,22 +146,17 @@ public class AppBuilder {
                         geminiAPIService
                 );
 
-        // Create the controller
         healthInsightsController = new HealthInsightsController(healthInsightsInteractor);
 
-        // Create the view
         healthInsightsView = new HealthInsightsView(healthInsightsViewModel, healthInsightsController);
 
 
-        // Add to card panel
         cardPanel.add(healthInsightsView, healthInsightsView.viewName);
 
         return this;
     }
 
-    // In your AppBuilder.java, make sure you're creating HealthInsightsView AFTER the controller is created
     public AppBuilder addHomeView() {
-        // Create InputMetricsView first
         inputMetricsViewModel = new InputMetricsViewModel();
         inputMetricsView = new InputMetricsView(inputMetricsViewModel);
 
@@ -174,7 +164,6 @@ public class AppBuilder {
         goalsViewModel = new GoalsViewModel();
         goalsView = new GoalsView(goalsViewModel);
 
-        // Create HomeView and pass actual views
         homeViewModel = new HomeViewModel();
         homeView = new HomeView(
                 homeViewModel,

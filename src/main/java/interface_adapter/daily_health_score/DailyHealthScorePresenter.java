@@ -30,6 +30,7 @@ public class DailyHealthScorePresenter implements DailyHealthScoreOutputBoundary
         newState.setExerciseMinutes(data.getExerciseMinutes());
         newState.setCalories(data.getCalories());
         newState.setWaterIntake(data.getWaterIntake());
+        newState.setSteps(data.getSteps());
 
         // Tell the view model to update and notify listeners
         viewModel.setState(newState);

@@ -48,6 +48,7 @@ public class MyScoreView extends JPanel implements PropertyChangeListener {
     private final JLabel exerciseLabel = new JLabel();
     private final JLabel caloriesLabel = new JLabel();
     private final JLabel waterLabel = new JLabel();
+    private final JLabel stepsLabel = new JLabel();
     private final JPanel metricsPanel = new JPanel();
 
     private final JButton computeButton;
@@ -187,11 +188,22 @@ public class MyScoreView extends JPanel implements PropertyChangeListener {
         waterLabel.setOpaque(true);
         waterLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
+        stepsLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        stepsLabel.setForeground(TEXT_COLOR);
+        stepsLabel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+                new EmptyBorder(12, 15, 12, 15)
+        ));
+        stepsLabel.setBackground(new Color(249, 250, 251));
+        stepsLabel.setOpaque(true);
+        stepsLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
         // Add metric labels to panel
         metricsPanel.add(sleepLabel);
         metricsPanel.add(exerciseLabel);
         metricsPanel.add(caloriesLabel);
         metricsPanel.add(waterLabel);
+        metricsPanel.add(stepsLabel);
 
         // Add components to card panel with spacing
         cardPanel.add(titleLabel);
@@ -217,6 +229,8 @@ public class MyScoreView extends JPanel implements PropertyChangeListener {
 
     private JButton createStyledButton(String text) {
         JButton button = new JButton(text);
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
         button.setMaximumSize(new Dimension(300, 45));
@@ -277,16 +291,19 @@ public class MyScoreView extends JPanel implements PropertyChangeListener {
 
                 // Display metrics breakdown
                 if (state.getSleepHours() != null) {
-                    sleepLabel.setText("<html><b>Sleep:</b> " + state.getSleepHours() + " hrs</html>");
+                    sleepLabel.setText("<html><b>Sleep:</b> " + String.format("%.2f", state.getSleepHours()) + " hrs</html>");
                 }
                 if (state.getExerciseMinutes() != null) {
-                    exerciseLabel.setText("<html><b>Exercise:</b> " + state.getExerciseMinutes() + " min</html>");
+                    exerciseLabel.setText("<html><b>Exercise:</b> " + String.format("%.2f", state.getExerciseMinutes()) + " min</html>");
                 }
                 if (state.getCalories() != null) {
                     caloriesLabel.setText("<html><b>Calories:</b> " + state.getCalories() + " cal</html>");
                 }
                 if (state.getWaterIntake() != null) {
-                    waterLabel.setText("<html><b>Water:</b> " + state.getWaterIntake() + " L</html>");
+                    waterLabel.setText("<html><b>Water:</b> " + String.format("%.2f", state.getWaterIntake()) + " L</html>");
+                }
+                if (state.getSteps() != null) {
+                    stepsLabel.setText("<html><b>Steps:</b> " + state.getSteps() + "</html>");
                 }
 
                 breakdownTitleLabel.setVisible(true);

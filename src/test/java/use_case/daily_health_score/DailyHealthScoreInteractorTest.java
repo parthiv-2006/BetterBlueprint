@@ -34,7 +34,7 @@ class DailyHealthScoreInteractorTest {
         DailyHealthScoreInputData inputData = new DailyHealthScoreInputData(testDate, userId);
 
         // Set up mock data
-        DailyMetricsDTO metrics = new DailyMetricsDTO(7.0, 30.0, 2000, 2.5);
+        DailyMetricsDTO metrics = new DailyMetricsDTO(7.0, 30.0, 2000, 2.5, 8000);
         mockDataAccess.setMetricsToReturn(metrics);
         mockCalculator.setScoreToReturn(85);
         mockCalculator.setFeedbackToReturn("Great job! Keep it up.");
@@ -56,6 +56,7 @@ class DailyHealthScoreInteractorTest {
         assertEquals(30.0, outputData.getExerciseMinutes(), "Exercise minutes should match");
         assertEquals(2000, outputData.getCalories(), "Calories should match");
         assertEquals(2.5, outputData.getWaterIntake(), "Water intake should match");
+        assertEquals(8000, outputData.getSteps(), "Steps should match");
 
         assertTrue(mockDataAccess.isSaveCalled(), "Save should be called");
     }
@@ -92,7 +93,7 @@ class DailyHealthScoreInteractorTest {
         String userId = "testUser";
         DailyHealthScoreInputData inputData = new DailyHealthScoreInputData(testDate, userId);
 
-        DailyMetricsDTO metrics = new DailyMetricsDTO(7.0, 30.0, 2000, 2.5);
+        DailyMetricsDTO metrics = new DailyMetricsDTO(7.0, 30.0, 2000, 2.5, 8000);
         mockDataAccess.setMetricsToReturn(metrics);
         mockCalculator.setShouldThrowException(true);
 
@@ -117,7 +118,7 @@ class DailyHealthScoreInteractorTest {
         String userId = "testUser";
         DailyHealthScoreInputData inputData = new DailyHealthScoreInputData(testDate, userId);
 
-        DailyMetricsDTO metrics = new DailyMetricsDTO(7.0, 30.0, 2000, 2.5);
+        DailyMetricsDTO metrics = new DailyMetricsDTO(7.0, 30.0, 2000, 2.5, 8000);
         mockDataAccess.setMetricsToReturn(metrics);
         mockDataAccess.setShouldThrowOnSave(true);
         mockCalculator.setScoreToReturn(85);
@@ -144,7 +145,7 @@ class DailyHealthScoreInteractorTest {
         String userId = "testUser";
         DailyHealthScoreInputData inputData = new DailyHealthScoreInputData(testDate, userId);
 
-        DailyMetricsDTO metrics = new DailyMetricsDTO(8.5, 45.0, 2500, 3.0);
+        DailyMetricsDTO metrics = new DailyMetricsDTO(8.5, 45.0, 2500, 3.0, 10000);
         mockDataAccess.setMetricsToReturn(metrics);
         mockCalculator.setScoreToReturn(90);
         mockCalculator.setFeedbackToReturn("Excellent!");
@@ -157,6 +158,7 @@ class DailyHealthScoreInteractorTest {
         assertEquals(45.0, mockCalculator.getLastExerciseMinutes(), "Exercise minutes passed to calculator");
         assertEquals(2500, mockCalculator.getLastCalories(), "Calories passed to calculator");
         assertEquals(3.0, mockCalculator.getLastWaterIntake(), "Water intake passed to calculator");
+        assertEquals(10000, mockCalculator.getLastSteps(), "Steps passed to calculator");
     }
 
     // ==================== Mock Classes ====================
@@ -252,6 +254,7 @@ class DailyHealthScoreInteractorTest {
         private double lastExerciseMinutes;
         private int lastCalories;
         private double lastWaterIntake;
+        private int lastSteps;
 
         public void setScoreToReturn(int score) {
             this.scoreToReturn = score;
@@ -281,12 +284,17 @@ class DailyHealthScoreInteractorTest {
             return lastWaterIntake;
         }
 
+        public int getLastSteps() {
+            return lastSteps;
+        }
+
         @Override
-        public int calculateScore(double sleepHours, double exerciseMinutes, int calories, double waterIntake) throws Exception {
+        public int calculateScore(double sleepHours, double exerciseMinutes, int calories, double waterIntake, int steps) throws Exception {
             this.lastSleepHours = sleepHours;
             this.lastExerciseMinutes = exerciseMinutes;
             this.lastCalories = calories;
             this.lastWaterIntake = waterIntake;
+            this.lastSteps = steps;
 
             if (shouldThrowException) {
                 throw new Exception("Calculator failed");
@@ -295,7 +303,7 @@ class DailyHealthScoreInteractorTest {
         }
 
         @Override
-        public String generateFeedback(double sleepHours, double exerciseMinutes, int calories, double waterIntake, int score) throws Exception {
+        public String generateFeedback(double sleepHours, double exerciseMinutes, int calories, double waterIntake, int steps, int score) throws Exception {
             if (shouldThrowException) {
                 throw new Exception("Feedback generation failed");
             }
@@ -303,5 +311,3 @@ class DailyHealthScoreInteractorTest {
         }
     }
 }
-
-
