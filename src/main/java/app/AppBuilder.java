@@ -224,13 +224,11 @@ public class AppBuilder {
         // Create the View once
         myScoreView = new MyScoreView(dailyHealthScoreViewModel, null);
 
-        // Read API key from environment variable
-        String apiKey = System.getenv("GEMINI_API_KEY");
-        if (apiKey == null || apiKey.isEmpty()) {
-            throw new IllegalStateException("GEMINI_API_KEY environment variable is not set. " +
-                    "Please set it before running the application.");
-        }
-        HealthScoreCalculator scoreCalculator = new GeminiHealthScoreCalculator(apiKey);
+        // Create GeminiAPIService (it reads API key from environment variable)
+        GeminiAPIService geminiService = new GeminiAPIService();
+
+        // Create the adapter that delegates to the service
+        HealthScoreCalculator scoreCalculator = new GeminiHealthScoreCalculator(geminiService);
 
         DailyHealthScoreUserDataAccessInterface metricsDAO =
                 new DailyHealthScoreDataAccessObject(userDataAccessObject);

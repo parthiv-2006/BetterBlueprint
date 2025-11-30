@@ -1,78 +1,40 @@
 package interface_adapter.daily_health_score;
 
+import services.GeminiAPIService;
 import use_case.daily_health_score.HealthScoreCalculator;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-
 /**
- * Implementation of HealthScoreCalculator using Google Gemini API.
+ * Adapter implementation of HealthScoreCalculator that delegates to GeminiAPIService.
+ * This class acts as a bridge between the use case layer and the services layer,
+ * following Clean Architecture principles.
  */
-
 public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
 
-    private final String apiKey;
-    private final HttpClient client;
-    private static final String GEMINI_URL =
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=";
+    private final GeminiAPIService geminiService;
 
-    public GeminiHealthScoreCalculator(String apiKey) {
-        this.apiKey = apiKey;
-        this.client = HttpClient.newHttpClient();
+    public GeminiHealthScoreCalculator(GeminiAPIService geminiService) {
+        this.geminiService = geminiService;
     }
 
     @Override
     public int calculateScore(double sleepHours, double exerciseMinutes,
-                              int calories, double waterIntake, int steps) {
-
-        String prompt =
-                "You are a health score calculator. Analyze these daily health metrics and calculate a health score from 0-100.\n\n" +
-                        "Metrics:\n" +
-                        "- Sleep: " + sleepHours + " hours (Recommended: 7-9 hours)\n" +
-                        "- Exercise: " + exerciseMinutes + " minutes (Recommended: 30+ minutes)\n" +
-                        "- Calories: " + calories + " kcal (Recommended: 2000-2500 kcal)\n" +
-                        "- Water: " + waterIntake + " liters (Recommended: 2-3 liters)\n" +
-                        "- Steps: " + steps + " steps (Recommended: 8000-10000 steps)\n\n" +
-                        "Scoring guidelines:\n" +
-                        "- 90-100: Excellent - All metrics near optimal\n" +
-                        "- 75-89: Good - Most metrics healthy\n" +
-                        "- 60-74: Fair - Some improvement needed\n" +
-                        "- 40-59: Poor - Several metrics need attention\n" +
-                        "- 0-39: Very Poor - Most metrics unhealthy\n\n" +
-                        "Calculate the score by comparing each metric to its recommended range. " +
-                        "Weight sleep, exercise, and steps slightly higher than calories and water.\n\n" +
-                        "Respond with ONLY the integer score (0-100), nothing else.";
-
-        String result = callGemini(prompt).trim();
-
+                              int calories, double waterIntake, int steps) throws Exception {
         try {
-            // First try to parse directly
-            int score = Integer.parseInt(result);
-
-            // Validate range
-            if (score < 0 || score > 100) {
-                return calculateFallbackScore(sleepHours, exerciseMinutes, calories, waterIntake, steps);
-            }
-
-            return score;
-        } catch (NumberFormatException e) {
-            // Try to extract first number
-            String numbersOnly = result.replaceAll("[^0-9]", "");
-            if (!numbersOnly.isEmpty() && numbersOnly.length() <= 3) {
-                try {
-                    int score = Integer.parseInt(numbersOnly);
-                    if (score >= 0 && score <= 100) {
-                        return score;
-                    }
-                } catch (NumberFormatException ex) {
-                    // Fall through to fallback
-                }
-            }
-
+            // Delegate to the service layer
+            return geminiService.calculateHealthScore(sleepHours, exerciseMinutes, calories, waterIntake, steps);
+        } catch (Exception e) {
+            // If API call fails, use fallback calculation
+            System.err.println("Gemini API score calculation failed: " + e.getMessage());
+            System.err.println("Using fallback algorithm.");
             return calculateFallbackScore(sleepHours, exerciseMinutes, calories, waterIntake, steps);
         }
+    }
+
+    @Override
+    public String generateFeedback(double sleepHours, double exerciseMinutes,
+                                   int calories, double waterIntake, int steps, int score) throws Exception {
+        // Delegate to the service layer
+        return geminiService.generateHealthFeedback(sleepHours, exerciseMinutes, calories, waterIntake, steps, score);
     }
 
     /**
@@ -81,7 +43,6 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
      */
     private int calculateFallbackScore(double sleepHours, double exerciseMinutes,
                                        int calories, double waterIntake, int steps) {
-        System.out.println("Gemini API score calculation failed, using fallback algorithm.");
         int score = 0;
 
         // Sleep score (0-25 points)
@@ -131,81 +92,5 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
 
         return score;
     }
-
-    @Override
-    public String generateFeedback(double sleepHours, double exerciseMinutes,
-                                   int calories, double waterIntake, int steps, int score) {
-
-        String prompt =
-                "A user has these daily health metrics:\n" +
-                        "- Sleep: " + sleepHours + " hours (Recommended: 7-9)\n" +
-                        "- Exercise: " + exerciseMinutes + " minutes (Recommended: 30+)\n" +
-                        "- Calories: " + calories + " kcal (Recommended: 2000-2500)\n" +
-                        "- Water: " + waterIntake + " liters (Recommended: 2-3)\n" +
-                        "- Steps: " + steps + " steps (Recommended: 8000-10000)\n" +
-                        "- Overall Score: " + score + "/100\n\n" +
-                        "Provide feedback and reasoning for their overall score in 2-3 sentences (max 50 words). " +
-                        "Mention what they're doing well and one specific improvement they should focus on. " +
-                        "Be positive and actionable.";
-
-        String feedback = callGemini(prompt).trim();
-
-        return feedback;
-    }
-
-    private String callGemini(String prompt) {
-        try {
-            // Use generation config for more controlled responses
-            String jsonBody = """
-            {
-              "contents": [{
-                "parts": [{
-                    "text": "%s"
-                }]
-              }],
-              "generationConfig": {
-                "temperature": 0.3,
-                "topK": 1,
-                "topP": 1,
-                "maxOutputTokens": 100
-              }
-            }
-            """.formatted(prompt.replace("\"", "\\\""));
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(GEMINI_URL + apiKey))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                    .build();
-
-            HttpResponse<String> response =
-                    client.send(request, HttpResponse.BodyHandlers.ofString());
-
-
-            if (response.statusCode() != 200) {
-                return "Error: " + response.body();
-            }
-
-            return extractTextFromGeminiResponse(response.body());
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return "Unable to retrieve response from Gemini: " + e.getMessage();
-        }
-    }
-
-    /**
-     * Extracts the model's text output from Gemini's JSON response.
-     */
-    private String extractTextFromGeminiResponse(String json) {
-        // naive extraction: look for "text": " ... "
-        int start = json.indexOf("\"text\":");
-        if (start == -1) return json;
-
-        start = json.indexOf("\"", start + 7) + 1;
-        int end = json.indexOf("\"", start);
-
-        if (end == -1) return json;
-        return json.substring(start, end);
-    }
 }
+
