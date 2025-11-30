@@ -233,11 +233,9 @@ public class HomeView extends JPanel {
 
         // Goals button: check weight and navigate accordingly
         goals.addActionListener(e -> {
-            System.out.println("HomeView: Goals button clicked");
             try {
                 if (goalsView instanceof GoalsView) {
                     GoalsView gv = (GoalsView) goalsView;
-                    System.out.println("HomeView: goalsView.getCurrentWeight()=" + gv.getCurrentWeight() + " hasWeightSet=" + gv.hasWeightSet());
                     if (!gv.hasWeightSet()) {
                         // Instead of redirecting to Settings, show an informational dialog asking user to input weight
                         JOptionPane.showMessageDialog(mainContentPanel,
@@ -251,7 +249,7 @@ public class HomeView extends JPanel {
                 // Otherwise show Goals
                 mainCardLayout.show(mainContentPanel, "Goals");
             } catch (Exception ex) {
-                System.out.println("HomeView: failed to navigate to Goals/Settings: " + ex.getMessage());
+                // Navigation error
             }
         });
 

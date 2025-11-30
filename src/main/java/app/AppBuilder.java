@@ -32,6 +32,7 @@ import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
 import use_case.daily_health_score.*;
+import use_case.goals.GoalsInputBoundary;
 import use_case.goals.GoalsInteractor;
 import use_case.input_metrics.InputMetricsInputBoundary;
 import use_case.input_metrics.InputMetricsInteractor;
@@ -405,66 +406,14 @@ public class AppBuilder {
 
     public AppBuilder addGoalsUseCase() {
 
-        // Try to get the currently logged-in username (may be null)
-        String currentUsername = userDataAccessObject.getCurrentUsername();
-
-        User entityUser = null;
-        if (currentUsername != null) {
-            entityUser = userDataAccessObject.get(currentUsername);
-        }
-
-        // --- default values if we know nothing about the user yet ---
-        String name = "Guest";
-        String password = "default";
-        int age = 30;
-        int height = 170;
-        // Use 0 to indicate weight not yet set (avoid showing a misleading 70kg default)
-        int weight = 0;
-
-        // If we found a stored user, use their name/password
-        if (entityUser != null) {
-            name = entityUser.getName();
-            password = entityUser.getPassword();
-
-            // Prefer age/height/weight stored on the User entity (Settings saves to users.csv)
-            if (entityUser.getAge() > 0) {
-                age = entityUser.getAge();
-            }
-            if (entityUser.getHeight() > 0) {
-                height = entityUser.getHeight();
-            }
-            if (entityUser.getWeight() > 0) {
-                weight = entityUser.getWeight();
-            }
-        }
-
-        System.out.println("AppBuilder.addGoalsUseCase: currentUsername='" + currentUsername + "' -> name='" + name + "' age=" + age + " height=" + height + " weight=" + weight);
-
-         // Build the User object that the goals use case will use
-         User currentUser;
-         // Only use the full constructor if the metrics are valid (positive numbers)
-         if (age > 0 && height > 0 && weight > 0) {
-             currentUser = new User(name, password, age, height, weight);
-         } else {
-             // Fallback to the simple user constructor (no metrics set yet)
-             currentUser = new User(name, password);
-         }
-
-        // Wire up Goals use case
         GoalsPresenter goalsPresenter = new GoalsPresenter(goalsViewModel);
-        // Pass the User DAO to the interactor so it can fetch current user and apply business rules
-        GoalsInteractor goalsInteractor = new GoalsInteractor(goalsPresenter, userDataAccessObject);
+        GoalsInputBoundary goalsInteractor =
+                new GoalsInteractor(userDataAccessObject, goalsPresenter);
         GoalsController goalsController = new GoalsController(goalsInteractor);
-
         goalsView.setGoalsController(goalsController);
-        // Provide the current user entity to the view so it can display weight and redirect if needed
-        if (goalsView instanceof view.GoalsView) {
-            ((view.GoalsView) goalsView).setCurrentUser(currentUser);
-            // Provide DAO to the view as optional fallback for display (interactor handles business rules now)
-            ((view.GoalsView) goalsView).setUserDataAccess(userDataAccessObject);
-        }
 
         return this;
     }
+
 
 }

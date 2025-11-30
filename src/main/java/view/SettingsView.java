@@ -257,6 +257,8 @@ public class SettingsView extends JPanel implements ActionListener, PropertyChan
         button.setPreferredSize(new Dimension(300, 45));
         button.setFocusPainted(false);
         button.setBorderPainted(false);
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         if (isPrimary) {
             button.setBackground(SECONDARY_COLOR);
