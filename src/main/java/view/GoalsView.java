@@ -1,7 +1,5 @@
 package view;
 
-import Entities.User;
-import data_access.FileUserDataAccessObject;
 import interface_adapter.goals.GoalsController;
 import interface_adapter.goals.GoalsState;
 import interface_adapter.goals.GoalsViewModel;
@@ -13,10 +11,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 /**
- * The View for the Goals / Caloric Intake Plane use case.
+ * The View for the Goals / Caloric Intake Plan use case.
  * First screen: choose goal type.
  * Second screen: enter details depending on goal type.
- * Third Screen: For Final Plan
+ * Third screen: see the final plan.
  */
 public class GoalsView extends JPanel implements PropertyChangeListener {
 
@@ -38,8 +36,8 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
 
     // RESULT screen components
     private final JLabel resultTitleLabel = new JLabel("Your Daily Caloric Plan");
-    private final JLabel resultSummaryLabel = new JLabel(" ");  // NEW
-    private final JLabel explanationLabel = new JLabel(" ");    // NEW
+    private final JLabel resultSummaryLabel = new JLabel(" ");
+    private final JLabel explanationLabel = new JLabel(" ");
     private final JLabel disclaimerLabel = new JLabel(" ");
 
     private final JLabel intakeLabel = new JLabel("Daily calories intake goal: -- kcal");
@@ -53,14 +51,6 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
     // Navigation back to HomeView
     private CardLayout homeCardLayout;
     private JPanel homeContentPanel;
-
-    // Current logged-in user (provided by outer app)
-    private User currentUser;
-    private FileUserDataAccessObject userDataAccessObject; // optional fallback
-    private final JLabel currentWeightLabel = new JLabel("Current weight: -- kg");
-
-    // List of weight display labels that need updating when user is set
-    private final java.util.List<JLabel> weightLabels = new java.util.ArrayList<>();
 
     // Color scheme
     private static final Color PRIMARY_COLOR = new Color(37, 99, 235);
@@ -94,11 +84,9 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBackground(BACKGROUND_COLOR);
-
         mainPanel.add(innerCardPanel);
 
         this.add(mainPanel);
-
 
         // Buttons on details card
         generateButton = createStyledButton("Generate Plan", "SECONDARY");
@@ -108,88 +96,6 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         backButton.addActionListener(e -> innerCardLayout.show(innerCardPanel, "SELECT"));
 
         attachButtonsAndPlanToDetailsCard();
-    }
-
-    // Public API for outer app to provide the current user
-    public void setCurrentUser(User user) {
-        this.currentUser = user;
-        updateCurrentWeightDisplay();
-        // Update all weight labels in panels
-        for (JLabel label : weightLabels) {
-            updateWeightDisplayLabel(label);
-        }
-    }
-
-    // Optional: allow AppBuilder to pass the DAO so the view can refresh itself when needed
-    public void setUserDataAccess(FileUserDataAccessObject dao) {
-        this.userDataAccessObject = dao;
-    }
-
-    // Helper: return whether the current user has a positive weight set
-    public boolean hasWeightSet() {
-        // If we don't have an in-memory user, try to fetch from DAO if available
-        if (currentUser == null && userDataAccessObject != null) {
-            String cur = userDataAccessObject.getCurrentUsername();
-            if (cur != null) {
-                User u = userDataAccessObject.get(cur);
-                if (u != null) {
-                    setCurrentUser(u);
-                }
-            }
-        }
-        return currentUser != null && currentUser.getWeight() > 0;
-    }
-
-    // Helper: get current weight or -1 if unknown
-    public int getCurrentWeight() {
-        if (currentUser == null) return -1;
-        return currentUser.getWeight();
-    }
-
-    // Called by ribbon click handler. If user has not set weight, redirect to settings.
-    // Assumption: the settings card name in the Home view's CardLayout is "settings"; adjust if different.
-    public void openOrRedirectToSettings() {
-        boolean weightSet = currentUser != null && currentUser.getWeight() > 0;
-
-        if (!weightSet) {
-            // Instead of navigating away, show an informational message and keep the Goals selection visible.
-            JOptionPane.showMessageDialog(this,
-                    "Please input your weight in Settings",
-                    "Input required",
-                    JOptionPane.INFORMATION_MESSAGE);
-
-            // Ensure the goals selection card is visible so the user sees the Goals UI.
-            innerCardLayout.show(innerCardPanel, "SELECT");
-            return;
-        }
-
-        // If weight is set, simply show the selection card inside the Goals view.
-        innerCardLayout.show(innerCardPanel, "SELECT");
-    }
-
-    private void updateCurrentWeightDisplay() {
-        // If we don't have a user but have DAO, attempt to populate it
-        if (currentUser == null && userDataAccessObject != null) {
-            String cur = userDataAccessObject.getCurrentUsername();
-            if (cur != null) {
-                User u = userDataAccessObject.get(cur);
-                if (u != null) {
-                    this.currentUser = u;
-                }
-            }
-        }
-
-        if (currentUser == null) {
-            currentWeightLabel.setText("Current weight: -- kg");
-            return;
-        }
-
-        int w = currentUser.getWeight();
-        if (w <= 0) {
-            currentWeightLabel.setText("Current weight: not set — open Settings");
-        } else {
-            currentWeightLabel.setText("Current weight: " + w + " kg");
-        }
     }
 
     // When user chooses 'Maintain Weight' let the use case compute the plan.
@@ -223,9 +129,7 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         }
     }
 
-
     // CARD 1: GOAL TYPE SELECTION
-
     private JPanel createGoalSelectionCard() {
         JPanel cardPanel = new JPanel();
         cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
@@ -241,15 +145,13 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         title.setForeground(TEXT_COLOR);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel currentWeightDisplayLabel = new JLabel(" ");
-        currentWeightDisplayLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        currentWeightDisplayLabel.setForeground(new Color(107, 114, 128));
-        currentWeightDisplayLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        updateWeightDisplayLabel(currentWeightDisplayLabel);
-        weightLabels.add(currentWeightDisplayLabel);
+        JLabel currentWeightHint = new JLabel(
+                "Tip: set your weight in Settings for more accurate goals.");
+        currentWeightHint.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        currentWeightHint.setForeground(new Color(107, 114, 128));
+        currentWeightHint.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel subtitle = new JLabel(
-                "Choose your desired goal");
+        JLabel subtitle = new JLabel("Choose your desired goal");
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         subtitle.setForeground(new Color(107, 114, 128));
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -260,13 +162,12 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
 
         // Wire selection behaviour
         lossButton.addActionListener(e -> goToDetailsFor("Weight Loss"));
-        // For maintain weight we don't need timeframe — go straight to results
         maintainButton.addActionListener(e -> handleMaintainSelected());
         gainButton.addActionListener(e -> goToDetailsFor("Weight Gain"));
 
         cardPanel.add(title);
         cardPanel.add(Box.createRigidArea(new Dimension(0, 5)));
-        cardPanel.add(currentWeightDisplayLabel);
+        cardPanel.add(currentWeightHint);
         cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         cardPanel.add(subtitle);
         cardPanel.add(Box.createRigidArea(new Dimension(0, 30)));
@@ -326,8 +227,7 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         // Adjust DETAILS UI based on goal type
         selectedGoalLabel.setText("Selected Goal: " + goalType);
 
-        boolean needsTarget =
-                !"Weight Maintenance".equals(goalType);
+        boolean needsTarget = !"Weight Maintenance".equals(goalType);
 
         targetWeightField.setVisible(needsTarget);
         targetWeightField.setText("");
@@ -338,7 +238,6 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
     }
 
     // CARD 2: GOAL DETAILS
-
     private JPanel createGoalDetailsCard() {
         JPanel cardPanel = new JPanel();
         cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
@@ -353,12 +252,11 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         detailsTitleLabel.setForeground(TEXT_COLOR);
         detailsTitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel currentWeightDisplayLabel = new JLabel(" ");
-        currentWeightDisplayLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        currentWeightDisplayLabel.setForeground(new Color(107, 114, 128));
-        currentWeightDisplayLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        updateWeightDisplayLabel(currentWeightDisplayLabel);
-        weightLabels.add(currentWeightDisplayLabel);
+        JLabel currentWeightHint = new JLabel(
+                "Tip: make sure your profile in Settings has your latest weight.");
+        currentWeightHint.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        currentWeightHint.setForeground(new Color(107, 114, 128));
+        currentWeightHint.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         selectedGoalLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         selectedGoalLabel.setForeground(new Color(107, 114, 128));
@@ -374,13 +272,12 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         errorMessageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         errorMessageLabel.setBorder(new EmptyBorder(10, 0, 10, 0));
 
-        // Add components (buttons & their panel will be attached later)
         cardPanel.add(detailsTitleLabel);
         cardPanel.add(Box.createRigidArea(new Dimension(0, 5)));
-        cardPanel.add(currentWeightDisplayLabel);
+        cardPanel.add(currentWeightHint);
         cardPanel.add(Box.createRigidArea(new Dimension(0, 8)));
 
-        // Wrap selectedGoalLabel in a centered panel
+        // Centered selected goal label
         JPanel goalLabelPanel = new JPanel();
         goalLabelPanel.setLayout(new BoxLayout(goalLabelPanel, BoxLayout.X_AXIS));
         goalLabelPanel.setBackground(CARD_COLOR);
@@ -464,14 +361,14 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         goalsPanel.add(Box.createRigidArea(new Dimension(0, 8)));
         goalsPanel.add(differenceLabel);
 
-        JButton backToDetailsButton = createStyledButton("Back to Goal Selection", "PRIMARY");
-        backToDetailsButton.addActionListener(e -> innerCardLayout.show(innerCardPanel, "SELECT"));
+        JButton backToSelectionButton = createStyledButton("Back to Goal Selection", "PRIMARY");
+        backToSelectionButton.addActionListener(e -> innerCardLayout.show(innerCardPanel, "SELECT"));
 
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
         buttonsPanel.setBackground(CARD_COLOR);
         buttonsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        buttonsPanel.add(backToDetailsButton);
+        buttonsPanel.add(backToSelectionButton);
         buttonsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
         cardPanel.add(resultTitleLabel);
@@ -497,7 +394,6 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
 
         return outer;
     }
-
 
     private void attachButtonsAndPlanToDetailsCard() {
         JPanel outerDetails = (JPanel) innerCardPanel.getComponent(1); // "DETAILS"
@@ -594,7 +490,7 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
                 });
                 break;
 
-            case "SECONDARY":   // GREEN
+            case "SECONDARY":   // Green
                 button.setBackground(SECONDARY_COLOR);
                 button.setForeground(Color.WHITE);
                 button.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -617,7 +513,6 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
 
         return button;
     }
-
 
     private void handleGenerate() {
         try {
@@ -644,34 +539,7 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
                 return;
             }
 
-            // Validate target weight matches goal type
-            if (needsTarget && currentUser != null) {
-                try {
-                    double targetWeight = Double.parseDouble(target);
-                    double currentWeight = currentUser.getWeight();
-
-                    if ("Weight Loss".equals(selectedGoalType) && targetWeight > currentWeight) {
-                        JOptionPane.showMessageDialog(this,
-                                "Target weight should be less than your current weight for a weight loss plan.",
-                                "Invalid Target Weight",
-                                JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-
-                    if ("Weight Gain".equals(selectedGoalType) && targetWeight < currentWeight) {
-                        JOptionPane.showMessageDialog(this,
-                                "Target weight should be more than your current weight for a weight gain plan.",
-                                "Invalid Target Weight",
-                                JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                } catch (NumberFormatException ex) {
-                    errorMessageLabel.setText("Target weight must be a valid number.");
-                    errorMessageLabel.setForeground(ERROR_COLOR);
-                    return;
-                }
-            }
-
+            // UI-level validation only; domain validation happens in the interactor.
             errorMessageLabel.setText("");
 
             if (goalsController != null) {
@@ -679,14 +547,10 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
                 goalsController.execute(selectedGoalType, targetForUseCase, timeframe);
             }
 
-            // Build the summary line using what the user entered
+            // Build a simple UI-only summary line
             String targetDisplay = needsTarget ? (target + " kg") : "(maintain current weight)";
-            String currentWeightStr = (currentUser != null && currentUser.getWeight() > 0)
-                ? currentUser.getWeight() + " kg"
-                : "-- kg";
             resultSummaryLabel.setText(
                     "Goal: " + selectedGoalType +
-                            "  |  Current: " + currentWeightStr +
                             "  |  Target: " + targetDisplay +
                             "  |  Timeframe: " + timeframe + " weeks"
             );
@@ -699,20 +563,7 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         }
     }
 
-    private void updateWeightDisplayLabel(JLabel label) {
-        if (currentUser == null) {
-            label.setText("Current weight: -- kg");
-            return;
-        }
-
-        int w = currentUser.getWeight();
-        if (w <= 0) {
-            label.setText("Current weight: not set — open Settings");
-        } else {
-            label.setText("Current weight: " + w + " kg");
-        }
-    }
-
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         GoalsState state = (GoalsState) evt.getNewValue();
 
@@ -733,7 +584,7 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
                     state.getDailyBurnCalories() + " kcal");
         }
 
-        // Calculate and display the difference
+        // Calculate and display the difference (pure UI math on state values)
         if (state.getDailyIntakeCalories() != null && state.getDailyBurnCalories() != null) {
             try {
                 double intake = Double.parseDouble(state.getDailyIntakeCalories());
@@ -759,13 +610,19 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         }
 
         if (state.shouldRedirectToSettings()) {
+            if (state.getRedirectMessage() != null) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        state.getRedirectMessage(),
+                        "Input required",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            }
 
             if (homeCardLayout != null && homeContentPanel != null) {
                 homeCardLayout.show(homeContentPanel, "Settings");
             }
         }
-
-
     }
 
     public String getViewName() {

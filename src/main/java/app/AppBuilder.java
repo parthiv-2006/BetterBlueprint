@@ -1,11 +1,9 @@
 package app;
 
-import Entities.User;
 import Entities.UserFactory;
 import data_access.DailyHealthScoreDataAccessObject;
 import data_access.FileUserDataAccessObject;
 import data_access.HealthMetricsDataAccessObject;
-import Entities.UserFactory;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.change_password.ChangePasswordController;
 import interface_adapter.change_password.ChangePasswordPresenter;
@@ -176,57 +174,21 @@ public class AppBuilder {
 
         // Create HomeView and pass actual views
         homeViewModel = new HomeViewModel();
-        homeView = new HomeView(homeViewModel, viewManagerModel, inputMetricsView, settingsViewModel, myScoreView, healthInsightsView, goalsView);
+        homeView = new HomeView(
+                homeViewModel,
+                viewManagerModel,
+                inputMetricsView,
+                settingsViewModel,
+                myScoreView,
+                healthInsightsView,
+                goalsView
+        );
 
         cardPanel.add(homeView, homeView.getViewName());
 
-        // Whenever the home view model updates (username changes), update GoalsView's current user
-        homeViewModel.addPropertyChangeListener(evt -> {
-            try {
-                String currentUsername2 = homeViewModel.getState().getUsername();
-                if (currentUsername2 == null || currentUsername2.isEmpty()) {
-                    // Clear user in goals view
-                    if (goalsView instanceof view.GoalsView) {
-                        ((view.GoalsView) goalsView).setCurrentUser(null);
-                    }
-                    return;
-                }
-
-                // Lookup stored user and metrics, similar to addGoalsUseCase() logic
-                User entityUser2 = userDataAccessObject.get(currentUsername2);
-
-                String name2 = "Guest";
-                String password2 = "default";
-                int age2 = 30;
-                int height2 = 170;
-                int weight2 = 0;
-
-                if (entityUser2 != null) {
-                    name2 = entityUser2.getName();
-                    password2 = entityUser2.getPassword();
-
-                    if (entityUser2.getAge() > 0) age2 = entityUser2.getAge();
-                    if (entityUser2.getHeight() > 0) height2 = entityUser2.getHeight();
-                    if (entityUser2.getWeight() > 0) weight2 = entityUser2.getWeight();
-                }
-
-                User currentUser2;
-                if (age2 > 0 && height2 > 0 && weight2 > 0) {
-                    currentUser2 = new User(name2, password2, age2, height2, weight2);
-                } else {
-                    currentUser2 = new User(name2, password2);
-                }
-
-                if (goalsView instanceof view.GoalsView) {
-                    ((view.GoalsView) goalsView).setCurrentUser(currentUser2);
-                }
-            } catch (Exception ex) {
-                System.err.println("AppBuilder: failed to update GoalsView current user: " + ex.getMessage());
-            }
-        });
-
         return this;
     }
+
 
 
     public AppBuilder addSignupUseCase() {
@@ -241,28 +203,22 @@ public class AppBuilder {
     }
 
     public AppBuilder addLoginUseCase() {
-        final LoginOutputBoundary loginOutputBoundary = new LoginPresenter(viewManagerModel,
-                homeViewModel, loginViewModel, signupViewModel);
+        final LoginOutputBoundary loginOutputBoundary = new LoginPresenter(
+                viewManagerModel,
+                homeViewModel,
+                loginViewModel,
+                signupViewModel
+        );
         final LoginInputBoundary loginInteractor = new LoginInteractor(
-                userDataAccessObject, loginOutputBoundary);
+                userDataAccessObject, loginOutputBoundary
+        );
 
         final LoginController loginController = new LoginController(loginInteractor);
         loginView.setLoginController(loginController);
 
-        // Ensure GoalsView updates its current user after login is wired
-        try {
-            String cur = userDataAccessObject.getCurrentUsername();
-            if (cur != null && goalsView instanceof view.GoalsView) {
-                User eUser = userDataAccessObject.get(cur);
-                if (eUser != null) {
-                    ((view.GoalsView) goalsView).setCurrentUser(eUser);
-                }
-            }
-        } catch (Exception ex) {
-            System.err.println("AppBuilder: unable to set GoalsView current user after login wiring: " + ex.getMessage());
-        }
         return this;
     }
+
 
     public AppBuilder addInputMetricsUseCase() {
         final InputMetricsOutputBoundary inputMetricsOutputBoundary =
@@ -288,59 +244,22 @@ public class AppBuilder {
     }
 
     public AppBuilder addSettingsUseCase() {
-        final SettingsOutputBoundary settingsOutputBoundary = new SettingsPresenter(viewManagerModel,
-                settingsViewModel, homeViewModel);
+        final SettingsOutputBoundary settingsOutputBoundary = new SettingsPresenter(
+                viewManagerModel,
+                settingsViewModel,
+                homeViewModel
+        );
         final SettingsInputBoundary settingsInteractor = new SettingsInteractor(
-                userDataAccessObject, settingsOutputBoundary);
+                userDataAccessObject,
+                settingsOutputBoundary
+        );
 
         final SettingsController settingsController = new SettingsController(settingsInteractor);
         settingsView.setSettingsController(settingsController);
 
-        // Update GoalsView immediately when Settings are saved at runtime
-        settingsViewModel.addPropertyChangeListener(evt -> {
-            try {
-                if ("settingsSaved".equals(evt.getPropertyName())) {
-                    String curUser = userDataAccessObject.getCurrentUsername();
-                    if (curUser == null || curUser.isEmpty()) return;
-
-                    User stored = userDataAccessObject.get(curUser);
-                    String n = "Guest"; String p = "default"; int a = 30; int h = 170; int w = 0;
-                    if (stored != null) {
-                        n = stored.getName(); p = stored.getPassword();
-                        if (stored.getAge() > 0) a = stored.getAge();
-                        if (stored.getHeight() > 0) h = stored.getHeight();
-                        if (stored.getWeight() > 0) w = stored.getWeight();
-                    }
-
-                    // DO NOT use health metrics to override age/height/weight
-
-                    User updated;
-                    if (a > 0 && h > 0 && w > 0) updated = new User(n, p, a, h, w);
-                    else updated = new User(n, p);
-
-                    if (goalsView instanceof view.GoalsView) {
-                        ((view.GoalsView) goalsView).setCurrentUser(updated);
-                    }
-                }
-            } catch (Exception ex) {
-                System.err.println("AppBuilder: failed to refresh GoalsView after settingsSaved: " + ex.getMessage());
-            }
-        });
-
-        // Ensure GoalsView is updated if settings were changed while app running
-        try {
-            String cur2 = userDataAccessObject.getCurrentUsername();
-            if (cur2 != null && goalsView instanceof view.GoalsView) {
-                User eUser2 = userDataAccessObject.get(cur2);
-                if (eUser2 != null) {
-                    ((view.GoalsView) goalsView).setCurrentUser(eUser2);
-                }
-            }
-        } catch (Exception ex) {
-            System.err.println("AppBuilder: unable to set GoalsView current user after settings wiring: " + ex.getMessage());
-        }
         return this;
     }
+
 
     public AppBuilder addChangePasswordUseCase() {
         final ChangePasswordOutputBoundary changePasswordOutputBoundary =

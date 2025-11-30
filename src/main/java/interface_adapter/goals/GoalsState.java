@@ -10,6 +10,8 @@ public class GoalsState {
     private String explanation;
     private boolean shouldRedirectToSettings = false;
     private String redirectMessage = null;
+    private String currentWeightLabel;
+
 
     public GoalsState() {}
 
@@ -48,5 +50,13 @@ public class GoalsState {
 
     public void setRedirectMessage(String redirectMessage) {
         this.redirectMessage = redirectMessage;
+    }
+
+    public String getCurrentWeightLabel() {
+        return currentWeightLabel;
+    }
+
+    public void setCurrentWeightLabel(String currentWeightLabel) {
+        this.currentWeightLabel = currentWeightLabel;
     }
 }
