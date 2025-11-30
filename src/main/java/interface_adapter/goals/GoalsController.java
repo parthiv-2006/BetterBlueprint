@@ -15,4 +15,8 @@ public class GoalsController {
         GoalsInputData inputData = new GoalsInputData(goalType, target, timeframe);
         interactor.execute(inputData);
     }
+
+    public void refreshCurrentWeight() {
+        interactor.refreshCurrentWeight();
+    }
 }

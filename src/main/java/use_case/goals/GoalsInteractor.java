@@ -15,7 +15,6 @@ public class GoalsInteractor implements GoalsInputBoundary {
 
     @Override
     public void execute(GoalsInputData inputData) {
-        // 1) Get current user through the use-case-specific interface
         String username = userDataAccess.getCurrentUsername();
         User user = (username != null) ? userDataAccess.get(username) : null;
 
@@ -47,11 +46,9 @@ public class GoalsInteractor implements GoalsInputBoundary {
             return;
         }
 
-        // 3) Compute BMR and daily burn (your original formula)
         double bmr = 10 * currentWeight + 6.25 * height - 5 * age + 5;
         double dailyBurn = bmr * 1.5;
 
-        // 4) Parse target weight (if empty → treat as maintenance at current weight)
         final double targetWeight;
         if (targetStr == null || targetStr.trim().isEmpty()) {
             targetWeight = currentWeight;
@@ -85,23 +82,22 @@ public class GoalsInteractor implements GoalsInputBoundary {
             return;
         }
 
-        // 6) Calorie math (your original logic)
         double weeklyWeightChange = (targetWeight - currentWeight) / timeframe;
         double dailyCalorieAdjustment = (weeklyWeightChange * 7700) / 7.0;
         double dailyIntake = dailyBurn + dailyCalorieAdjustment;
 
-        // 7) Explanation text
         String explanation = generateExplanation(goalType);
 
-        // 8) Build and send output
         GoalsOutputData outputData = new GoalsOutputData(
                 goalType,
                 String.format("%.0f", dailyIntake),
                 String.format("%.0f", dailyBurn),
                 explanation,
                 currentWeight,
-                false,      // shouldRedirectToSettings
-                ""          // redirectMessage
+                false,
+                "",
+                timeframeStr,
+                targetStr
         );
 
         presenter.prepareSuccessView(outputData);
@@ -114,5 +110,18 @@ public class GoalsInteractor implements GoalsInputBoundary {
             return "To gain weight, maintain a caloric surplus by consuming more than your daily burn.";
         }
         return "Maintain your current weight by consuming approximately your daily burn calories.";
+    }
+
+    @Override
+    public void refreshCurrentWeight() {
+        String username = userDataAccess.getCurrentUsername();
+        if (username != null) {
+            User user = userDataAccess.get(username);
+            if (user != null) {
+                presenter.updateCurrentWeight(user.getWeight());
+                return;
+            }
+        }
+        presenter.updateCurrentWeight(0);
     }
 }

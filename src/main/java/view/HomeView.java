@@ -43,6 +43,7 @@ public class HomeView extends JPanel {
     private final SettingsViewModel settingsViewModel;
     private final HomeViewModel homeViewModel;
     private final JPanel healthInsightsView;
+    private GoalsView goalsView;
 
     public HomeView(HomeViewModel homeViewModel, ViewManagerModel viewManagerModel, JPanel inputMetricsView, SettingsViewModel settingsViewModel, JPanel myScoreView, JPanel healthInsightsView, JPanel goalsView) {
         this.homeViewModel = homeViewModel;
@@ -94,8 +95,10 @@ public class HomeView extends JPanel {
 
         // Provide navigation context to GoalsView if it's the right type
         if (goalsView instanceof GoalsView) {
-            ((GoalsView) goalsView)
-                    .setHomeNavigation(mainCardLayout, mainContentPanel);
+            this.goalsView = (GoalsView) goalsView;
+            this.goalsView.setHomeNavigation(mainCardLayout, mainContentPanel);
+        } else {
+            this.goalsView = null;
         }
 
         // --- A. Create the "Home" page ---
@@ -244,10 +247,15 @@ public class HomeView extends JPanel {
         mainCardLayout.show(mainContentPanel, "Home");
 
         homeViewModel.addPropertyChangeListener(evt -> {
+            String newUsername = homeViewModel.getState().getUsername();
+
+            // Update HealthInsightsView
             if (healthInsightsView instanceof HealthInsightsView) {
-                String newUsername = homeViewModel.getState().getUsername();
-                System.out.println("HomeView: User changed to: " + newUsername);
                 ((HealthInsightsView) healthInsightsView).setCurrentUser(newUsername);
+            }
+
+            if (this.goalsView != null && newUsername != null && !newUsername.isEmpty()) {
+                this.goalsView.refreshForUser();
             }
         });
     }

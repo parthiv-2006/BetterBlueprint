@@ -582,9 +582,7 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
                         JOptionPane.INFORMATION_MESSAGE
                 );
             }
-            if (homeCardLayout != null && homeContentPanel != null) {
-                homeCardLayout.show(homeContentPanel, "Settings");
-            }
+            innerCardLayout.show(innerCardPanel, "DETAILS");
             return;
         }
 
@@ -658,5 +656,15 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
     public void setHomeNavigation(CardLayout cardLayout, JPanel contentPanel) {
         this.homeCardLayout = cardLayout;
         this.homeContentPanel = contentPanel;
+    }
+
+    /**
+     * Refresh the current weight display when a user logs in.
+     * This calls the use case to fetch the current user's weight from the database.
+     */
+    public void refreshForUser() {
+        if (goalsController != null) {
+            goalsController.refreshCurrentWeight();
+        }
     }
 }

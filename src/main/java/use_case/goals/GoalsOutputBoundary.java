@@ -10,4 +10,6 @@ public interface GoalsOutputBoundary {
     void redirectToSettings(String message);
 
     void prepareSuccessView(GoalsOutputData outputData);
+
+    void updateCurrentWeight(int weightKg);
 }

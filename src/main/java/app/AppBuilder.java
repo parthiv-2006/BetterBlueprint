@@ -312,20 +312,6 @@ public class AppBuilder {
         return this;
     }
 
-    public JFrame build() {
-        final JFrame application = new JFrame("BetterBlueprint Application");
-        application.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-        application.add(cardPanel);
-
-        // CHANGE BACK: Set the initial state to signup view (not login)
-        viewManagerModel.setState(signupView.getViewName());
-        viewManagerModel.firePropertyChange();
-
-        return application;
-    }
-
-
     public AppBuilder addGoalsUseCase() {
         GoalsPresenter goalsPresenter = new GoalsPresenter(goalsViewModel);
         GoalsInputBoundary goalsInteractor =
@@ -333,7 +319,6 @@ public class AppBuilder {
         GoalsController goalsController = new GoalsController(goalsInteractor);
         goalsView.setGoalsController(goalsController);
 
-        // Initialize GoalsState with current user's weight
         String currentUsername = userDataAccessObject.getCurrentUsername();
         if (currentUsername != null) {
             User user = userDataAccessObject.get(currentUsername);
@@ -348,11 +333,28 @@ public class AppBuilder {
                 goalsViewModel.setState(state);
                 goalsViewModel.firePropertyChange();
             }
+        } else {
+            GoalsState state = goalsViewModel.getState();
+            state.setCurrentWeightLabel("Current weight: not set — open Settings");
+            state.setCurrentWeight(0);
+            goalsViewModel.setState(state);
+            goalsViewModel.firePropertyChange();
         }
 
         return this;
     }
 
+    public JFrame build() {
+        final JFrame application = new JFrame("BetterBlueprint Application");
+        application.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
+        application.add(cardPanel);
 
-}
+        // CHANGE BACK: Set the initial state to signup view (not login)
+        viewManagerModel.setState(signupView.getViewName());
+        viewManagerModel.firePropertyChange();
+
+        return application;
+    }
+
+ }
