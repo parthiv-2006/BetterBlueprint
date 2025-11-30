@@ -231,27 +231,14 @@ public class HomeView extends JPanel {
             viewManagerModel.firePropertyChange();
         });
 
-        // Goals button: check weight and navigate accordingly
         goals.addActionListener(e -> {
             try {
-                if (goalsView instanceof GoalsView) {
-                    GoalsView gv = (GoalsView) goalsView;
-                    if (!gv.hasWeightSet()) {
-                        // Instead of redirecting to Settings, show an informational dialog asking user to input weight
-                        JOptionPane.showMessageDialog(mainContentPanel,
-                                "Please input your weight in Settings",
-                                "Input required",
-                                JOptionPane.INFORMATION_MESSAGE);
-                        return;
-                    }
-                }
-
-                // Otherwise show Goals
                 mainCardLayout.show(mainContentPanel, "Goals");
             } catch (Exception ex) {
-                // Navigation error
+                System.err.println("HomeView: failed when clicking Goals: " + ex.getMessage());
             }
         });
+
 
         // Set "Home" as the default homepage
         mainCardLayout.show(mainContentPanel, "Home");

@@ -15,14 +15,27 @@ public class GoalsPresenter implements GoalsOutputBoundary {
     public void present(GoalsOutputData outputData) {
         GoalsState state = goalsViewModel.getState();
 
-        // Normal successful result: clear any previous redirect
-        state.setShouldRedirectToSettings(false);
-        state.setRedirectMessage(null);
-
+        state.setGoalType(outputData.getGoalType());
         state.setDailyIntakeCalories(outputData.getDailyIntakeCalories());
         state.setDailyBurnCalories(outputData.getDailyBurnCalories());
         state.setExplanation(outputData.getExplanation());
-        state.setErrorMessage(null);   // clear any previous error
+        state.setCurrentWeight(outputData.getCurrentWeightKg());
+        state.setErrorMessage(null);
+
+        // Current weight label
+        if (outputData.getCurrentWeightKg() > 0) {
+            state.setCurrentWeightLabel(
+                    "Current weight: " + outputData.getCurrentWeightKg() + " kg"
+            );
+        } else {
+            state.setCurrentWeightLabel(
+                    "Current weight: not set — open Settings"
+            );
+        }
+
+        // Redirect flags
+        state.setShouldRedirectToSettings(outputData.shouldRedirectToSettings());
+        state.setRedirectMessage(outputData.getRedirectMessage());
 
         goalsViewModel.setState(state);
         goalsViewModel.firePropertyChange();
@@ -31,13 +44,19 @@ public class GoalsPresenter implements GoalsOutputBoundary {
     @Override
     public void redirectToSettings(String message) {
         GoalsState state = goalsViewModel.getState();
-
-        // Tell the view it should redirect to Settings
         state.setShouldRedirectToSettings(true);
         state.setRedirectMessage(message);
-        state.setErrorMessage(null);   // optional: clear old error
 
         goalsViewModel.setState(state);
         goalsViewModel.firePropertyChange();
     }
+
+    public void prepareFailView(String errorMessage) {
+        GoalsState state = goalsViewModel.getState();
+        state.setErrorMessage(errorMessage);
+        goalsViewModel.setState(state);
+        goalsViewModel.firePropertyChange();
+    }
 }
+
+

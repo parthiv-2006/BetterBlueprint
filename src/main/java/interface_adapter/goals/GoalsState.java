@@ -11,9 +11,7 @@ public class GoalsState {
     private boolean shouldRedirectToSettings = false;
     private String redirectMessage = null;
     private String currentWeightLabel;
-
-
-    public GoalsState() {}
+    private int currentWeight = 0;
 
     public String getGoalType() { return goalType; }
     public void setGoalType(String goalType) { this.goalType = goalType; }
@@ -58,5 +56,13 @@ public class GoalsState {
 
     public void setCurrentWeightLabel(String currentWeightLabel) {
         this.currentWeightLabel = currentWeightLabel;
+    }
+
+    public int getCurrentWeight() {
+        return currentWeight;
+    }
+
+    public void setCurrentWeight(int currentWeight) {
+        this.currentWeight = currentWeight;
     }
 }

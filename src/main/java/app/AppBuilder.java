@@ -1,5 +1,6 @@
 package app;
 
+import Entities.User;
 import Entities.UserFactory;
 import data_access.DailyHealthScoreDataAccessObject;
 import data_access.FileUserDataAccessObject;
@@ -8,6 +9,7 @@ import interface_adapter.ViewManagerModel;
 import interface_adapter.change_password.ChangePasswordController;
 import interface_adapter.change_password.ChangePasswordPresenter;
 import interface_adapter.daily_health_score.*;
+import interface_adapter.goals.GoalsState;
 import interface_adapter.health_insights.HealthInsightsController;
 import interface_adapter.health_insights.HealthInsightsPresenter;
 import interface_adapter.health_insights.HealthInsightsViewModel;
@@ -247,7 +249,8 @@ public class AppBuilder {
         final SettingsOutputBoundary settingsOutputBoundary = new SettingsPresenter(
                 viewManagerModel,
                 settingsViewModel,
-                homeViewModel
+                homeViewModel,
+                goalsViewModel
         );
         final SettingsInputBoundary settingsInteractor = new SettingsInteractor(
                 userDataAccessObject,
@@ -324,15 +327,32 @@ public class AppBuilder {
 
 
     public AppBuilder addGoalsUseCase() {
-
         GoalsPresenter goalsPresenter = new GoalsPresenter(goalsViewModel);
         GoalsInputBoundary goalsInteractor =
                 new GoalsInteractor(userDataAccessObject, goalsPresenter);
         GoalsController goalsController = new GoalsController(goalsInteractor);
         goalsView.setGoalsController(goalsController);
 
+        // Initialize GoalsState with current user's weight
+        String currentUsername = userDataAccessObject.getCurrentUsername();
+        if (currentUsername != null) {
+            User user = userDataAccessObject.get(currentUsername);
+            if (user != null) {
+                GoalsState state = goalsViewModel.getState();
+                state.setCurrentWeight(user.getWeight());
+                if (user.getWeight() > 0) {
+                    state.setCurrentWeightLabel("Current weight: " + user.getWeight() + " kg");
+                } else {
+                    state.setCurrentWeightLabel("Current weight: not set — open Settings");
+                }
+                goalsViewModel.setState(state);
+                goalsViewModel.firePropertyChange();
+            }
+        }
+
         return this;
     }
+
 
 
 }
