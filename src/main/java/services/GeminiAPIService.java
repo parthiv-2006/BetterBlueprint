@@ -26,10 +26,6 @@ public class GeminiAPIService {
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .build();
-
-        if (this.apiKey == null || this.apiKey.isEmpty()) {
-            throw new IllegalStateException("GEMINI_API_KEY environment variable is not set.");
-        }
     }
 
     public void getHealthInsightsAsync(String healthData, InsightsCallback callback) {
@@ -52,6 +48,9 @@ public class GeminiAPIService {
     }
 
     private String getHealthInsights(String healthData) {
+        if (apiKey == null || apiKey.isEmpty()) {
+            return "API key not configured. Please set the GEMINI_API_KEY environment variable to use AI insights.";
+        }
         try {
             String prompt = "You are a health coach. Analyze this health data and provide 2-3 specific, actionable insights. " +
                     "Focus on sleep hours, steps, water intake, exercise minutes, and calories. " +

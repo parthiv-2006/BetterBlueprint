@@ -93,4 +93,16 @@ public class HealthMetrics {
     public String toString() {
         return getSummary();
     }
+
+    public int getAge() {
+        return 10;
+    }
+
+    public int getHeight() {
+        return 10;
+    }
+
+    public int getWeight() {
+        return 10;
+    }
 }

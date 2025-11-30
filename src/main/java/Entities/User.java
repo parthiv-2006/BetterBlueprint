@@ -63,13 +63,13 @@ public class User {
     }
 
     private void validateHeight(int height) {
-        if (height <= 0) {
+        if (height < 0) {
             throw new IllegalArgumentException("Height must be positive");
         }
     }
 
     private void validateWeight(int weight) {
-        if (weight <= 0) {
+        if (weight < 0) {
             throw new IllegalArgumentException("Weight must be positive");
         }
     }

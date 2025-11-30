@@ -1,6 +1,8 @@
 package interface_adapter.settings;
 
 import interface_adapter.ViewManagerModel;
+import interface_adapter.goals.GoalsState;
+import interface_adapter.goals.GoalsViewModel;
 import interface_adapter.home.HomeViewModel;
 import use_case.settings.SettingsOutputBoundary;
 import use_case.settings.SettingsOutputData;
@@ -13,24 +15,41 @@ public class SettingsPresenter implements SettingsOutputBoundary {
     private final SettingsViewModel settingsViewModel;
     private final ViewManagerModel viewManagerModel;
     private final HomeViewModel homeViewModel;
+    private final GoalsViewModel goalsViewModel;   // NEW
 
     public SettingsPresenter(ViewManagerModel viewManagerModel,
                              SettingsViewModel settingsViewModel,
-                             HomeViewModel homeViewModel) {
+                             HomeViewModel homeViewModel,
+                             GoalsViewModel goalsViewModel) {   // NEW param
         this.viewManagerModel = viewManagerModel;
         this.settingsViewModel = settingsViewModel;
         this.homeViewModel = homeViewModel;
+        this.goalsViewModel = goalsViewModel;
     }
 
     @Override
     public void prepareSuccessView(SettingsOutputData outputData) {
+        // --- Update SettingsViewModel as before ---
         final SettingsState settingsState = settingsViewModel.getState();
         settingsState.setAge(String.valueOf(outputData.getAge()));
         settingsState.setHeight(String.valueOf(outputData.getHeight()));
         settingsState.setWeight(String.valueOf(outputData.getWeight()));
         settingsState.setSettingsError(null);
 
+
         this.settingsViewModel.firePropertyChange("settingsSaved");
+        final GoalsState goalsState = goalsViewModel.getState();
+        int w = outputData.getWeight();
+        String weightLabel;
+        if (w <= 0) {
+            weightLabel = "Current weight: not set — open Settings";
+        } else {
+            weightLabel = "Current weight: " + w + " kg";
+        }
+
+        goalsState.setCurrentWeightLabel(weightLabel);
+        goalsViewModel.setState(goalsState);
+        goalsViewModel.firePropertyChange();
     }
 
     @Override

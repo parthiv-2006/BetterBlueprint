@@ -1,0 +1,670 @@
+package view;
+
+import interface_adapter.goals.GoalsController;
+import interface_adapter.goals.GoalsState;
+import interface_adapter.goals.GoalsViewModel;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+/**
+ * The View for the Goals / Caloric Intake Plan use case.
+ * First screen: choose goal type.
+ * Second screen: enter details depending on goal type.
+ * Third screen: see the final plan.
+ */
+public class GoalsView extends JPanel implements PropertyChangeListener {
+
+    private final String viewName = "goals";
+    private final GoalsViewModel goalsViewModel;
+
+    private final CardLayout innerCardLayout = new CardLayout();
+    private final JPanel innerCardPanel = new JPanel(innerCardLayout);
+
+    // Current-weight labels (one on SELECT card, one on DETAILS card)
+    private final JLabel CurrentWeightLabel =
+            new JLabel("Current weight: not set — open Settings");
+
+    // Selected goal type ("Weight Loss", "Weight Maintenance", "Weight Gain")
+    private String selectedGoalType = null;
+
+    // DETAILS screen components
+    private final JLabel detailsTitleLabel = new JLabel("Goal Details");
+    private final JLabel selectedGoalLabel = new JLabel(" ");
+    private final JTextField targetWeightField = new JTextField(20);
+    private final JTextField timeframeField = new JTextField(20);
+    private final JLabel errorMessageLabel = new JLabel();
+
+    // RESULT screen components
+    private final JLabel resultTitleLabel = new JLabel("Your Daily Caloric Plan");
+    private final JLabel resultSummaryLabel = new JLabel(" ");
+    private final JLabel explanationLabel = new JLabel(" ");
+    private final JLabel disclaimerLabel = new JLabel(" ");
+
+    private final JLabel intakeLabel = new JLabel("Daily calories intake goal: -- kcal");
+    private final JLabel burnLabel = new JLabel("Daily calories burn goal: -- kcal");
+    private final JLabel differenceLabel = new JLabel("Caloric difference: -- kcal");
+
+    private final JButton generateButton;
+    private final JButton backButton;
+    private GoalsController goalsController; // wired later
+
+    // Navigation back to HomeView
+    private CardLayout homeCardLayout;
+    private JPanel homeContentPanel;
+
+    // Color scheme
+    private static final Color PRIMARY_COLOR = new Color(37, 99, 235);
+    private static final Color PRIMARY_HOVER = new Color(29, 78, 216);
+    private static final Color SECONDARY_COLOR = new Color(34, 197, 94);
+    private static final Color SECONDARY_HOVER = new Color(22, 163, 74);
+    private static final Color BACKGROUND_COLOR = new Color(239, 246, 255);
+    private static final Color CARD_COLOR = new Color(255, 255, 255);
+    private static final Color TEXT_COLOR = new Color(31, 41, 55);
+    private static final Color ERROR_COLOR = new Color(239, 68, 68);
+    private static final Color BORDER_COLOR = new Color(191, 219, 254);
+
+    public GoalsView(GoalsViewModel goalsViewModel) {
+        this.goalsViewModel = goalsViewModel;
+        this.goalsViewModel.addPropertyChangeListener(this);
+
+        this.setLayout(new GridBagLayout());
+        this.setBackground(BACKGROUND_COLOR);
+
+        innerCardPanel.setBackground(BACKGROUND_COLOR);
+
+        // Add three cards
+        innerCardPanel.add(createGoalSelectionCard(), "SELECT");
+        innerCardPanel.add(createGoalDetailsCard(), "DETAILS");
+        innerCardPanel.add(createGoalResultCard(), "RESULT");
+
+        // Show selection first
+        innerCardLayout.show(innerCardPanel, "SELECT");
+
+        // Build main panel with cards, centered by GridBagLayout
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBackground(BACKGROUND_COLOR);
+        mainPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(innerCardPanel);
+
+        this.add(mainPanel);
+
+        // Buttons on details card
+        generateButton = createStyledButton("Generate Plan", "SECONDARY");
+        backButton = createStyledButton("Back to Goal Selection", "PRIMARY");
+
+        generateButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        generateButton.addActionListener(e -> handleGenerate());
+        backButton.addActionListener(e -> innerCardLayout.show(innerCardPanel, "SELECT"));
+
+        attachButtonsAndPlanToDetailsCard();
+    }
+
+    // When user chooses 'Maintain Weight' let the use case compute the plan.
+    private void handleMaintainSelected() {
+        try {
+            this.selectedGoalType = "Weight Maintenance";
+
+            // Update ViewModel state
+            GoalsState state = goalsViewModel.getState();
+            state.setGoalType(this.selectedGoalType);
+            goalsViewModel.setState(state);
+
+            errorMessageLabel.setText("");
+
+            if (goalsController != null) {
+                // For maintenance, target is blank; timeframe is not really used, but we pass "1".
+                goalsController.execute(this.selectedGoalType, "", "1");
+            }
+
+            // UI-only summary label; the numbers & explanation come from the presenter via state.
+            resultSummaryLabel.setText(
+                    "Goal: " + selectedGoalType +
+                            "  |  Target: (maintain current weight)  |  Timeframe: N/A"
+            );
+
+            innerCardLayout.show(innerCardPanel, "RESULT");
+        } catch (Exception ex) {
+            System.err.println("GoalsView: unexpected error in handleMaintainSelected: " + ex.getMessage());
+            errorMessageLabel.setText("Unexpected error: " + ex.getMessage());
+            errorMessageLabel.setForeground(ERROR_COLOR);
+        }
+    }
+
+    // CARD 1: GOAL TYPE SELECTION
+    private JPanel createGoalSelectionCard() {
+        JPanel cardPanel = new JPanel();
+        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+        cardPanel.setBackground(CARD_COLOR);
+        cardPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+                new EmptyBorder(40, 50, 40, 50)
+        ));
+        cardPanel.setMaximumSize(new Dimension(650, 500));
+        cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel title = new JLabel("Select Your Goal");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        title.setForeground(TEXT_COLOR);
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        CurrentWeightLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        CurrentWeightLabel.setForeground(new Color(107, 114, 128));
+        CurrentWeightLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel subtitle = new JLabel("Choose your desired goal");
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitle.setForeground(new Color(107, 114, 128));
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JButton lossButton = createGoalOptionButton("Weight Loss");
+        JButton maintainButton = createGoalOptionButton("Maintain Weight");
+        JButton gainButton = createGoalOptionButton("Weight Gain");
+
+        lossButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        maintainButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        gainButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Wire selection behaviour
+        lossButton.addActionListener(e -> goToDetailsFor("Weight Loss"));
+        maintainButton.addActionListener(e -> handleMaintainSelected());
+        gainButton.addActionListener(e -> goToDetailsFor("Weight Gain"));
+
+        cardPanel.add(title);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        cardPanel.add(CurrentWeightLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        cardPanel.add(subtitle);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+        cardPanel.add(lossButton);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        cardPanel.add(maintainButton);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        cardPanel.add(gainButton);
+
+        JPanel outer = new JPanel();
+        outer.setBackground(BACKGROUND_COLOR);
+        outer.setLayout(new BoxLayout(outer, BoxLayout.Y_AXIS));
+        outer.add(Box.createVerticalGlue());
+        outer.add(cardPanel);
+        outer.add(Box.createVerticalGlue());
+
+        return outer;
+    }
+
+    private JButton createGoalOptionButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.setMaximumSize(new Dimension(300, 55));
+        button.setPreferredSize(new Dimension(300, 55));
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setBackground(PRIMARY_COLOR);
+        button.setForeground(Color.WHITE);
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(PRIMARY_HOVER);
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(PRIMARY_COLOR);
+            }
+        });
+
+        return button;
+    }
+
+    private void goToDetailsFor(String goalType) {
+        this.selectedGoalType = goalType;
+
+        // Update ViewModel state
+        GoalsState state = goalsViewModel.getState();
+        state.setGoalType(goalType);
+        goalsViewModel.setState(state);
+
+        // Adjust DETAILS UI based on goal type
+        selectedGoalLabel.setText("Selected Goal: " + goalType);
+
+        boolean needsTarget = !"Weight Maintenance".equals(goalType);
+
+        targetWeightField.setVisible(needsTarget);
+        targetWeightField.setText("");
+        timeframeField.setText("");
+        errorMessageLabel.setText("");
+
+        innerCardLayout.show(innerCardPanel, "DETAILS");
+    }
+
+    // CARD 2: GOAL DETAILS
+    private JPanel createGoalDetailsCard() {
+        JPanel cardPanel = new JPanel();
+        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+        cardPanel.setBackground(CARD_COLOR);
+        cardPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+                new EmptyBorder(40, 50, 40, 50)
+        ));
+        cardPanel.setMaximumSize(new Dimension(650, 600));
+        cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        detailsTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        detailsTitleLabel.setForeground(TEXT_COLOR);
+        detailsTitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        CurrentWeightLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        CurrentWeightLabel.setForeground(new Color(107, 114, 128));
+        CurrentWeightLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        selectedGoalLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        selectedGoalLabel.setForeground(new Color(107, 114, 128));
+        selectedGoalLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        styleTextField(targetWeightField);
+        styleTextField(timeframeField);
+
+        JPanel targetPanel = createInputPanel("Target Weight (kg)", targetWeightField);
+        JPanel timeframePanel = createInputPanel("Timeframe (weeks)", timeframeField);
+
+        errorMessageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        errorMessageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        errorMessageLabel.setBorder(new EmptyBorder(10, 0, 10, 0));
+
+        cardPanel.add(detailsTitleLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        cardPanel.add(CurrentWeightLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 8)));
+
+        // Centered selected goal label
+        JPanel goalLabelPanel = new JPanel();
+        goalLabelPanel.setLayout(new BoxLayout(goalLabelPanel, BoxLayout.X_AXIS));
+        goalLabelPanel.setBackground(CARD_COLOR);
+        goalLabelPanel.add(Box.createHorizontalGlue());
+        goalLabelPanel.add(selectedGoalLabel);
+        goalLabelPanel.add(Box.createHorizontalGlue());
+        cardPanel.add(goalLabelPanel);
+
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 25)));
+        cardPanel.add(targetPanel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        cardPanel.add(timeframePanel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        cardPanel.add(errorMessageLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+
+        JPanel outer = new JPanel();
+        outer.setBackground(BACKGROUND_COLOR);
+        outer.setLayout(new BoxLayout(outer, BoxLayout.Y_AXIS));
+        outer.add(Box.createVerticalGlue());
+        outer.add(cardPanel);
+        outer.add(Box.createVerticalGlue());
+
+        return outer;
+    }
+
+    // CARD 3: GOAL RESULT
+    private JPanel createGoalResultCard() {
+        JPanel cardPanel = new JPanel();
+        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+        cardPanel.setBackground(CARD_COLOR);
+        cardPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+                new EmptyBorder(40, 50, 40, 50)
+        ));
+        cardPanel.setMaximumSize(new Dimension(650, 600));
+        cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Title
+        resultTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        resultTitleLabel.setForeground(TEXT_COLOR);
+        resultTitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Summary (Goal | Target | Timeframe)
+        resultSummaryLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        resultSummaryLabel.setForeground(new Color(107, 114, 128));
+        resultSummaryLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Short explanation text
+        explanationLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        explanationLabel.setForeground(TEXT_COLOR);
+        explanationLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Disclaimer (smaller, grey)
+        disclaimerLabel.setFont(new Font("Segoe UI", Font.ITALIC, 11));
+        disclaimerLabel.setForeground(new Color(120, 120, 120));
+        disclaimerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        intakeLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        intakeLabel.setForeground(TEXT_COLOR);
+        intakeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        burnLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        burnLabel.setForeground(TEXT_COLOR);
+        burnLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        differenceLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        differenceLabel.setForeground(TEXT_COLOR);
+        differenceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JPanel goalsPanel = new JPanel();
+        goalsPanel.setLayout(new BoxLayout(goalsPanel, BoxLayout.Y_AXIS));
+        goalsPanel.setBackground(new Color(248, 250, 252));
+        goalsPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+                new EmptyBorder(15, 15, 15, 15)
+        ));
+        goalsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        goalsPanel.add(intakeLabel);
+        goalsPanel.add(Box.createRigidArea(new Dimension(0, 8)));
+        goalsPanel.add(burnLabel);
+        goalsPanel.add(Box.createRigidArea(new Dimension(0, 8)));
+        goalsPanel.add(differenceLabel);
+
+        JButton backToSelectionButton = createStyledButton("Back to Goal Selection", "PRIMARY");
+        backToSelectionButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        backToSelectionButton.addActionListener(e -> innerCardLayout.show(innerCardPanel, "SELECT"));
+
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
+        buttonsPanel.setBackground(CARD_COLOR);
+        buttonsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        buttonsPanel.add(backToSelectionButton);
+        buttonsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        cardPanel.add(resultTitleLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        cardPanel.add(resultSummaryLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        cardPanel.add(goalsPanel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        cardPanel.add(explanationLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        cardPanel.add(disclaimerLabel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 25)));
+        cardPanel.add(buttonsPanel);
+
+        JPanel outer = new JPanel();
+        outer.setBackground(BACKGROUND_COLOR);
+        outer.setLayout(new BoxLayout(outer, BoxLayout.Y_AXIS));
+        outer.add(Box.createVerticalGlue());
+        outer.add(cardPanel);
+        outer.add(Box.createVerticalGlue());
+
+        return outer;
+    }
+
+    private void attachButtonsAndPlanToDetailsCard() {
+        JPanel outerDetails = (JPanel) innerCardPanel.getComponent(1); // "DETAILS"
+        JPanel cardPanel = (JPanel) outerDetails.getComponent(1);      // inner card
+
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
+        buttonsPanel.setBackground(CARD_COLOR);
+        buttonsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        buttonsPanel.add(generateButton);
+        buttonsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        buttonsPanel.add(backButton);
+
+        cardPanel.add(buttonsPanel);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+    }
+
+    // Shared helpers
+
+    private JPanel createInputPanel(String labelText, JComponent fieldComponent) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(CARD_COLOR);
+        panel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        label.setForeground(TEXT_COLOR);
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        fieldComponent.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        panel.add(label);
+        panel.add(Box.createRigidArea(new Dimension(0, 8)));
+        panel.add(fieldComponent);
+
+        return panel;
+    }
+
+    private void styleTextField(JTextField textField) {
+        textField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        textField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+                new EmptyBorder(12, 15, 12, 15)
+        ));
+        textField.setBackground(Color.WHITE);
+        textField.setForeground(TEXT_COLOR);
+
+        textField.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                textField.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(PRIMARY_COLOR, 2, true),
+                        new EmptyBorder(11, 14, 11, 14)
+                ));
+            }
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                textField.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+                        new EmptyBorder(12, 15, 12, 15)
+                ));
+            }
+        });
+    }
+
+    private JButton createStyledButton(String text, String style) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.setMaximumSize(new Dimension(300, 45));
+        button.setPreferredSize(new Dimension(300, 45));
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);
+
+        switch (style) {
+            case "PRIMARY":     // Blue
+                button.setBackground(PRIMARY_COLOR);
+                button.setForeground(Color.WHITE);
+                button.addMouseListener(new java.awt.event.MouseAdapter() {
+                    @Override
+                    public void mouseEntered(java.awt.event.MouseEvent evt) {
+                        button.setBackground(PRIMARY_HOVER);
+                    }
+                    @Override
+                    public void mouseExited(java.awt.event.MouseEvent evt) {
+                        button.setBackground(PRIMARY_COLOR);
+                    }
+                });
+                break;
+
+            case "SECONDARY":   // Green
+                button.setBackground(SECONDARY_COLOR);
+                button.setForeground(Color.WHITE);
+                button.addMouseListener(new java.awt.event.MouseAdapter() {
+                    @Override
+                    public void mouseEntered(java.awt.event.MouseEvent evt) {
+                        button.setBackground(SECONDARY_HOVER);
+                    }
+                    @Override
+                    public void mouseExited(java.awt.event.MouseEvent evt) {
+                        button.setBackground(SECONDARY_COLOR);
+                    }
+                });
+                break;
+            default:
+                button.setBackground(new Color(120, 120, 120));
+                button.setForeground(Color.WHITE);
+                break;
+        }
+
+        return button;
+    }
+
+    private void handleGenerate() {
+        try {
+            if (selectedGoalType == null) {
+                errorMessageLabel.setText("Please select a goal first.");
+                errorMessageLabel.setForeground(ERROR_COLOR);
+                return;
+            }
+
+            String target = targetWeightField.getText().trim();
+            String timeframe = timeframeField.getText().trim();
+
+            boolean needsTarget = !"Weight Maintenance".equals(selectedGoalType);
+
+            if (needsTarget && (target.isEmpty() || timeframe.isEmpty())) {
+                errorMessageLabel.setText("Please enter target weight and timeframe.");
+                errorMessageLabel.setForeground(ERROR_COLOR);
+                return;
+            }
+
+            if (!needsTarget && timeframe.isEmpty()) {
+                errorMessageLabel.setText("Please enter a timeframe.");
+                errorMessageLabel.setForeground(ERROR_COLOR);
+                return;
+            }
+            errorMessageLabel.setText("");
+
+            if (goalsController != null) {
+                String targetForUseCase = needsTarget ? target : "";
+                goalsController.execute(selectedGoalType, targetForUseCase, timeframe);
+            }
+
+        } catch (Exception ex) {
+            System.err.println("GoalsView: unexpected error in handleGenerate: " + ex.getMessage());
+            errorMessageLabel.setText("Unexpected error: " + ex.getMessage());
+            errorMessageLabel.setForeground(ERROR_COLOR);
+        }
+    }
+
+
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        GoalsState state = (GoalsState) evt.getNewValue();
+
+        if (state.getCurrentWeightLabel() != null) {
+            CurrentWeightLabel.setText(state.getCurrentWeightLabel());
+        }
+
+        // First handle redirect cases (weight missing)
+        if (state.shouldRedirectToSettings()) {
+            if (state.getRedirectMessage() != null) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        state.getRedirectMessage(),
+                        "Input required",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            }
+            innerCardLayout.show(innerCardPanel, "DETAILS");
+            return;
+        }
+
+        if (state.getErrorMessage() != null && !state.getErrorMessage().isEmpty()) {
+            errorMessageLabel.setText(state.getErrorMessage());
+            errorMessageLabel.setForeground(ERROR_COLOR);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    state.getErrorMessage(),
+                    "Invalid goal",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            innerCardLayout.show(innerCardPanel, "DETAILS");
+            return;
+        } else {
+            errorMessageLabel.setText("");
+        }
+
+        if (state.getDailyIntakeCalories() != null) {
+            intakeLabel.setText("Daily calories intake goal: " +
+                    state.getDailyIntakeCalories() + " kcal");
+        }
+
+        if (state.getDailyBurnCalories() != null) {
+            burnLabel.setText("Daily calories burn goal: " +
+                    state.getDailyBurnCalories() + " kcal");
+        }
+
+        if (state.getDifferenceText() != null) {
+            differenceLabel.setText(state.getDifferenceText());
+        }
+
+        if (state.getExplanation() != null) {
+            explanationLabel.setText(state.getExplanation());
+        }
+
+        if (state.isResultReady()) {
+            String goalType = state.getGoalType() != null ? state.getGoalType() : "--";
+            String timeframe = state.getTimeframe() != null ? state.getTimeframe() : "--";
+            String targetDisplay;
+
+            if (state.getTarget() != null && !state.getTarget().isEmpty()) {
+                targetDisplay = state.getTarget() + " kg";
+            } else {
+                targetDisplay = "(maintain current weight)";
+            }
+
+            resultSummaryLabel.setText(
+                    "Goal: " + goalType +
+                            "  |  Target: " + targetDisplay +
+                            "  |  Timeframe: " + timeframe + " weeks"
+            );
+
+            innerCardLayout.show(innerCardPanel, "RESULT");
+        }
+    }
+
+
+
+
+    public String getViewName() {
+        return viewName;
+    }
+
+    public void setGoalsController(GoalsController controller) {
+        this.goalsController = controller;
+    }
+
+    public void setHomeNavigation(CardLayout cardLayout, JPanel contentPanel) {
+        this.homeCardLayout = cardLayout;
+        this.homeContentPanel = contentPanel;
+    }
+
+    /**
+     * Refresh the current weight display when a user logs in.
+     * This calls the use case to fetch the current user's weight from the database.
+     */
+    public void refreshForUser() {
+        if (goalsController != null) {
+            goalsController.refreshCurrentWeight();
+        }
+    }
+}

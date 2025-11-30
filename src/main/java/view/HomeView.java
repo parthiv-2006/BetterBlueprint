@@ -43,8 +43,9 @@ public class HomeView extends JPanel {
     private final SettingsViewModel settingsViewModel;
     private final HomeViewModel homeViewModel;
     private final JPanel healthInsightsView;
+    private GoalsView goalsView;
 
-    public HomeView(HomeViewModel homeViewModel, ViewManagerModel viewManagerModel, JPanel inputMetricsView, SettingsViewModel settingsViewModel, JPanel myScoreView, JPanel healthInsightsView) {
+    public HomeView(HomeViewModel homeViewModel, ViewManagerModel viewManagerModel, JPanel inputMetricsView, SettingsViewModel settingsViewModel, JPanel myScoreView, JPanel healthInsightsView, JPanel goalsView) {
         this.homeViewModel = homeViewModel;
         this.viewManagerModel = viewManagerModel;
         this.settingsViewModel = settingsViewModel;
@@ -90,6 +91,14 @@ public class HomeView extends JPanel {
         // Provide navigation context to InputMetricsView if it's the right type
         if (inputMetricsView instanceof InputMetricsView) {
             ((InputMetricsView) inputMetricsView).setHomeNavigation(mainCardLayout, mainContentPanel);
+        }
+
+        // Provide navigation context to GoalsView if it's the right type
+        if (goalsView instanceof GoalsView) {
+            this.goalsView = (GoalsView) goalsView;
+            this.goalsView.setHomeNavigation(mainCardLayout, mainContentPanel);
+        } else {
+            this.goalsView = null;
         }
 
         // --- A. Create the "Home" page ---
@@ -188,7 +197,7 @@ public class HomeView extends JPanel {
         refresh.run();
 
         JPanel accountSettingsView = createPlaceholderView("Settings");
-        JPanel goalsView = createPlaceholderView("Goals");
+//        JPanel goalsView = createPlaceholderView("Goals");
 
         // --- Add all views to the main CardLayout panel ---
         mainContentPanel.add(homeView, "Home");
@@ -225,16 +234,28 @@ public class HomeView extends JPanel {
             viewManagerModel.firePropertyChange();
         });
 
-        goals.addActionListener(e -> mainCardLayout.show(mainContentPanel, "Goals"));
+        goals.addActionListener(e -> {
+            try {
+                mainCardLayout.show(mainContentPanel, "Goals");
+            } catch (Exception ex) {
+                System.err.println("HomeView: failed when clicking Goals: " + ex.getMessage());
+            }
+        });
+
 
         // Set "Home" as the default homepage
         mainCardLayout.show(mainContentPanel, "Home");
 
         homeViewModel.addPropertyChangeListener(evt -> {
+            String newUsername = homeViewModel.getState().getUsername();
+
+            // Update HealthInsightsView
             if (healthInsightsView instanceof HealthInsightsView) {
-                String newUsername = homeViewModel.getState().getUsername();
-                System.out.println("HomeView: User changed to: " + newUsername);
                 ((HealthInsightsView) healthInsightsView).setCurrentUser(newUsername);
+            }
+
+            if (this.goalsView != null && newUsername != null && !newUsername.isEmpty()) {
+                this.goalsView.refreshForUser();
             }
         });
     }

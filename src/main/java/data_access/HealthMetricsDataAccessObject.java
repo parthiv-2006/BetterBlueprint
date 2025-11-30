@@ -163,4 +163,23 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
                 calories
         );
     }
+
+    public HealthMetrics getLatestMetrics(String userId) {
+        List<HealthMetrics> allMetrics = getHealthMetricsByUser(userId);
+
+        if (allMetrics.isEmpty()) {
+            return null;
+        }
+
+        // Find the most recent entry
+        HealthMetrics latest = allMetrics.get(0);
+        for (HealthMetrics m : allMetrics) {
+            if (m.getDate().isAfter(latest.getDate())) {
+                latest = m;
+            }
+        }
+
+        return latest;
+    }
+
 }
