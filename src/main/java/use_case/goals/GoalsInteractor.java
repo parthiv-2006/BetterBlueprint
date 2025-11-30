@@ -96,8 +96,8 @@ public class GoalsInteractor implements GoalsInputBoundary {
                 currentWeight,
                 false,
                 "",
-                timeframeStr,
-                targetStr
+                targetStr,
+                timeframeStr
         );
 
         presenter.prepareSuccessView(outputData);
