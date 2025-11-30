@@ -46,7 +46,8 @@ public class DailyHealthScoreInteractor implements DailyHealthScoreInputBoundary
                     metrics.getSleepHours(),
                     metrics.getExerciseMinutes(),
                     metrics.getCalories(),
-                    metrics.getWaterIntake()
+                    metrics.getWaterIntake(),
+                    metrics.getSteps()
             );
 
             // Generate feedback
@@ -55,6 +56,7 @@ public class DailyHealthScoreInteractor implements DailyHealthScoreInputBoundary
                     metrics.getExerciseMinutes(),
                     metrics.getCalories(),
                     metrics.getWaterIntake(),
+                    metrics.getSteps(),
                     score
             );
 
@@ -75,7 +77,8 @@ public class DailyHealthScoreInteractor implements DailyHealthScoreInputBoundary
                 metrics.getSleepHours(),
                 metrics.getExerciseMinutes(),
                 metrics.getCalories(),
-                metrics.getWaterIntake()
+                metrics.getWaterIntake(),
+                metrics.getSteps()
         );
 
         // Persist the computed score

@@ -24,13 +24,10 @@ The application looks for an environment variable named `GEMINI_API_KEY`. Choose
 1. Open **Run** → **Edit Configurations**
 2. Select your main application configuration (or create one if it doesn't exist)
 3. Find the **Environment variables** field
-4. Click the folder icon to open the environment variables dialog
-5. Click the **+** button to add a new variable
-6. Enter:
-    - **Name:** `GEMINI_API_KEY`
-    - **Value:** `your-api-key-here` (paste your actual API key)
-7. Click **OK** and **Apply**
-8. Run your application
+4. Enter:
+    - `GEMINI_API_KEY=your-api-key-here` (paste your actual API key)
+5. Click **OK** and **Apply**
+6. Run your application
 
 ##### **Option B: Set System-Wide (Windows)**
 

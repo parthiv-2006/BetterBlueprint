@@ -8,11 +8,13 @@ public interface HealthScoreCalculator {
     int calculateScore(double sleepHours,
                        double exerciseMinutes,
                        int calories,
-                       double waterIntake) throws Exception;
+                       double waterIntake,
+                       int steps) throws Exception;
 
     String generateFeedback(double sleepHours,
                             double exerciseMinutes,
                             int calories,
                             double waterIntake,
+                            int steps,
                             int score) throws Exception;
 }

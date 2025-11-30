@@ -4,8 +4,6 @@ import Entities.HealthMetrics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -28,7 +26,7 @@ class InputMetricsInteractorTest {
     void testValidMetrics() {
         // Arrange
         InputMetricsInputData inputData = new InputMetricsInputData(
-                "testuser", 7.5, 2.0, 2000, 30.0);
+                "testuser", 7.5f, 8000, 2.0f, 2000, 30.0f);
 
         // Act
         interactor.execute(inputData);
@@ -38,6 +36,7 @@ class InputMetricsInteractorTest {
         assertFalse(mockPresenter.isFailCalled, "Fail view should not be prepared");
         assertNotNull(mockDataAccess.savedMetrics, "Metrics should be saved");
         assertEquals(7.5, mockDataAccess.savedMetrics.getSleepHours());
+        assertEquals(8000, mockDataAccess.savedMetrics.getSteps());
         assertEquals(2.0, mockDataAccess.savedMetrics.getWaterIntake());
         assertEquals(2000, mockDataAccess.savedMetrics.getCalories());
         assertEquals(30.0, mockDataAccess.savedMetrics.getExerciseMinutes());
@@ -47,7 +46,7 @@ class InputMetricsInteractorTest {
     void testInvalidSleepHours_Negative() {
         // Arrange
         InputMetricsInputData inputData = new InputMetricsInputData(
-                "testuser", -1.0, 2.0, 2000, 30.0);
+                "testuser", -1.0f, 8000, 2.0f, 2000, 30.0f);
 
         // Act
         interactor.execute(inputData);
@@ -62,7 +61,7 @@ class InputMetricsInteractorTest {
     void testInvalidSleepHours_TooHigh() {
         // Arrange
         InputMetricsInputData inputData = new InputMetricsInputData(
-                "testuser", 25.0, 2.0, 2000, 30.0);
+                "testuser", 25.0f, 8000, 2.0f, 2000, 30.0f);
 
         // Act
         interactor.execute(inputData);
@@ -76,7 +75,7 @@ class InputMetricsInteractorTest {
     void testInvalidWaterIntake_Negative() {
         // Arrange
         InputMetricsInputData inputData = new InputMetricsInputData(
-                "testuser", 7.5, -0.5, 2000, 30.0);
+                "testuser", 7.5f, 8000, -0.5f, 2000, 30.0f);
 
         // Act
         interactor.execute(inputData);
@@ -90,7 +89,7 @@ class InputMetricsInteractorTest {
     void testInvalidCalories_Negative() {
         // Arrange
         InputMetricsInputData inputData = new InputMetricsInputData(
-                "testuser", 7.5, 2.0, -100, 30.0);
+                "testuser", 7.5f, 8000, 2.0f, -100, 30.0f);
 
         // Act
         interactor.execute(inputData);
@@ -104,7 +103,7 @@ class InputMetricsInteractorTest {
     void testInvalidExerciseDuration_Negative() {
         // Arrange
         InputMetricsInputData inputData = new InputMetricsInputData(
-                "testuser", 7.5, 2.0, 2000, -10.0);
+                "testuser", 7.5f, 8000, 2.0f, 2000, -10.0f);
 
         // Act
         interactor.execute(inputData);
@@ -118,7 +117,7 @@ class InputMetricsInteractorTest {
     void testBoundaryValues_MinimumValid() {
         // Arrange
         InputMetricsInputData inputData = new InputMetricsInputData(
-                "testuser", 0.0, 0.0, 0, 0.0);
+                "testuser", 0.0f, 0, 0.0f, 0, 0.0f);
 
         // Act
         interactor.execute(inputData);
@@ -132,7 +131,7 @@ class InputMetricsInteractorTest {
     void testBoundaryValues_MaximumValid() {
         // Arrange
         InputMetricsInputData inputData = new InputMetricsInputData(
-                "testuser", 24.0, 20.0, 10000, 1440.0);
+                "testuser", 24.0f, 50000, 20.0f, 10000, 1440.0f);
 
         // Act
         interactor.execute(inputData);
