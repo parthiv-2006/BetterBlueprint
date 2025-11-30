@@ -23,11 +23,12 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
 
     private transient final HealthInsightsViewModel healthInsightsViewModel;
     private transient HealthInsightsController healthInsightsController;
-
     private transient CardLayout homeCardLayout;
     private transient JPanel homeContentPanel;
 
     private String currentUserId;
+
+    private static final String FONT_FAMILY = "Segoe UI";
 
     private static final Color PRIMARY_COLOR = new Color(37, 99, 235);
     private static final Color PRIMARY_HOVER = new Color(29, 78, 216);
@@ -59,7 +60,7 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
         insightsTextArea.setEditable(false);
         insightsTextArea.setLineWrap(true);
         insightsTextArea.setWrapStyleWord(true);
-        insightsTextArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        insightsTextArea.setFont(new Font(FONT_FAMILY, Font.PLAIN, 14));
         insightsTextArea.setText("Your personalized health insights will appear here.");
         insightsTextArea.setBackground(CARD_COLOR);
         insightsTextArea.setBorder(BorderFactory.createCompoundBorder(
@@ -84,16 +85,16 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
         ));
         cardPanel.setMaximumSize(new Dimension(700, 700));
 
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        titleLabel.setFont(new Font(FONT_FAMILY, Font.BOLD, 32));
         titleLabel.setForeground(TEXT_COLOR);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        instructionLabel.setFont(new Font("Segoe UI", Font.ITALIC, 14));
+        instructionLabel.setFont(new Font(FONT_FAMILY, Font.ITALIC, 14));
         instructionLabel.setForeground(SUBTITLE_COLOR);
         instructionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         errorLabel.setForeground(ERROR_COLOR);
-        errorLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        errorLabel.setFont(new Font(FONT_FAMILY, Font.PLAIN, 14));
         errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         errorLabel.setBorder(new EmptyBorder(10, 20, 10, 20));
         errorLabel.setVisible(false);
@@ -131,7 +132,7 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
 
     private JButton createStyledButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        button.setFont(new Font(FONT_FAMILY, Font.BOLD, 14));
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
         button.setMaximumSize(new Dimension(200, 45));
         button.setPreferredSize(new Dimension(200, 45));
