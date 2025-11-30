@@ -63,7 +63,18 @@ public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
 
                 String row;
                 while ((row = reader.readLine()) != null) {
+                    // Skip empty lines
+                    if (row.trim().isEmpty()) {
+                        continue;
+                    }
                     final String[] col = row.split(",");
+
+                    // Validate that the row has all required columns
+                    if (col.length < 5) {
+                        throw new RuntimeException(String.format(
+                            "Invalid CSV row - expected 5 columns but got %d: %s", col.length, row));
+                    }
+
                     final String username = String.valueOf(col[headers.get("username")]);
                     final String password = String.valueOf(col[headers.get("password")]);
                     final int age = Integer.parseInt(col[headers.get("age")]);
