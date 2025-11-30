@@ -35,6 +35,7 @@ public class HealthInsightsViewModel extends ViewModel<HealthInsightsState> {
         super.setState(state);
     }
 
+    @Override
     public String getViewName() {
         return viewName;
     }
