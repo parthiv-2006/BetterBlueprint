@@ -12,12 +12,14 @@ public class SimpleHealthScoreCalculator implements HealthScoreCalculator {
     public int calculateScore(double sleepHours,
                               double exerciseMinutes,
                               int calories,
-                              double waterIntake) throws Exception {
+                              double waterIntake,
+                              int steps) throws Exception {
         int score = 0;
         score += calculateSleepScore(sleepHours);
         score += calculateExerciseScore(exerciseMinutes);
         score += calculateCalorieScore(calories);
         score += calculateWaterScore(waterIntake);
+        score += calculateStepsScore(steps);
         return Math.min(score, 100); // Cap at 100
     }
 
@@ -65,11 +67,25 @@ public class SimpleHealthScoreCalculator implements HealthScoreCalculator {
         return 0;
     }
 
+    private int calculateStepsScore(int steps) {
+        if (steps >= 8000) {
+            return 20;
+        } else if (steps >= 5000) {
+            return 15;
+        } else if (steps >= 3000) {
+            return 10;
+        } else if (steps > 0) {
+            return 5;
+        }
+        return 0;
+    }
+
     @Override
     public String generateFeedback(double sleepHours,
                                    double exerciseMinutes,
                                    int calories,
                                    double waterIntake,
+                                   int steps,
                                    int score) throws Exception {
         StringBuilder feedback = new StringBuilder();
         feedback.append("Health Score: ").append(score).append("/100\n\n");
@@ -77,6 +93,7 @@ public class SimpleHealthScoreCalculator implements HealthScoreCalculator {
         feedback.append(getExerciseFeedback(exerciseMinutes));
         feedback.append(getCalorieFeedback(calories));
         feedback.append(getWaterFeedback(waterIntake));
+        feedback.append(getStepsFeedback(steps));
         return feedback.toString();
     }
 
@@ -115,6 +132,16 @@ public class SimpleHealthScoreCalculator implements HealthScoreCalculator {
             return "✓ Excellent hydration!\n";
         } else {
             return "⚠ Drink more water. Aim for at least 2 liters (8+ glasses).\n";
+        }
+    }
+
+    private String getStepsFeedback(int steps) {
+        if (steps >= 8000) {
+            return "✓ Great job! You're hitting your step goals!\n";
+        } else if (steps >= 5000) {
+            return "⚠ Good effort! Try to reach 8,000+ steps daily.\n";
+        } else {
+            return "⚠ Try to be more active. Aim for at least 8,000 steps per day.\n";
         }
     }
 }
