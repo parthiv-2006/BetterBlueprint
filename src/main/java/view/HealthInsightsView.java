@@ -12,25 +12,31 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.Serial;
 
 public class HealthInsightsView extends JPanel implements PropertyChangeListener {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     public final String viewName = "health insights";
 
-    private final HealthInsightsViewModel healthInsightsViewModel;
-    private HealthInsightsController healthInsightsController;
+    private transient final HealthInsightsViewModel healthInsightsViewModel;
+    private transient HealthInsightsController healthInsightsController;
+
+    private transient CardLayout homeCardLayout;
+    private transient JPanel homeContentPanel;
+
     private String currentUserId;
 
-    private CardLayout homeCardLayout;
-    private JPanel homeContentPanel;
-
-    private static final Color PRIMARY_COLOR = new Color(37, 99, 235); // Blue-600
-    private static final Color PRIMARY_HOVER = new Color(29, 78, 216); // Blue-700
-    private static final Color SECONDARY_COLOR = new Color(34, 197, 94); // Green-500
-    private static final Color BACKGROUND_COLOR = new Color(239, 246, 255); // Light blue tint
+    private static final Color PRIMARY_COLOR = new Color(37, 99, 235);
+    private static final Color PRIMARY_HOVER = new Color(29, 78, 216);
+    private static final Color SECONDARY_COLOR = new Color(34, 197, 94);
+    private static final Color BACKGROUND_COLOR = new Color(239, 246, 255);
     private static final Color CARD_COLOR = new Color(255, 255, 255);
     private static final Color TEXT_COLOR = new Color(31, 41, 55);
     private static final Color ERROR_COLOR = new Color(239, 68, 68);
-    private static final Color BORDER_COLOR = new Color(191, 219, 254); // Light blue border
+    private static final Color BORDER_COLOR = new Color(191, 219, 254);
     private static final Color SUBTITLE_COLOR = new Color(107, 114, 128);
 
     private final JLabel titleLabel = new JLabel("Health Insights");
@@ -214,6 +220,7 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
     }
 
     public void setCurrentUser(String userId) {
+
         this.currentUserId = userId;
     }
 
