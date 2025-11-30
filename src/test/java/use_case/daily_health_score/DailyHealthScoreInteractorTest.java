@@ -34,7 +34,7 @@ class DailyHealthScoreInteractorTest {
         DailyHealthScoreInputData inputData = new DailyHealthScoreInputData(testDate, userId);
 
         // Set up mock data
-        DailyMetricsDTO metrics = new DailyMetricsDTO(7.0, 30.0, 2000, 2.5);
+        DailyMetricsDTO metrics = new DailyMetricsDTO(7.0, 30.0, 2000, 2.5, 8000);
         mockDataAccess.setMetricsToReturn(metrics);
         mockCalculator.setScoreToReturn(85);
         mockCalculator.setFeedbackToReturn("Great job! Keep it up.");
@@ -252,6 +252,7 @@ class DailyHealthScoreInteractorTest {
         private double lastExerciseMinutes;
         private int lastCalories;
         private double lastWaterIntake;
+        private int lastSteps;
 
         public void setScoreToReturn(int score) {
             this.scoreToReturn = score;
@@ -281,12 +282,17 @@ class DailyHealthScoreInteractorTest {
             return lastWaterIntake;
         }
 
+        public int getLastSteps() {
+            return lastSteps;
+        }
+
         @Override
-        public int calculateScore(double sleepHours, double exerciseMinutes, int calories, double waterIntake) throws Exception {
+        public int calculateScore(double sleepHours, double exerciseMinutes, int calories, double waterIntake, int steps) throws Exception {
             this.lastSleepHours = sleepHours;
             this.lastExerciseMinutes = exerciseMinutes;
             this.lastCalories = calories;
             this.lastWaterIntake = waterIntake;
+            this.lastSteps = steps;
 
             if (shouldThrowException) {
                 throw new Exception("Calculator failed");
@@ -295,7 +301,7 @@ class DailyHealthScoreInteractorTest {
         }
 
         @Override
-        public String generateFeedback(double sleepHours, double exerciseMinutes, int calories, double waterIntake, int score) throws Exception {
+        public String generateFeedback(double sleepHours, double exerciseMinutes, int calories, double waterIntake, int steps, int score) throws Exception {
             if (shouldThrowException) {
                 throw new Exception("Feedback generation failed");
             }

@@ -25,7 +25,7 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
 
     @Override
     public int calculateScore(double sleepHours, double exerciseMinutes,
-                              int calories, double waterIntake) {
+                              int calories, double waterIntake, int steps) {
 
         String prompt =
                 "You are a health score calculator. Analyze these daily health metrics and calculate a health score from 0-100.\n\n" +
@@ -33,7 +33,8 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
                         "- Sleep: " + sleepHours + " hours (Recommended: 7-9 hours)\n" +
                         "- Exercise: " + exerciseMinutes + " minutes (Recommended: 30+ minutes)\n" +
                         "- Calories: " + calories + " kcal (Recommended: 2000-2500 kcal)\n" +
-                        "- Water: " + waterIntake + " liters (Recommended: 2-3 liters)\n\n" +
+                        "- Water: " + waterIntake + " liters (Recommended: 2-3 liters)\n" +
+                        "- Steps: " + steps + " steps (Recommended: 8000-10000 steps)\n\n" +
                         "Scoring guidelines:\n" +
                         "- 90-100: Excellent - All metrics near optimal\n" +
                         "- 75-89: Good - Most metrics healthy\n" +
@@ -41,7 +42,7 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
                         "- 40-59: Poor - Several metrics need attention\n" +
                         "- 0-39: Very Poor - Most metrics unhealthy\n\n" +
                         "Calculate the score by comparing each metric to its recommended range. " +
-                        "Weight sleep and exercise slightly higher than calories and water.\n\n" +
+                        "Weight sleep, exercise, and steps slightly higher than calories and water.\n\n" +
                         "Respond with ONLY the integer score (0-100), nothing else.";
 
         String result = callGemini(prompt).trim();
@@ -52,7 +53,7 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
 
             // Validate range
             if (score < 0 || score > 100) {
-                return calculateFallbackScore(sleepHours, exerciseMinutes, calories, waterIntake);
+                return calculateFallbackScore(sleepHours, exerciseMinutes, calories, waterIntake, steps);
             }
 
             return score;
@@ -70,7 +71,7 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
                 }
             }
 
-            return calculateFallbackScore(sleepHours, exerciseMinutes, calories, waterIntake);
+            return calculateFallbackScore(sleepHours, exerciseMinutes, calories, waterIntake, steps);
         }
     }
 
@@ -79,44 +80,53 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
      * Uses a simple algorithm based on how close metrics are to recommended values.
      */
     private int calculateFallbackScore(double sleepHours, double exerciseMinutes,
-                                       int calories, double waterIntake) {
+                                       int calories, double waterIntake, int steps) {
         System.out.println("Gemini API score calculation failed, using fallback algorithm.");
         int score = 0;
 
-        // Sleep score (0-30 points)
+        // Sleep score (0-25 points)
         if (sleepHours >= 7 && sleepHours <= 9) {
-            score += 30;
+            score += 25;
         } else if (sleepHours >= 6 && sleepHours <= 10) {
-            score += 20;
+            score += 17;
         } else if (sleepHours >= 5 && sleepHours <= 11) {
             score += 10;
         }
 
-        // Exercise score (0-30 points)
+        // Exercise score (0-25 points)
         if (exerciseMinutes >= 30) {
-            score += 30;
+            score += 25;
         } else if (exerciseMinutes >= 20) {
-            score += 20;
+            score += 17;
         } else if (exerciseMinutes >= 10) {
             score += 10;
         }
 
-        // Calories score (0-20 points)
+        // Calories score (0-15 points)
         if (calories >= 1800 && calories <= 2500) {
-            score += 20;
-        } else if (calories >= 1500 && calories <= 3000) {
             score += 15;
-        } else if (calories >= 1000 && calories <= 3500) {
+        } else if (calories >= 1500 && calories <= 3000) {
             score += 10;
+        } else if (calories >= 1000 && calories <= 3500) {
+            score += 5;
         }
 
-        // Water score (0-20 points)
+        // Water score (0-15 points)
         if (waterIntake >= 2 && waterIntake <= 3) {
-            score += 20;
-        } else if (waterIntake >= 1.5 && waterIntake <= 4) {
             score += 15;
-        } else if (waterIntake >= 1 && waterIntake <= 5) {
+        } else if (waterIntake >= 1.5 && waterIntake <= 4) {
             score += 10;
+        } else if (waterIntake >= 1 && waterIntake <= 5) {
+            score += 5;
+        }
+
+        // Steps score (0-20 points)
+        if (steps >= 8000 && steps <= 12000) {
+            score += 20;
+        } else if (steps >= 6000 && steps <= 14000) {
+            score += 13;
+        } else if (steps >= 4000 && steps <= 16000) {
+            score += 7;
         }
 
         return score;
@@ -124,7 +134,7 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
 
     @Override
     public String generateFeedback(double sleepHours, double exerciseMinutes,
-                                   int calories, double waterIntake, int score) {
+                                   int calories, double waterIntake, int steps, int score) {
 
         String prompt =
                 "A user has these daily health metrics:\n" +
@@ -132,6 +142,7 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
                         "- Exercise: " + exerciseMinutes + " minutes (Recommended: 30+)\n" +
                         "- Calories: " + calories + " kcal (Recommended: 2000-2500)\n" +
                         "- Water: " + waterIntake + " liters (Recommended: 2-3)\n" +
+                        "- Steps: " + steps + " steps (Recommended: 8000-10000)\n" +
                         "- Overall Score: " + score + "/100\n\n" +
                         "Provide feedback and reasoning for their overall score in 2-3 sentences (max 50 words). " +
                         "Mention what they're doing well and one specific improvement they should focus on. " +

@@ -58,11 +58,18 @@ public class DailyHealthScoreDataAccessObject implements DailyHealthScoreUserDat
                         obj.getString("date").equals(dateStr)) {
 
                     // raw metrics needed for score calculation
+                    double sleepHours = obj.optDouble("sleepHours", 0.0);
+                    double exerciseMinutes = obj.optDouble("exerciseMinutes", 0.0);
+                    int calories = obj.optInt("calories", 0);
+                    double waterIntake = obj.optDouble("waterIntake", 0.0);
+                    int steps = obj.optInt("steps", 0);
+
                     return new DailyMetricsDTO(
-                            obj.getInt("sleepHours"),
-                            obj.getInt("exerciseMinutes"),
-                            obj.getInt("calories"),
-                            obj.getInt("waterIntake")
+                            sleepHours,
+                            exerciseMinutes,
+                            calories,
+                            waterIntake,
+                            steps
                     );
                 }
             }
