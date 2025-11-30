@@ -278,7 +278,8 @@ public class AppBuilder {
         String apiKey = System.getenv("GEMINI_API_KEY");
         HealthScoreCalculator scoreCalculator;
         if (apiKey != null && !apiKey.isEmpty()) {
-            scoreCalculator = new GeminiHealthScoreCalculator(apiKey);
+            GeminiAPIService geminiAPIService = new GeminiAPIService();
+            scoreCalculator = new GeminiHealthScoreCalculator(geminiAPIService);
         } else {
             // Use simple fallback calculator when API key is not available
             scoreCalculator = new SimpleHealthScoreCalculator();
