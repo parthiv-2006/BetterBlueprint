@@ -225,6 +225,8 @@ public class InputMetricsView extends JPanel implements PropertyChangeListener {
 
     private JButton createStyledButton(String text, boolean isPrimary) {
         JButton button = new JButton(text);
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
         button.setMaximumSize(new Dimension(300, 45));
