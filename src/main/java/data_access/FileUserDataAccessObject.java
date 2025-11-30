@@ -114,7 +114,12 @@ public class FileUserDataAccessObject implements SignupUserDataAccessInterface,
 
     @Override
     public String getCurrentUsername() {
-        return currentUsername;
+        if (currentUsername != null) return currentUsername;
+        // fallback: if we have any accounts loaded from users.csv, return the first username
+        if (!accounts.isEmpty()) {
+            return accounts.keySet().iterator().next();
+        }
+        return null;
     }
 
     @Override

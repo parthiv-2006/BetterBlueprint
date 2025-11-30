@@ -1,5 +1,7 @@
 package view;
 
+import Entities.User;
+import data_access.FileUserDataAccessObject;
 import interface_adapter.goals.GoalsController;
 import interface_adapter.goals.GoalsState;
 import interface_adapter.goals.GoalsViewModel;
@@ -51,6 +53,11 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
     private CardLayout homeCardLayout;
     private JPanel homeContentPanel;
 
+    // Current logged-in user (provided by outer app)
+    private User currentUser;
+    private FileUserDataAccessObject userDataAccessObject; // optional fallback
+    private final JLabel currentWeightLabel = new JLabel("Current weight: -- kg");
+
     // Color scheme
     private static final Color PRIMARY_COLOR = new Color(37, 99, 235);
     private static final Color PRIMARY_HOVER = new Color(29, 78, 216);
@@ -79,7 +86,31 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         // Show selection first
         innerCardLayout.show(innerCardPanel, "SELECT");
 
-        this.add(innerCardPanel);
+        // Build a small header that shows the title and current weight, then the cards below it.
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBackground(BACKGROUND_COLOR);
+
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(BACKGROUND_COLOR);
+        header.setMaximumSize(new Dimension(800, 48));
+
+        JLabel headerTitle = new JLabel("Goals");
+        headerTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        headerTitle.setForeground(TEXT_COLOR);
+        headerTitle.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        currentWeightLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        currentWeightLabel.setForeground(new Color(75, 85, 99));
+        currentWeightLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        header.add(headerTitle, BorderLayout.WEST);
+        header.add(currentWeightLabel, BorderLayout.EAST);
+
+        mainPanel.add(header);
+        mainPanel.add(innerCardPanel);
+
+        this.add(mainPanel);
 
         // Buttons on details card
         generateButton = createStyledButton("Generate Plan", "SECONDARY");
@@ -89,8 +120,149 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         backButton.addActionListener(e -> innerCardLayout.show(innerCardPanel, "SELECT"));
 
         attachButtonsAndPlanToDetailsCard();
+    }
 
-        addDocumentListeners();
+    // Public API for outer app to provide the current user
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
+        System.out.println("GoalsView.setCurrentUser: user=" + (user==null?"null":user.getName()) + " weight=" + (user==null?"n/a":user.getWeight()));
+        updateCurrentWeightDisplay();
+    }
+
+    // Optional: allow AppBuilder to pass the DAO so the view can refresh itself when needed
+    public void setUserDataAccess(FileUserDataAccessObject dao) {
+        this.userDataAccessObject = dao;
+    }
+
+    // Helper: return whether the current user has a positive weight set
+    public boolean hasWeightSet() {
+        // If we don't have an in-memory user, try to fetch from DAO if available
+        if (currentUser == null && userDataAccessObject != null) {
+            String cur = userDataAccessObject.getCurrentUsername();
+            if (cur != null) {
+                User u = userDataAccessObject.get(cur);
+                if (u != null) {
+                    setCurrentUser(u);
+                }
+            }
+        }
+        return currentUser != null && currentUser.getWeight() > 0;
+    }
+
+    // Helper: get current weight or -1 if unknown
+    public int getCurrentWeight() {
+        if (currentUser == null) return -1;
+        return currentUser.getWeight();
+    }
+
+    // Called by ribbon click handler. If user has not set weight, redirect to settings.
+    // Assumption: the settings card name in the Home view's CardLayout is "settings"; adjust if different.
+    public void openOrRedirectToSettings() {
+        boolean weightSet = currentUser != null && currentUser.getWeight() > 0;
+        System.out.println("GoalsView: openOrRedirectToSettings called; currentUser=" + (currentUser==null?"null":currentUser.getName()) + ", weightSet=" + weightSet);
+
+        if (!weightSet) {
+            // Instead of navigating away, show an informational message and keep the Goals selection visible.
+            JOptionPane.showMessageDialog(this,
+                    "Please input your weight in Settings",
+                    "Input required",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            // Ensure the goals selection card is visible so the user sees the Goals UI.
+            innerCardLayout.show(innerCardPanel, "SELECT");
+            return;
+        }
+
+        // If weight is set, simply show the selection card inside the Goals view.
+        innerCardLayout.show(innerCardPanel, "SELECT");
+    }
+
+    private void updateCurrentWeightDisplay() {
+        // If we don't have a user but have DAO, attempt to populate it
+        if (currentUser == null && userDataAccessObject != null) {
+            String cur = userDataAccessObject.getCurrentUsername();
+            if (cur != null) {
+                User u = userDataAccessObject.get(cur);
+                if (u != null) {
+                    this.currentUser = u;
+                }
+            }
+        }
+
+        if (currentUser == null) {
+            currentWeightLabel.setText("Current weight: -- kg");
+            return;
+        }
+
+        int w = currentUser.getWeight();
+        if (w <= 0) {
+            currentWeightLabel.setText("Current weight: not set — open Settings");
+        } else {
+            currentWeightLabel.setText("Current weight: " + w + " kg");
+        }
+    }
+
+    // When user chooses 'Maintain Weight' we can directly compute/show the plan
+    private void handleMaintainSelected() {
+        try {
+            this.selectedGoalType = "Weight Maintenance";
+
+            // Update ViewModel state
+            GoalsState state = goalsViewModel.getState();
+            state.setGoalType(this.selectedGoalType);
+            goalsViewModel.setState(state);
+
+            errorMessageLabel.setText("");
+
+            // If no weight set, redirect user to Settings so they can enter weight
+            if (currentUser == null || currentUser.getWeight() <= 0) {
+                // Prefer to redirect using the Home card layout if available
+                if (homeCardLayout != null && homeContentPanel != null) {
+                    homeCardLayout.show(homeContentPanel, "Settings");
+                    // Also update view model redirect state in case presenter expects it
+                    state.setShouldRedirectToSettings(true);
+                    state.setRedirectMessage("Please set your weight in Settings before using Goals.");
+                    goalsViewModel.setState(state);
+                    goalsViewModel.firePropertyChange();
+                    return;
+                }
+
+                // Fallback: show details and an inline message
+                innerCardLayout.show(innerCardPanel, "DETAILS");
+                errorMessageLabel.setText("Please set your weight in Settings before using Goals.");
+                errorMessageLabel.setForeground(ERROR_COLOR);
+                return;
+            }
+
+            // Prefer delegating to interactor if available
+            if (goalsController != null) {
+                // target = empty, timeframe = 1 (not used meaningfully for maintenance)
+                goalsController.execute(this.selectedGoalType, "", "1");
+                // Show the RESULT card — presenter will update labels via propertyChange
+                resultSummaryLabel.setText("Goal: " + selectedGoalType + "  |  Target: (maintain current weight)  |  Timeframe: N/A");
+                innerCardLayout.show(innerCardPanel, "RESULT");
+                return;
+            }
+
+            // Compute maintenance plan locally using the known user metrics
+            double currentWeight = currentUser.getWeight();
+            int age = currentUser.getAge();
+            int height = currentUser.getHeight();
+
+            double bmr = 10 * currentWeight + 6.25 * height - 5 * age + 5; // simplified Mifflin
+            double dailyBurn = bmr * 1.5; // assume moderate activity
+
+            intakeLabel.setText("Daily calories intake goal: " + String.format("%.0f", dailyBurn) + " kcal");
+            burnLabel.setText("Daily calories burn goal: " + String.format("%.0f", dailyBurn) + " kcal");
+            explanationLabel.setText("To maintain your weight, consume approximately your daily burn calories.");
+            resultSummaryLabel.setText("Goal: " + selectedGoalType + "  |  Target: (maintain current weight)  |  Timeframe: N/A");
+
+            innerCardLayout.show(innerCardPanel, "RESULT");
+        } catch (Exception ex) {
+            System.err.println("GoalsView: unexpected error in handleMaintainSelected: " + ex.getMessage());
+            errorMessageLabel.setText("Unexpected error: " + ex.getMessage());
+            errorMessageLabel.setForeground(ERROR_COLOR);
+        }
     }
 
     // CARD 1: GOAL TYPE SELECTION
@@ -122,7 +294,8 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
 
         // Wire selection behaviour
         lossButton.addActionListener(e -> goToDetailsFor("Weight Loss"));
-        maintainButton.addActionListener(e -> goToDetailsFor("Weight Maintenance"));
+        // For maintain weight we don't need timeframe — go straight to results
+        maintainButton.addActionListener(e -> handleMaintainSelected());
         gainButton.addActionListener(e -> goToDetailsFor("Weight Gain"));
 
         cardPanel.add(title);
@@ -160,10 +333,12 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         button.setContentAreaFilled(true);
 
         button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 button.setBackground(PRIMARY_HOVER);
             }
 
+            @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 button.setBackground(PRIMARY_COLOR);
             }
@@ -381,6 +556,7 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         textField.setForeground(TEXT_COLOR);
 
         textField.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
             public void focusGained(java.awt.event.FocusEvent evt) {
                 textField.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(PRIMARY_COLOR, 2, true),
@@ -388,6 +564,7 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
                 ));
             }
 
+            @Override
             public void focusLost(java.awt.event.FocusEvent evt) {
                 textField.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
@@ -414,9 +591,11 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
                 button.setBackground(PRIMARY_COLOR);
                 button.setForeground(Color.WHITE);
                 button.addMouseListener(new java.awt.event.MouseAdapter() {
+                    @Override
                     public void mouseEntered(java.awt.event.MouseEvent evt) {
                         button.setBackground(PRIMARY_HOVER);
                     }
+                    @Override
                     public void mouseExited(java.awt.event.MouseEvent evt) {
                         button.setBackground(PRIMARY_COLOR);
                     }
@@ -427,13 +606,20 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
                 button.setBackground(SECONDARY_COLOR);
                 button.setForeground(Color.WHITE);
                 button.addMouseListener(new java.awt.event.MouseAdapter() {
+                    @Override
                     public void mouseEntered(java.awt.event.MouseEvent evt) {
                         button.setBackground(SECONDARY_HOVER);
                     }
+                    @Override
                     public void mouseExited(java.awt.event.MouseEvent evt) {
                         button.setBackground(SECONDARY_COLOR);
                     }
                 });
+                break;
+            default:
+                // Fallback neutral style
+                button.setBackground(new Color(120, 120, 120));
+                button.setForeground(Color.WHITE);
                 break;
         }
 
@@ -442,72 +628,53 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
 
 
     private void handleGenerate() {
-        if (selectedGoalType == null) {
-            errorMessageLabel.setText("Please select a goal first.");
+        try {
+            if (selectedGoalType == null) {
+                errorMessageLabel.setText("Please select a goal first.");
+                errorMessageLabel.setForeground(ERROR_COLOR);
+                return;
+            }
+
+            String target = targetWeightField.getText().trim();
+            String timeframe = timeframeField.getText().trim();
+
+            boolean needsTarget = !"Weight Maintenance".equals(selectedGoalType);
+
+            if (needsTarget && (target.isEmpty() || timeframe.isEmpty())) {
+                errorMessageLabel.setText("Please enter target weight and timeframe.");
+                errorMessageLabel.setForeground(ERROR_COLOR);
+                return;
+            }
+
+            if (!needsTarget && timeframe.isEmpty()) {
+                errorMessageLabel.setText("Please enter a timeframe.");
+                errorMessageLabel.setForeground(ERROR_COLOR);
+                return;
+            }
+
+            errorMessageLabel.setText("");
+
+            if (goalsController != null) {
+                String targetForUseCase = needsTarget ? target : "";
+                goalsController.execute(selectedGoalType, targetForUseCase, timeframe);
+            }
+
+            // Build the summary line using what the user entered
+            String targetDisplay = needsTarget ? (target + " kg") : "(maintain current weight)";
+            resultSummaryLabel.setText(
+                    "Goal: " + selectedGoalType +
+                            "  |  Target: " + targetDisplay +
+                            "  |  Timeframe: " + timeframe + " weeks"
+            );
+
+            innerCardLayout.show(innerCardPanel, "RESULT");
+        } catch (Exception ex) {
+            System.err.println("GoalsView: unexpected error in handleGenerate: " + ex.getMessage());
+            errorMessageLabel.setText("Unexpected error: " + ex.getMessage());
             errorMessageLabel.setForeground(ERROR_COLOR);
-            return;
         }
-
-        String target = targetWeightField.getText().trim();
-        String timeframe = timeframeField.getText().trim();
-
-        boolean needsTarget = !"Weight Maintenance".equals(selectedGoalType);
-
-        if (needsTarget && (target.isEmpty() || timeframe.isEmpty())) {
-            errorMessageLabel.setText("Please enter target weight and timeframe.");
-            errorMessageLabel.setForeground(ERROR_COLOR);
-            return;
-        }
-
-        if (!needsTarget && timeframe.isEmpty()) {
-            errorMessageLabel.setText("Please enter a timeframe.");
-            errorMessageLabel.setForeground(ERROR_COLOR);
-            return;
-        }
-
-        errorMessageLabel.setText("");
-
-        if (goalsController != null) {
-            String targetForUseCase = needsTarget ? target : "";
-            goalsController.execute(selectedGoalType, targetForUseCase, timeframe);
-        }
-
-        // Build the summary line using what the user entered
-        String targetDisplay = needsTarget ? (target + " kg") : "(maintain current weight)";
-        resultSummaryLabel.setText(
-                "Goal: " + selectedGoalType +
-                        "  |  Target: " + targetDisplay +
-                        "  |  Timeframe: " + timeframe + " weeks"
-        );
-
-        innerCardLayout.show(innerCardPanel, "RESULT");
     }
 
-    private void addDocumentListeners() {
-        targetWeightField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            private void update() {
-                GoalsState state = goalsViewModel.getState();
-                state.setTargetWeight(targetWeightField.getText());
-                goalsViewModel.setState(state);
-            }
-            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { update(); }
-            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { update(); }
-            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { update(); }
-        });
-
-        timeframeField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            private void update() {
-                GoalsState state = goalsViewModel.getState();
-                state.setTimeframe(timeframeField.getText());
-                goalsViewModel.setState(state);
-            }
-            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { update(); }
-            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { update(); }
-            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { update(); }
-        });
-    }
-
-    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         GoalsState state = (GoalsState) evt.getNewValue();
 
@@ -531,6 +698,13 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         if (state.getExplanation() != null) {
             explanationLabel.setText(state.getExplanation());
         }
+
+        if (state.shouldRedirectToSettings()) {
+            if (homeCardLayout != null && homeContentPanel != null) {
+                homeCardLayout.show(homeContentPanel, "Settings");
+            }
+        }
+
     }
 
     public String getViewName() {

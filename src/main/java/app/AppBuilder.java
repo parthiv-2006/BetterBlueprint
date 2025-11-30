@@ -178,6 +178,52 @@ public class AppBuilder {
         homeView = new HomeView(homeViewModel, viewManagerModel, inputMetricsView, settingsViewModel, myScoreView, healthInsightsView, goalsView);
 
         cardPanel.add(homeView, homeView.getViewName());
+
+        // Whenever the home view model updates (username changes), update GoalsView's current user
+        homeViewModel.addPropertyChangeListener(evt -> {
+            try {
+                String currentUsername2 = homeViewModel.getState().getUsername();
+                if (currentUsername2 == null || currentUsername2.isEmpty()) {
+                    // Clear user in goals view
+                    if (goalsView instanceof view.GoalsView) {
+                        ((view.GoalsView) goalsView).setCurrentUser(null);
+                    }
+                    return;
+                }
+
+                // Lookup stored user and metrics, similar to addGoalsUseCase() logic
+                User entityUser2 = userDataAccessObject.get(currentUsername2);
+
+                String name2 = "Guest";
+                String password2 = "default";
+                int age2 = 30;
+                int height2 = 170;
+                int weight2 = 0;
+
+                if (entityUser2 != null) {
+                    name2 = entityUser2.getName();
+                    password2 = entityUser2.getPassword();
+
+                    if (entityUser2.getAge() > 0) age2 = entityUser2.getAge();
+                    if (entityUser2.getHeight() > 0) height2 = entityUser2.getHeight();
+                    if (entityUser2.getWeight() > 0) weight2 = entityUser2.getWeight();
+                }
+
+                User currentUser2;
+                if (age2 > 0 && height2 > 0 && weight2 > 0) {
+                    currentUser2 = new User(name2, password2, age2, height2, weight2);
+                } else {
+                    currentUser2 = new User(name2, password2);
+                }
+
+                if (goalsView instanceof view.GoalsView) {
+                    ((view.GoalsView) goalsView).setCurrentUser(currentUser2);
+                }
+            } catch (Exception ex) {
+                System.err.println("AppBuilder: failed to update GoalsView current user: " + ex.getMessage());
+            }
+        });
+
         return this;
     }
 
@@ -201,6 +247,19 @@ public class AppBuilder {
 
         final LoginController loginController = new LoginController(loginInteractor);
         loginView.setLoginController(loginController);
+
+        // Ensure GoalsView updates its current user after login is wired
+        try {
+            String cur = userDataAccessObject.getCurrentUsername();
+            if (cur != null && goalsView instanceof view.GoalsView) {
+                User eUser = userDataAccessObject.get(cur);
+                if (eUser != null) {
+                    ((view.GoalsView) goalsView).setCurrentUser(eUser);
+                }
+            }
+        } catch (Exception ex) {
+            System.err.println("AppBuilder: unable to set GoalsView current user after login wiring: " + ex.getMessage());
+        }
         return this;
     }
 
@@ -235,6 +294,50 @@ public class AppBuilder {
 
         final SettingsController settingsController = new SettingsController(settingsInteractor);
         settingsView.setSettingsController(settingsController);
+
+        // Update GoalsView immediately when Settings are saved at runtime
+        settingsViewModel.addPropertyChangeListener(evt -> {
+            try {
+                if ("settingsSaved".equals(evt.getPropertyName())) {
+                    String curUser = userDataAccessObject.getCurrentUsername();
+                    if (curUser == null || curUser.isEmpty()) return;
+
+                    User stored = userDataAccessObject.get(curUser);
+                    String n = "Guest"; String p = "default"; int a = 30; int h = 170; int w = 0;
+                    if (stored != null) {
+                        n = stored.getName(); p = stored.getPassword();
+                        if (stored.getAge() > 0) a = stored.getAge();
+                        if (stored.getHeight() > 0) h = stored.getHeight();
+                        if (stored.getWeight() > 0) w = stored.getWeight();
+                    }
+
+                    // DO NOT use health metrics to override age/height/weight
+
+                    User updated;
+                    if (a > 0 && h > 0 && w > 0) updated = new User(n, p, a, h, w);
+                    else updated = new User(n, p);
+
+                    if (goalsView instanceof view.GoalsView) {
+                        ((view.GoalsView) goalsView).setCurrentUser(updated);
+                    }
+                }
+            } catch (Exception ex) {
+                System.err.println("AppBuilder: failed to refresh GoalsView after settingsSaved: " + ex.getMessage());
+            }
+        });
+
+        // Ensure GoalsView is updated if settings were changed while app running
+        try {
+            String cur2 = userDataAccessObject.getCurrentUsername();
+            if (cur2 != null && goalsView instanceof view.GoalsView) {
+                User eUser2 = userDataAccessObject.get(cur2);
+                if (eUser2 != null) {
+                    ((view.GoalsView) goalsView).setCurrentUser(eUser2);
+                }
+            }
+        } catch (Exception ex) {
+            System.err.println("AppBuilder: unable to set GoalsView current user after settings wiring: " + ex.getMessage());
+        }
         return this;
     }
 
@@ -315,32 +418,51 @@ public class AppBuilder {
         String password = "default";
         int age = 30;
         int height = 170;
-        int weight = 70;
+        // Use 0 to indicate weight not yet set (avoid showing a misleading 70kg default)
+        int weight = 0;
 
         // If we found a stored user, use their name/password
         if (entityUser != null) {
             name = entityUser.getName();
             password = entityUser.getPassword();
 
-            // Try to pull latest health metrics (may be null if never entered)
-            var latestMetrics = healthMetricsDataAccessObject.getLatestMetrics(currentUsername);
-
-            if (latestMetrics != null) {
-                age = latestMetrics.getAge();
-                height = latestMetrics.getHeight();
-                weight = latestMetrics.getWeight();
+            // Prefer age/height/weight stored on the User entity (Settings saves to users.csv)
+            if (entityUser.getAge() > 0) {
+                age = entityUser.getAge();
+            }
+            if (entityUser.getHeight() > 0) {
+                height = entityUser.getHeight();
+            }
+            if (entityUser.getWeight() > 0) {
+                weight = entityUser.getWeight();
             }
         }
 
-        // Build the User object that the goals use case will use
-        User currentUser = new User(name, password, age, height, weight);
+        System.out.println("AppBuilder.addGoalsUseCase: currentUsername='" + currentUsername + "' -> name='" + name + "' age=" + age + " height=" + height + " weight=" + weight);
+
+         // Build the User object that the goals use case will use
+         User currentUser;
+         // Only use the full constructor if the metrics are valid (positive numbers)
+         if (age > 0 && height > 0 && weight > 0) {
+             currentUser = new User(name, password, age, height, weight);
+         } else {
+             // Fallback to the simple user constructor (no metrics set yet)
+             currentUser = new User(name, password);
+         }
 
         // Wire up Goals use case
         GoalsPresenter goalsPresenter = new GoalsPresenter(goalsViewModel);
-        GoalsInteractor goalsInteractor = new GoalsInteractor(goalsPresenter, currentUser);
+        // Pass the User DAO to the interactor so it can fetch current user and apply business rules
+        GoalsInteractor goalsInteractor = new GoalsInteractor(goalsPresenter, userDataAccessObject);
         GoalsController goalsController = new GoalsController(goalsInteractor);
 
         goalsView.setGoalsController(goalsController);
+        // Provide the current user entity to the view so it can display weight and redirect if needed
+        if (goalsView instanceof view.GoalsView) {
+            ((view.GoalsView) goalsView).setCurrentUser(currentUser);
+            // Provide DAO to the view as optional fallback for display (interactor handles business rules now)
+            ((view.GoalsView) goalsView).setUserDataAccess(userDataAccessObject);
+        }
 
         return this;
     }

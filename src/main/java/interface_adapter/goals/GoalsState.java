@@ -8,6 +8,8 @@ public class GoalsState {
     private String dailyIntakeCalories;
     private String dailyBurnCalories;
     private String explanation;
+    private boolean shouldRedirectToSettings = false;
+    private String redirectMessage = null;
 
     public GoalsState() {}
 
@@ -32,5 +34,19 @@ public class GoalsState {
     public String getExplanation() { return explanation; }
     public void setExplanation(String value) { this.explanation = value; }
 
+    public boolean shouldRedirectToSettings() {
+        return shouldRedirectToSettings;
+    }
 
+    public void setShouldRedirectToSettings(boolean value) {
+        this.shouldRedirectToSettings = value;
+    }
+
+    public String getRedirectMessage() {
+        return redirectMessage;
+    }
+
+    public void setRedirectMessage(String redirectMessage) {
+        this.redirectMessage = redirectMessage;
+    }
 }
