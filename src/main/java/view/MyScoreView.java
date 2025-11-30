@@ -289,16 +289,16 @@ public class MyScoreView extends JPanel implements PropertyChangeListener {
 
                 // Display metrics breakdown
                 if (state.getSleepHours() != null) {
-                    sleepLabel.setText("<html><b>Sleep:</b> " + state.getSleepHours() + " hrs</html>");
+                    sleepLabel.setText("<html><b>Sleep:</b> " + String.format("%.2f", state.getSleepHours()) + " hrs</html>");
                 }
                 if (state.getExerciseMinutes() != null) {
-                    exerciseLabel.setText("<html><b>Exercise:</b> " + state.getExerciseMinutes() + " min</html>");
+                    exerciseLabel.setText("<html><b>Exercise:</b> " + String.format("%.2f", state.getExerciseMinutes()) + " min</html>");
                 }
                 if (state.getCalories() != null) {
                     caloriesLabel.setText("<html><b>Calories:</b> " + state.getCalories() + " cal</html>");
                 }
                 if (state.getWaterIntake() != null) {
-                    waterLabel.setText("<html><b>Water:</b> " + state.getWaterIntake() + " L</html>");
+                    waterLabel.setText("<html><b>Water:</b> " + String.format("%.2f", state.getWaterIntake()) + " L</html>");
                 }
                 if (state.getSteps() != null) {
                     stepsLabel.setText("<html><b>Steps:</b> " + state.getSteps() + "</html>");
