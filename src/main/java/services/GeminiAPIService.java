@@ -9,6 +9,12 @@ import java.util.concurrent.TimeUnit;
 
 public class GeminiAPIService {
     private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent";
+    private static final String HEADER_CONTENT_TYPE = "Content-Type";
+    private static final String MEDIA_TYPE_JSON = "application/json";
+    private static final MediaType JSON_MEDIA_TYPE = MediaType.parse(MEDIA_TYPE_JSON);
+
+    private static final String QUERY_PARAM_KEY = "?key=";
+
     private final String apiKey;
     private final OkHttpClient client;
 
@@ -56,9 +62,9 @@ public class GeminiAPIService {
             String requestBodyString = requestBody.toString();
 
             Request request = new Request.Builder()
-                    .url(GEMINI_API_URL + "?key=" + apiKey)
-                    .post(RequestBody.create(requestBodyString, MediaType.parse("application/json")))
-                    .addHeader("Content-Type", "application/json")
+                    .url(GEMINI_API_URL + QUERY_PARAM_KEY + apiKey)
+                    .post(RequestBody.create(requestBodyString, JSON_MEDIA_TYPE))
+                    .addHeader(HEADER_CONTENT_TYPE, MEDIA_TYPE_JSON)
                     .build();
 
             try (Response response = client.newCall(request).execute()) {
@@ -152,9 +158,9 @@ public class GeminiAPIService {
         String requestBodyString = requestBody.toString();
 
         Request request = new Request.Builder()
-                .url(GEMINI_API_URL + "?key=" + apiKey)
-                .post(RequestBody.create(requestBodyString, MediaType.parse("application/json")))
-                .addHeader("Content-Type", "application/json")
+                .url(GEMINI_API_URL + QUERY_PARAM_KEY + apiKey)
+                .post(RequestBody.create(requestBodyString, JSON_MEDIA_TYPE))
+                .addHeader(HEADER_CONTENT_TYPE, MEDIA_TYPE_JSON)
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
@@ -217,9 +223,9 @@ public class GeminiAPIService {
         String requestBodyString = requestBody.toString();
 
         Request request = new Request.Builder()
-                .url(GEMINI_API_URL + "?key=" + apiKey)
-                .post(RequestBody.create(requestBodyString, MediaType.parse("application/json")))
-                .addHeader("Content-Type", "application/json")
+                .url(GEMINI_API_URL + QUERY_PARAM_KEY + apiKey)
+                .post(RequestBody.create(requestBodyString, JSON_MEDIA_TYPE))
+                .addHeader(HEADER_CONTENT_TYPE, MEDIA_TYPE_JSON)
                 .build();
 
         try (Response response = client.newCall(request).execute()) {

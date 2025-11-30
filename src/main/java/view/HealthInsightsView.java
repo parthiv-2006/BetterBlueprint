@@ -12,25 +12,32 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.Serial;
 
 public class HealthInsightsView extends JPanel implements PropertyChangeListener {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     public final String viewName = "health insights";
 
-    private final HealthInsightsViewModel healthInsightsViewModel;
-    private HealthInsightsController healthInsightsController;
+    private transient final HealthInsightsViewModel healthInsightsViewModel;
+    private transient HealthInsightsController healthInsightsController;
+    private transient CardLayout homeCardLayout;
+    private transient JPanel homeContentPanel;
+
     private String currentUserId;
 
-    private CardLayout homeCardLayout;
-    private JPanel homeContentPanel;
+    private static final String FONT_FAMILY = "Segoe UI";
 
-    private static final Color PRIMARY_COLOR = new Color(37, 99, 235); // Blue-600
-    private static final Color PRIMARY_HOVER = new Color(29, 78, 216); // Blue-700
-    private static final Color SECONDARY_COLOR = new Color(34, 197, 94); // Green-500
-    private static final Color BACKGROUND_COLOR = new Color(239, 246, 255); // Light blue tint
+    private static final Color PRIMARY_COLOR = new Color(37, 99, 235);
+    private static final Color PRIMARY_HOVER = new Color(29, 78, 216);
+    private static final Color SECONDARY_COLOR = new Color(34, 197, 94);
+    private static final Color BACKGROUND_COLOR = new Color(239, 246, 255);
     private static final Color CARD_COLOR = new Color(255, 255, 255);
     private static final Color TEXT_COLOR = new Color(31, 41, 55);
     private static final Color ERROR_COLOR = new Color(239, 68, 68);
-    private static final Color BORDER_COLOR = new Color(191, 219, 254); // Light blue border
+    private static final Color BORDER_COLOR = new Color(191, 219, 254);
     private static final Color SUBTITLE_COLOR = new Color(107, 114, 128);
 
     private final JLabel titleLabel = new JLabel("Health Insights");
@@ -53,7 +60,7 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
         insightsTextArea.setEditable(false);
         insightsTextArea.setLineWrap(true);
         insightsTextArea.setWrapStyleWord(true);
-        insightsTextArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        insightsTextArea.setFont(new Font(FONT_FAMILY, Font.PLAIN, 14));
         insightsTextArea.setText("Your personalized health insights will appear here.");
         insightsTextArea.setBackground(CARD_COLOR);
         insightsTextArea.setBorder(BorderFactory.createCompoundBorder(
@@ -78,16 +85,16 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
         ));
         cardPanel.setMaximumSize(new Dimension(700, 700));
 
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        titleLabel.setFont(new Font(FONT_FAMILY, Font.BOLD, 32));
         titleLabel.setForeground(TEXT_COLOR);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        instructionLabel.setFont(new Font("Segoe UI", Font.ITALIC, 14));
+        instructionLabel.setFont(new Font(FONT_FAMILY, Font.ITALIC, 14));
         instructionLabel.setForeground(SUBTITLE_COLOR);
         instructionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         errorLabel.setForeground(ERROR_COLOR);
-        errorLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        errorLabel.setFont(new Font(FONT_FAMILY, Font.PLAIN, 14));
         errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         errorLabel.setBorder(new EmptyBorder(10, 20, 10, 20));
         errorLabel.setVisible(false);
@@ -125,7 +132,7 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
 
     private JButton createStyledButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        button.setFont(new Font(FONT_FAMILY, Font.BOLD, 14));
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
         button.setMaximumSize(new Dimension(200, 45));
         button.setPreferredSize(new Dimension(200, 45));
@@ -214,6 +221,7 @@ public class HealthInsightsView extends JPanel implements PropertyChangeListener
     }
 
     public void setCurrentUser(String userId) {
+
         this.currentUserId = userId;
     }
 
