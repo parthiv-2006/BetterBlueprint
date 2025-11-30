@@ -15,6 +15,7 @@ public class DailyHealthScoreOutputData {
     private final double waterIntake; // in liters
     private final double exerciseMinutes; // in minutes
     private final int calories;;
+    private final int steps;
 
     public DailyHealthScoreOutputData(
             LocalDate date,
@@ -24,7 +25,8 @@ public class DailyHealthScoreOutputData {
             double sleepHours,
             double exerciseMinutes,
             int calories,
-            double waterIntake
+            double waterIntake,
+            int steps
     ) {
         this.date = date;
         this.userId = userId;
@@ -34,6 +36,7 @@ public class DailyHealthScoreOutputData {
         this.exerciseMinutes = exerciseMinutes;
         this.calories = calories;
         this.waterIntake = waterIntake;
+        this.steps = steps;
     }
 
     public LocalDate getDate() { return date; }
@@ -44,4 +47,5 @@ public class DailyHealthScoreOutputData {
     public double getExerciseMinutes() { return exerciseMinutes; }
     public int getCalories() { return calories; }
     public double getWaterIntake() { return waterIntake; }
+    public int getSteps() { return steps; }
 }

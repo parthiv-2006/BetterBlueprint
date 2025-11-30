@@ -15,6 +15,7 @@ public class DailyHealthScoreState {
     private Double exerciseMinutes;
     private Integer calories;
     private Double waterIntake;
+    private Integer steps;
 
     public DailyHealthScoreState() {
         this.userId = "";
@@ -26,6 +27,7 @@ public class DailyHealthScoreState {
         this.exerciseMinutes = null;
         this.calories = null;
         this.waterIntake = null;
+        this.steps = null;
     }
 
     public String getUserId() {
@@ -99,5 +101,13 @@ public class DailyHealthScoreState {
 
     public void setWaterIntake(Double waterIntake) {
         this.waterIntake = waterIntake;
+    }
+
+    public Integer getSteps() {
+        return steps;
+    }
+
+    public void setSteps(Integer steps) {
+        this.steps = steps;
     }
 }

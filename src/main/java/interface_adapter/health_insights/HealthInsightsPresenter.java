@@ -17,10 +17,8 @@ public class HealthInsightsPresenter implements HealthInsightsOutputBoundary {
         HealthInsightsState state = healthInsightsViewModel.getState();
 
         SwingUtilities.invokeLater(() -> {
-            // Set the insights
             state.setInsights(outputData.getInsights());
 
-            // Clear any previous error message
             state.setErrorMessage("");
 
             healthInsightsViewModel.setState(state);
@@ -36,7 +34,6 @@ public class HealthInsightsPresenter implements HealthInsightsOutputBoundary {
 
         SwingUtilities.invokeLater(() -> {
             state.setErrorMessage(errorMessage);
-            // Don't clear insights if they exist from previous successful runs
             healthInsightsViewModel.setState(state);
             healthInsightsViewModel.firePropertyChange();
 

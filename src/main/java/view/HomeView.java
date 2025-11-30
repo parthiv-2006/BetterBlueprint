@@ -509,7 +509,6 @@ public class HomeView extends JPanel {
         }
     }
 
-    // === ADD THE NEW METHOD HERE ===
     public void updateCurrentUser(String username) {
         homeViewModel.getState().setUsername(username);
         if (healthInsightsView instanceof HealthInsightsView) {
