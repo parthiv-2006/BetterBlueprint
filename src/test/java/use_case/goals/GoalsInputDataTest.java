@@ -88,8 +88,6 @@ public class GoalsInputDataTest {
         String timeframe = "12";
 
         GoalsInputData inputData = new GoalsInputData(goalType, target, timeframe);
-
-        // Call getters multiple times and verify consistency
         for (int i = 0; i < 3; i++) {
             assertEquals(goalType, inputData.getGoalType());
             assertEquals(target, inputData.getTarget());

@@ -18,7 +18,6 @@ public class GoalsOutputDataTest {
                 "85",
                 "10"
         );
-
         assertEquals("Weight Loss", outputData.getGoalType());
         assertEquals("1800", outputData.getDailyIntakeCalories());
         assertEquals("2400", outputData.getDailyBurnCalories());
