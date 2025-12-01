@@ -299,20 +299,6 @@ class SettingsInteractorTest {
         assertEquals(150, mockDataAccess.savedUser.getAge());
     }
 
-    /**
-     * Tests the navigation back to the home view.
-     * When the user cancels or exits settings, the interactor should delegate
-     * to the presenter to switch the view back to the home screen.
-     * Expected: Presenter's switchToHomeView method is called.
-     */
-    @Test
-    void testSwitchToHomeView() {
-        // Act
-        interactor.switchToHomeView();
-
-        // Assert
-        assertTrue(mockPresenter.isSwitchToHomeViewCalled, "switchToHomeView should be called");
-    }
 
     /**
      * Tests typical real-world user settings values.
@@ -394,7 +380,6 @@ class SettingsInteractorTest {
     private static class MockSettingsPresenter implements SettingsOutputBoundary {
         boolean isSuccessCalled = false;
         boolean isFailCalled = false;
-        boolean isSwitchToHomeViewCalled = false;
         String errorMessage = "";
         SettingsOutputData outputData;
 
@@ -408,11 +393,6 @@ class SettingsInteractorTest {
         public void prepareFailView(String errorMessage) {
             this.isFailCalled = true;
             this.errorMessage = errorMessage;
-        }
-
-        @Override
-        public void switchToHomeView() {
-            this.isSwitchToHomeViewCalled = true;
         }
     }
 }

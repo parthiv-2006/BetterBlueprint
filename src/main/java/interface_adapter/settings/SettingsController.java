@@ -24,11 +24,4 @@ public class SettingsController {
         final SettingsInputData settingsInputData = new SettingsInputData(age, height, weight);
         settingsUseCaseInteractor.execute(settingsInputData);
     }
-
-    /**
-     * Switches back to the Home View.
-     */
-    public void switchToHomeView() {
-        settingsUseCaseInteractor.switchToHomeView();
-    }
 }

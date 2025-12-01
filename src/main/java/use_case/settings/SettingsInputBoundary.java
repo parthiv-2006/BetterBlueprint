@@ -10,9 +10,4 @@ public interface SettingsInputBoundary {
      * @param settingsInputData the input data
      */
     void execute(SettingsInputData settingsInputData);
-
-    /**
-     * Switches back to the Home view.
-     */
-    void switchToHomeView();
 }
