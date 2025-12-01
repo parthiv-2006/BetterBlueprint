@@ -107,34 +107,34 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
 
     /**
      * Converts HealthMetrics object to JSON.
+     * Uses standardized field names consistently.
      */
     private JSONObject healthMetricsToJson(HealthMetrics metrics) {
         JSONObject json = new JSONObject();
         json.put("userId", metrics.getUserId());
         json.put("date", metrics.getDate().toString());
 
-        json.put("sleepHour", metrics.getSleepHours());
-        json.put("steps", metrics.getSteps());
-        json.put("waterLitres", metrics.getWaterIntake());
-        json.put("exerciseMinutes", metrics.getExerciseMinutes());
-        json.put("calories", metrics.getCalories());
-
+        // Use standardized field names consistently
         json.put("sleepHours", metrics.getSleepHours());
         json.put("waterIntake", metrics.getWaterIntake());
+        json.put("exerciseMinutes", metrics.getExerciseMinutes());
+        json.put("calories", metrics.getCalories());
+        json.put("steps", metrics.getSteps());
 
         return json;
     }
 
     /**
      * Converts JSON to HealthMetrics object.
+     * Prioritizes standardized field names with backward compatibility for legacy data.
      */
     private HealthMetrics jsonToHealthMetrics(JSONObject json) {
-        // Handle both old and new field names for backward compatibility
+        // Prioritize new standardized field names, fallback to old names for backward compatibility
         double sleepHour;
-        if (json.has("sleepHour")) {
-            sleepHour = json.getDouble("sleepHour");
-        } else if (json.has("sleepHours")) {
-            sleepHour = json.getDouble("sleepHours"); // Fallback for old data
+        if (json.has("sleepHours")) {
+            sleepHour = json.getDouble("sleepHours");
+        } else if (json.has("sleepHour")) {
+            sleepHour = json.getDouble("sleepHour"); // Fallback for legacy data
         } else {
             sleepHour = 0.0;
         }
@@ -142,10 +142,10 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
         int steps = json.optInt("steps", 0);
 
         double waterLitres;
-        if (json.has("waterLitres")) {
-            waterLitres = json.getDouble("waterLitres");
-        } else if (json.has("waterIntake")) {
-            waterLitres = json.getDouble("waterIntake"); // Fallback for old data
+        if (json.has("waterIntake")) {
+            waterLitres = json.getDouble("waterIntake");
+        } else if (json.has("waterLitres")) {
+            waterLitres = json.getDouble("waterLitres"); // Fallback for legacy data
         } else {
             waterLitres = 0.0;
         }

@@ -1,21 +1,19 @@
 package use_case.daily_health_score;
 
 import java.time.LocalDate;
+import Entities.HealthMetrics;
 
 public interface DailyHealthScoreUserDataAccessInterface {
-
     /**
-     * Returns the health metrics for a given user and date.
+     * Returns the health metrics entity for a given user and date.
      * This is used by the DailyHealthScoreInteractor to retrieve
      * the raw data needed to compute the daily health score.
      *
-     * @param userId the ID of the user
-     * @param date the date of the metrics requested
-     * @return a DailyMetricsDTO containing the raw health metrics,
-     *         or null if no data exists for that date.
+     * @param userId user identifier
+     * @param date date of metrics
+     * @return HealthMetrics entity or null if none exist
      */
-    DailyMetricsDTO getMetricsForDate(String userId, LocalDate date);
-
+    HealthMetrics getMetricsForDate(String userId, LocalDate date);
 
     /**
      * Saves or updates the computed health score for that day.

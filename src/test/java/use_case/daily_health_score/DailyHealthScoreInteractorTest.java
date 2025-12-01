@@ -2,10 +2,8 @@ package use_case.daily_health_score;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import use_case.daily_health_score.*;
-
 import java.time.LocalDate;
-
+import Entities.HealthMetrics;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -34,7 +32,7 @@ class DailyHealthScoreInteractorTest {
         DailyHealthScoreInputData inputData = new DailyHealthScoreInputData(testDate, userId);
 
         // Set up mock data
-        DailyMetricsDTO metrics = new DailyMetricsDTO(7.0, 30.0, 2000, 2.5, 8000);
+        HealthMetrics metrics = new HealthMetrics(userId, testDate, 7.0, 8000, 2.5, 30.0, 2000);
         mockDataAccess.setMetricsToReturn(metrics);
         mockCalculator.setScoreToReturn(85);
         mockCalculator.setFeedbackToReturn("Great job! Keep it up.");
@@ -52,11 +50,11 @@ class DailyHealthScoreInteractorTest {
         assertEquals("Great job! Keep it up.", outputData.getFeedback(), "Feedback should match");
         assertEquals(userId, outputData.getUserId(), "User ID should match");
         assertEquals(testDate, outputData.getDate(), "Date should match");
-        assertEquals(7.0, outputData.getSleepHours(), "Sleep hours should match");
-        assertEquals(30.0, outputData.getExerciseMinutes(), "Exercise minutes should match");
-        assertEquals(2000, outputData.getCalories(), "Calories should match");
-        assertEquals(2.5, outputData.getWaterIntake(), "Water intake should match");
-        assertEquals(8000, outputData.getSteps(), "Steps should match");
+        assertEquals(7.0, outputData.getMetrics().getSleepHours(), "Sleep hours should match");
+        assertEquals(30.0, outputData.getMetrics().getExerciseMinutes(), "Exercise minutes should match");
+        assertEquals(2000, outputData.getMetrics().getCalories(), "Calories should match");
+        assertEquals(2.5, outputData.getMetrics().getWaterIntake(), "Water intake should match");
+        assertEquals(8000, outputData.getMetrics().getSteps(), "Steps should match");
 
         assertTrue(mockDataAccess.isSaveCalled(), "Save should be called");
     }
@@ -93,7 +91,7 @@ class DailyHealthScoreInteractorTest {
         String userId = "testUser";
         DailyHealthScoreInputData inputData = new DailyHealthScoreInputData(testDate, userId);
 
-        DailyMetricsDTO metrics = new DailyMetricsDTO(7.0, 30.0, 2000, 2.5, 8000);
+        HealthMetrics metrics = new HealthMetrics(userId, testDate, 7.0, 8000, 2.5, 30.0, 2000);
         mockDataAccess.setMetricsToReturn(metrics);
         mockCalculator.setShouldThrowException(true);
 
@@ -118,7 +116,7 @@ class DailyHealthScoreInteractorTest {
         String userId = "testUser";
         DailyHealthScoreInputData inputData = new DailyHealthScoreInputData(testDate, userId);
 
-        DailyMetricsDTO metrics = new DailyMetricsDTO(7.0, 30.0, 2000, 2.5, 8000);
+        HealthMetrics metrics = new HealthMetrics(userId, testDate, 7.0, 8000, 2.5, 30.0, 2000);
         mockDataAccess.setMetricsToReturn(metrics);
         mockDataAccess.setShouldThrowOnSave(true);
         mockCalculator.setScoreToReturn(85);
@@ -145,7 +143,7 @@ class DailyHealthScoreInteractorTest {
         String userId = "testUser";
         DailyHealthScoreInputData inputData = new DailyHealthScoreInputData(testDate, userId);
 
-        DailyMetricsDTO metrics = new DailyMetricsDTO(8.5, 45.0, 2500, 3.0, 10000);
+        HealthMetrics metrics = new HealthMetrics(userId, testDate, 8.5, 10000, 3.0, 45.0, 2500);
         mockDataAccess.setMetricsToReturn(metrics);
         mockCalculator.setScoreToReturn(90);
         mockCalculator.setFeedbackToReturn("Excellent!");
@@ -154,11 +152,13 @@ class DailyHealthScoreInteractorTest {
         interactor.execute(inputData);
 
         // Assert
-        assertEquals(8.5, mockCalculator.getLastSleepHours(), "Sleep hours passed to calculator");
-        assertEquals(45.0, mockCalculator.getLastExerciseMinutes(), "Exercise minutes passed to calculator");
-        assertEquals(2500, mockCalculator.getLastCalories(), "Calories passed to calculator");
-        assertEquals(3.0, mockCalculator.getLastWaterIntake(), "Water intake passed to calculator");
-        assertEquals(10000, mockCalculator.getLastSteps(), "Steps passed to calculator");
+        HealthMetrics passed = mockCalculator.getLastMetrics();
+        assertNotNull(passed, "Metrics should be passed to calculator");
+        assertEquals(8.5, passed.getSleepHours(), "Sleep hours passed to calculator");
+        assertEquals(45.0, passed.getExerciseMinutes(), "Exercise minutes passed to calculator");
+        assertEquals(2500, passed.getCalories(), "Calories passed to calculator");
+        assertEquals(3.0, passed.getWaterIntake(), "Water intake passed to calculator");
+        assertEquals(10000, passed.getSteps(), "Steps passed to calculator");
     }
 
     // ==================== Mock Classes ====================
@@ -167,12 +167,12 @@ class DailyHealthScoreInteractorTest {
      * Mock implementation of DailyHealthScoreUserDataAccessInterface for testing.
      */
     private static class MockUserDataAccess implements DailyHealthScoreUserDataAccessInterface {
-        private DailyMetricsDTO metricsToReturn;
+        private HealthMetrics metricsToReturn;
         private boolean saveCalled = false;
         private boolean shouldThrowOnSave = false;
         private DailyHealthScoreOutputData savedData;
 
-        public void setMetricsToReturn(DailyMetricsDTO metrics) {
+        public void setMetricsToReturn(HealthMetrics metrics) {
             this.metricsToReturn = metrics;
         }
 
@@ -185,7 +185,7 @@ class DailyHealthScoreInteractorTest {
         }
 
         @Override
-        public DailyMetricsDTO getMetricsForDate(String userId, LocalDate date) {
+        public HealthMetrics getMetricsForDate(String userId, LocalDate date) {
             return metricsToReturn;
         }
 
@@ -249,12 +249,7 @@ class DailyHealthScoreInteractorTest {
         private int scoreToReturn;
         private String feedbackToReturn;
         private boolean shouldThrowException = false;
-
-        private double lastSleepHours;
-        private double lastExerciseMinutes;
-        private int lastCalories;
-        private double lastWaterIntake;
-        private int lastSteps;
+        private HealthMetrics lastMetrics;
 
         public void setScoreToReturn(int score) {
             this.scoreToReturn = score;
@@ -268,33 +263,13 @@ class DailyHealthScoreInteractorTest {
             this.shouldThrowException = shouldThrow;
         }
 
-        public double getLastSleepHours() {
-            return lastSleepHours;
-        }
-
-        public double getLastExerciseMinutes() {
-            return lastExerciseMinutes;
-        }
-
-        public int getLastCalories() {
-            return lastCalories;
-        }
-
-        public double getLastWaterIntake() {
-            return lastWaterIntake;
-        }
-
-        public int getLastSteps() {
-            return lastSteps;
+        public HealthMetrics getLastMetrics() {
+            return lastMetrics;
         }
 
         @Override
-        public int calculateScore(double sleepHours, double exerciseMinutes, int calories, double waterIntake, int steps) throws Exception {
-            this.lastSleepHours = sleepHours;
-            this.lastExerciseMinutes = exerciseMinutes;
-            this.lastCalories = calories;
-            this.lastWaterIntake = waterIntake;
-            this.lastSteps = steps;
+        public int calculateScore(HealthMetrics metrics) throws Exception {
+            lastMetrics = metrics;
 
             if (shouldThrowException) {
                 throw new Exception("Calculator failed");
@@ -303,7 +278,7 @@ class DailyHealthScoreInteractorTest {
         }
 
         @Override
-        public String generateFeedback(double sleepHours, double exerciseMinutes, int calories, double waterIntake, int steps, int score) throws Exception {
+        public String generateFeedback(HealthMetrics metrics, int score) throws Exception {
             if (shouldThrowException) {
                 throw new Exception("Feedback generation failed");
             }

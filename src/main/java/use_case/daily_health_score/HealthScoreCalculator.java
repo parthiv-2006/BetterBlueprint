@@ -1,20 +1,13 @@
 package use_case.daily_health_score;
 
+import Entities.HealthMetrics;
+
 /**
- * Interface for calculating health scores and generating feedback.
+ * Interface for calculating health scores and generating feedback using a HealthMetrics entity.
  */
 
 public interface HealthScoreCalculator {
-    int calculateScore(double sleepHours,
-                       double exerciseMinutes,
-                       int calories,
-                       double waterIntake,
-                       int steps) throws Exception;
+    int calculateScore(HealthMetrics metrics) throws Exception;
 
-    String generateFeedback(double sleepHours,
-                            double exerciseMinutes,
-                            int calories,
-                            double waterIntake,
-                            int steps,
-                            int score) throws Exception;
+    String generateFeedback(HealthMetrics metrics, int score) throws Exception;
 }

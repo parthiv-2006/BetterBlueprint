@@ -1,51 +1,38 @@
 package use_case.daily_health_score;
 
 import java.time.LocalDate;
+import Entities.HealthMetrics;
 
 /**
  * Output Data for the Daily Health Score Use Case.
+Holds the calculated score, feedback, and wraps all raw metrics in a HealthMetrics entity.
  */
 
 public class DailyHealthScoreOutputData {
-    private LocalDate date;
+    private final LocalDate date;
     private final String userId;
-    private final int score;              // from Gemini
-    private final String feedback;        // short summary
-    private final double sleepHours;
-    private final double waterIntake; // in liters
-    private final double exerciseMinutes; // in minutes
-    private final int calories;;
-    private final int steps;
+    private final int score;
+    private final String feedback;
+    private final HealthMetrics metrics;
 
     public DailyHealthScoreOutputData(
             LocalDate date,
             String userId,
             int score,
             String feedback,
-            double sleepHours,
-            double exerciseMinutes,
-            int calories,
-            double waterIntake,
-            int steps
+            HealthMetrics metrics
     ) {
         this.date = date;
         this.userId = userId;
         this.score = score;
         this.feedback = feedback;
-        this.sleepHours = sleepHours;
-        this.exerciseMinutes = exerciseMinutes;
-        this.calories = calories;
-        this.waterIntake = waterIntake;
-        this.steps = steps;
+        this.metrics = metrics;
     }
 
     public LocalDate getDate() { return date; }
     public String getUserId() { return userId; }
     public int getScore() { return score; }
     public String getFeedback() { return feedback; }
-    public double getSleepHours() { return sleepHours; }
-    public double getExerciseMinutes() { return exerciseMinutes; }
-    public int getCalories() { return calories; }
-    public double getWaterIntake() { return waterIntake; }
-    public int getSteps() { return steps; }
+
+    public HealthMetrics getMetrics() { return metrics; }
 }

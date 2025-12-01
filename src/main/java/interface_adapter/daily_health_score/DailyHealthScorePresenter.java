@@ -2,6 +2,7 @@ package interface_adapter.daily_health_score;
 
 import use_case.daily_health_score.DailyHealthScoreOutputBoundary;
 import use_case.daily_health_score.DailyHealthScoreOutputData;
+import Entities.HealthMetrics;
 
 /**
  * A Presenter class for the Daily Health Score Use Case.
@@ -25,12 +26,12 @@ public class DailyHealthScorePresenter implements DailyHealthScoreOutputBoundary
         newState.setFeedback(data.getFeedback());
         newState.setErrorMessage(null);
 
-        // Set health metrics for breakdown display
-        newState.setSleepHours(data.getSleepHours());
-        newState.setExerciseMinutes(data.getExerciseMinutes());
-        newState.setCalories(data.getCalories());
-        newState.setWaterIntake(data.getWaterIntake());
-        newState.setSteps(data.getSteps());
+        HealthMetrics m = data.getMetrics();
+        newState.setSleepHours(m.getSleepHours());
+        newState.setExerciseMinutes(m.getExerciseMinutes());
+        newState.setCalories(m.getCalories());
+        newState.setWaterIntake(m.getWaterIntake());
+        newState.setSteps(m.getSteps());
 
         // Tell the view model to update and notify listeners
         viewModel.setState(newState);

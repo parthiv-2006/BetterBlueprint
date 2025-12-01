@@ -2,6 +2,7 @@ package interface_adapter.daily_health_score;
 
 import services.GeminiAPIService;
 import use_case.daily_health_score.HealthScoreCalculator;
+import Entities.HealthMetrics;
 
 /**
  * Adapter implementation of HealthScoreCalculator that delegates to GeminiAPIService.
@@ -17,34 +18,46 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
     }
 
     @Override
-    public int calculateScore(double sleepHours, double exerciseMinutes,
-                              int calories, double waterIntake, int steps) throws Exception {
+    public int calculateScore(HealthMetrics metrics) throws Exception {
         try {
-            // Delegate to the service layer
-            return geminiService.calculateHealthScore(sleepHours, exerciseMinutes, calories, waterIntake, steps);
+            return geminiService.calculateHealthScore(
+                    metrics.getSleepHours(),
+                    metrics.getExerciseMinutes(),
+                    metrics.getCalories(),
+                    metrics.getWaterIntake(),
+                    metrics.getSteps()
+            );
         } catch (Exception e) {
-            // If API call fails, use fallback calculation
             System.err.println("Gemini API score calculation failed: " + e.getMessage());
             System.err.println("Using fallback algorithm.");
-            return calculateFallbackScore(sleepHours, exerciseMinutes, calories, waterIntake, steps);
+            return calculateFallbackScore(metrics);
         }
     }
 
     @Override
-    public String generateFeedback(double sleepHours, double exerciseMinutes,
-                                   int calories, double waterIntake, int steps, int score) throws Exception {
-        // Delegate to the service layer
-        return geminiService.generateHealthFeedback(sleepHours, exerciseMinutes, calories, waterIntake, steps, score);
+    public String generateFeedback(HealthMetrics metrics, int score) throws Exception {
+        return geminiService.generateHealthFeedback(
+                metrics.getSleepHours(),
+                metrics.getExerciseMinutes(),
+                metrics.getCalories(),
+                metrics.getWaterIntake(),
+                metrics.getSteps(),
+                score
+        );
     }
 
     /**
      * Fallback calculation if Gemini fails to return a valid score.
      * Uses a simple algorithm based on how close metrics are to recommended values.
      */
-    private int calculateFallbackScore(double sleepHours, double exerciseMinutes,
-                                       int calories, double waterIntake, int steps) {
-        int score = 0;
+    private int calculateFallbackScore(HealthMetrics m) {
+        double sleepHours = m.getSleepHours();
+        double exerciseMinutes = m.getExerciseMinutes();
+        int calories = m.getCalories();
+        double waterIntake = m.getWaterIntake();
+        int steps = m.getSteps();
 
+        int score = 0;
         // Sleep score (0-25 points)
         if (sleepHours >= 7 && sleepHours <= 9) {
             score += 25;
@@ -93,4 +106,3 @@ public class GeminiHealthScoreCalculator implements HealthScoreCalculator {
         return score;
     }
 }
-
