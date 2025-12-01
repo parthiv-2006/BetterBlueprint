@@ -64,8 +64,8 @@ public class healthHistoryInteractor implements healthHistoryInputBoundary {
 
                 double val;
                 switch (metricType.toLowerCase()) {
-                    case "sleep", "sleephours" -> val = m.getSleepHour();
-                    case "water", "waterintake" -> val = m.getWaterLitres();
+                    case "sleep", "sleephours" -> val = m.getSleepHours();
+                    case "water", "waterintake" -> val = m.getWaterIntake();
                     case "exercise", "exerciseminutes" -> val = m.getExerciseMinutes();
                     case "calories" -> val = (double) m.getCalories();
                     default -> {

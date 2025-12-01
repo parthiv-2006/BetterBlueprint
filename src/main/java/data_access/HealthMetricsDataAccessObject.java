@@ -113,14 +113,14 @@ public class HealthMetricsDataAccessObject implements InputMetricsDataAccessInte
         json.put("userId", metrics.getUserId());
         json.put("date", metrics.getDate().toString());
 
-        json.put("sleepHour", metrics.getSleepHour());
+        json.put("sleepHour", metrics.getSleepHours());
         json.put("steps", metrics.getSteps());
-        json.put("waterLitres", metrics.getWaterLitres());
+        json.put("waterLitres", metrics.getWaterIntake());
         json.put("exerciseMinutes", metrics.getExerciseMinutes());
         json.put("calories", metrics.getCalories());
 
-        json.put("sleepHours", metrics.getSleepHour());
-        json.put("waterIntake", metrics.getWaterLitres());
+        json.put("sleepHours", metrics.getSleepHours());
+        json.put("waterIntake", metrics.getWaterIntake());
 
         return json;
     }

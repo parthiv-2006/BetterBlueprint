@@ -24,15 +24,12 @@ public class HealthMetrics {
 
     public String getUserId() { return userId; }
     public LocalDate getDate() { return date; }
-    public double getSleepHour() { return sleepHour; }
+    public double getSleepHours() { return sleepHour; }
     public int getSteps() { return steps; }
-    public double getWaterLitres() { return waterLitres; }
+    public double getWaterIntake() { return waterLitres; }
     public double getExerciseMinutes() { return exerciseMinutes; }
     public int getCalories() { return calories; }
 
-
-    public double getSleepHours() { return sleepHour; }        // For DailyHealthScore
-    public double getWaterIntake() { return waterLitres; }     // For DailyHealthScore
 
     public void setSleepHour(double sleepHour) {
         if (sleepHour < 0 || sleepHour > 24) {
