@@ -4,7 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import use_case.daily_health_score.DailyHealthScoreOutputData;
 import use_case.daily_health_score.DailyHealthScoreUserDataAccessInterface;
-import use_case.daily_health_score.DailyMetricsDTO;
+import Entities.HealthMetrics;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -38,9 +38,9 @@ public class DailyHealthScoreDataAccessObject implements DailyHealthScoreUserDat
         }
     }
 
-    // return DailyMetricsDTO for a given user/date (raw metrics)
+    // return HealthMetrics entity for a given user/date (raw metrics)
     @Override
-    public DailyMetricsDTO getMetricsForDate(String userId, LocalDate date) {
+    public HealthMetrics getMetricsForDate(String userId, LocalDate date) {
         try {
             String content = new String(Files.readAllBytes(Paths.get(METRICS_FILE_PATH)));
 
@@ -64,13 +64,8 @@ public class DailyHealthScoreDataAccessObject implements DailyHealthScoreUserDat
                     double waterIntake = obj.optDouble("waterIntake", 0.0);
                     int steps = obj.optInt("steps", 0);
 
-                    return new DailyMetricsDTO(
-                            sleepHours,
-                            exerciseMinutes,
-                            calories,
-                            waterIntake,
-                            steps
-                    );
+                    // Map to HealthMetrics entity (constructor expects sleepHour, steps, waterLitres, exerciseMinutes, calories)
+                    return new HealthMetrics(userId, date, sleepHours, steps, waterIntake, exerciseMinutes, calories);
                 }
             }
         } catch (IOException e) {

@@ -1,6 +1,7 @@
 package use_case.daily_health_score;
 
 import java.time.LocalDate;
+import Entities.HealthMetrics;
 
 /**
  * The Daily Health Score Interactor.
@@ -26,39 +27,27 @@ public class DailyHealthScoreInteractor implements DailyHealthScoreInputBoundary
         String userId = inputData.getUserId();
         LocalDate date = inputData.getDate();
 
-        // Load existing metrics
-        DailyMetricsDTO metrics = userDataAccessObject.getMetricsForDate(userId, date);
+        // Load existing metrics directly as entity
+        HealthMetrics healthMetrics = userDataAccessObject.getMetricsForDate(userId, date);
 
-        if (metrics == null) {
+        if (healthMetrics == null) {
             healthScorePresenter.prepareFailView(
                     "No health metrics found for " + date + ". Please enter your daily health data first."
             );
             return;
         }
 
+
         int score;
         String feedback;
 
 
         try {
-            // Compute score using Gemini API
-            score = scoreCalculator.calculateScore(
-                    metrics.getSleepHours(),
-                    metrics.getExerciseMinutes(),
-                    metrics.getCalories(),
-                    metrics.getWaterIntake(),
-                    metrics.getSteps()
-            );
+            // Compute score using Gemini API via calculator
+            score = scoreCalculator.calculateScore(healthMetrics);
 
             // Generate feedback
-            feedback = scoreCalculator.generateFeedback(
-                    metrics.getSleepHours(),
-                    metrics.getExerciseMinutes(),
-                    metrics.getCalories(),
-                    metrics.getWaterIntake(),
-                    metrics.getSteps(),
-                    score
-            );
+            feedback = scoreCalculator.generateFeedback(healthMetrics, score);
 
         } catch (Exception apiException) {
             // The Gemini service could throw IOException, APIException, InterruptedException, etc.
@@ -68,17 +57,13 @@ public class DailyHealthScoreInteractor implements DailyHealthScoreInputBoundary
             return;
         }
 
-        // Build output data
+        // Build output data (still uses raw primitives for presentation/reporting)
         DailyHealthScoreOutputData outputData = new DailyHealthScoreOutputData(
                 date,
                 userId,
                 score,
                 feedback,
-                metrics.getSleepHours(),
-                metrics.getExerciseMinutes(),
-                metrics.getCalories(),
-                metrics.getWaterIntake(),
-                metrics.getSteps()
+                healthMetrics
         );
 
         // Persist the computed score
