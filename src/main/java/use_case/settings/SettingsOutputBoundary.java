@@ -16,9 +16,4 @@ public interface SettingsOutputBoundary {
      * @param errorMessage the explanation of the failure
      */
     void prepareFailView(String errorMessage);
-
-    /**
-     * Switches back to the Home view.
-     */
-    void switchToHomeView();
 }

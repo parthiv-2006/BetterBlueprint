@@ -1,6 +1,8 @@
 package view;
 
+import interface_adapter.ViewManagerModel;
 import interface_adapter.change_password.ChangePasswordController;
+import interface_adapter.home.HomeViewModel;
 import interface_adapter.logout.LogoutController;
 import interface_adapter.settings.SettingsController;
 import interface_adapter.settings.SettingsState;
@@ -9,15 +11,18 @@ import interface_adapter.settings.SettingsViewModel;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class SettingsView extends JPanel implements ActionListener, PropertyChangeListener {
+/**
+ * The View for the Settings use case.
+ */
+public class SettingsView extends JPanel implements PropertyChangeListener {
 
     private final String viewName = "settings";
     private final SettingsViewModel settingsViewModel;
+    private final ViewManagerModel viewManagerModel;
+    private final HomeViewModel homeViewModel;
     private SettingsController settingsController;
     private LogoutController logoutController;
     private ChangePasswordController changePasswordController;
@@ -42,8 +47,10 @@ public class SettingsView extends JPanel implements ActionListener, PropertyChan
     private static final Color ERROR_COLOR = new Color(239, 68, 68);
     private static final Color BORDER_COLOR = new Color(191, 219, 254);
 
-    public SettingsView(SettingsViewModel settingsViewModel) {
+    public SettingsView(SettingsViewModel settingsViewModel, ViewManagerModel viewManagerModel, HomeViewModel homeViewModel) {
         this.settingsViewModel = settingsViewModel;
+        this.viewManagerModel = viewManagerModel;
+        this.homeViewModel = homeViewModel;
         this.settingsViewModel.addPropertyChangeListener(this);
 
         setLayout(new GridBagLayout());
@@ -153,14 +160,10 @@ public class SettingsView extends JPanel implements ActionListener, PropertyChan
             }
         });
 
-        cancelButton.addActionListener(this);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource().equals(cancelButton) && settingsController != null) {
-            settingsController.switchToHomeView();
-        }
+        cancelButton.addActionListener(evt -> {
+            viewManagerModel.setState(homeViewModel.getViewName());
+            viewManagerModel.firePropertyChange();
+        });
     }
 
     @Override

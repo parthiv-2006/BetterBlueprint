@@ -1,29 +1,25 @@
 package interface_adapter.settings;
 
-import interface_adapter.ViewManagerModel;
 import interface_adapter.goals.GoalsState;
 import interface_adapter.goals.GoalsViewModel;
-import interface_adapter.home.HomeViewModel;
 import use_case.settings.SettingsOutputBoundary;
 import use_case.settings.SettingsOutputData;
 
 /**
  * The Presenter for the Settings Use Case.
+ *
+ * Note: This presenter currently updates both SettingsViewModel and GoalsViewModel.
+ * This is a temporary coupling - ideally, GoalsViewModel should observe User changes
+ * through an event system or shared state observer pattern.
  */
 public class SettingsPresenter implements SettingsOutputBoundary {
 
     private final SettingsViewModel settingsViewModel;
-    private final ViewManagerModel viewManagerModel;
-    private final HomeViewModel homeViewModel;
-    private final GoalsViewModel goalsViewModel;   // NEW
+    private final GoalsViewModel goalsViewModel;
 
-    public SettingsPresenter(ViewManagerModel viewManagerModel,
-                             SettingsViewModel settingsViewModel,
-                             HomeViewModel homeViewModel,
-                             GoalsViewModel goalsViewModel) {   // NEW param
-        this.viewManagerModel = viewManagerModel;
+    public SettingsPresenter(SettingsViewModel settingsViewModel,
+                             GoalsViewModel goalsViewModel) {
         this.settingsViewModel = settingsViewModel;
-        this.homeViewModel = homeViewModel;
         this.goalsViewModel = goalsViewModel;
     }
 
@@ -57,11 +53,5 @@ public class SettingsPresenter implements SettingsOutputBoundary {
         final SettingsState settingsState = settingsViewModel.getState();
         settingsState.setSettingsError(errorMessage);
         this.settingsViewModel.firePropertyChange();
-    }
-
-    @Override
-    public void switchToHomeView() {
-        this.viewManagerModel.setState(homeViewModel.getViewName());
-        this.viewManagerModel.firePropertyChange();
     }
 }

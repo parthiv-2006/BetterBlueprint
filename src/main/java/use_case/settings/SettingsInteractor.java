@@ -3,7 +3,7 @@ package use_case.settings;
 import Entities.User;
 
 /**
- * The Settings Interactor.
+ * The Settings Interactor - handles the business logic for updating user settings.
  */
 public class SettingsInteractor implements SettingsInputBoundary {
 
@@ -51,10 +51,5 @@ public class SettingsInteractor implements SettingsInputBoundary {
         } catch (NumberFormatException exception) {
             settingsPresenter.prepareFailView("Please enter valid numbers for all fields.");
         }
-    }
-
-    @Override
-    public void switchToHomeView() {
-        settingsPresenter.switchToHomeView();
     }
 }
