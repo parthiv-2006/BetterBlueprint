@@ -42,7 +42,6 @@ public class healthHistoryInteractor implements healthHistoryInputBoundary {
     public void fetchHistory(String metricType, String timeRange, String userId) {
         List<healthMetricRecord> records = new ArrayList<>();
 
-        // === Fixed: ensure the dataAccess branch is a proper block ===
         if (dataAccess != null) {
             List<HealthMetrics> metrics = dataAccess.getHealthMetricsByUser(userId);
             if (metrics == null || metrics.isEmpty()) {
@@ -64,12 +63,11 @@ public class healthHistoryInteractor implements healthHistoryInputBoundary {
 
                 double val;
                 switch (metricType.toLowerCase()) {
-                    case "sleep", "sleephours" -> val = m.getSleepHour();
-                    case "water", "waterintake" -> val = m.getWaterLitres();
+                    case "sleep", "sleephours" -> val = m.getSleepHours();
+                    case "water", "waterintake" -> val = m.getWaterIntake();
                     case "exercise", "exerciseminutes" -> val = m.getExerciseMinutes();
                     case "calories" -> val = (double) m.getCalories();
                     default -> {
-                        // Unknown metric: skip this metric entry rather than throw.
                         continue;
                     }
                 }
@@ -80,7 +78,6 @@ public class healthHistoryInteractor implements healthHistoryInputBoundary {
             return;
         }
 
-        // ...existing JSON fallback code unchanged...
         String content = null;
         try (InputStream is = getClass().getResourceAsStream("/health_metrics.json")) {
             if (is != null) {
@@ -101,13 +98,11 @@ public class healthHistoryInteractor implements healthHistoryInputBoundary {
             return;
         }
 
-        // tolerant object matcher
         Pattern objPattern = Pattern.compile("\\{[^}]*\\}");
         Matcher objMatcher = objPattern.matcher(content);
 
         DateTimeFormatter isoFmt = DateTimeFormatter.ISO_LOCAL_DATE;
 
-        // figure likely metric key
         String metricKey = metricType;
         if (metricType.equalsIgnoreCase("sleep")) metricKey = "sleepHours";
         if (metricType.equalsIgnoreCase("water")) metricKey = "waterIntake";

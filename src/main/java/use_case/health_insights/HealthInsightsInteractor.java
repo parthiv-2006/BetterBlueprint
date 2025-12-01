@@ -69,9 +69,9 @@ public class HealthInsightsInteractor implements HealthInsightsInputBoundary {
 
         HealthMetrics recent = healthHistory.get(healthHistory.size() - 1);
         data.append("Most Recent Daily Metrics: ")
-                .append("Sleep: ").append(recent.getSleepHour()).append(" hours, ")
+                .append("Sleep: ").append(recent.getSleepHours()).append(" hours, ")
                 .append("Steps: ").append(recent.getSteps()).append(", ")
-                .append("Water Intake: ").append(recent.getWaterLitres()).append(" liters, ")
+                .append("Water Intake: ").append(recent.getWaterIntake()).append(" liters, ")
                 .append("Exercise: ").append(recent.getExerciseMinutes()).append(" minutes, ")
                 .append("Calories: ").append(recent.getCalories()).append(". ");
 
@@ -83,9 +83,9 @@ public class HealthInsightsInteractor implements HealthInsightsInputBoundary {
     }
 
     private String analyzeTrends(List<HealthMetrics> history) {
-        double avgSleep = history.stream().mapToDouble(HealthMetrics::getSleepHour).average().orElse(0);
+        double avgSleep = history.stream().mapToDouble(HealthMetrics::getSleepHours).average().orElse(0);
         double avgSteps = history.stream().mapToDouble(HealthMetrics::getSteps).average().orElse(0);
-        double avgWater = history.stream().mapToDouble(HealthMetrics::getWaterLitres).average().orElse(0);
+        double avgWater = history.stream().mapToDouble(HealthMetrics::getWaterIntake).average().orElse(0);
         double avgExercise = history.stream().mapToDouble(HealthMetrics::getExerciseMinutes).average().orElse(0);
         double avgCalories = history.stream().mapToDouble(HealthMetrics::getCalories).average().orElse(0);
 
