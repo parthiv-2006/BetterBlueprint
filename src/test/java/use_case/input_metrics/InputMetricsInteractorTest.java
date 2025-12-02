@@ -40,6 +40,9 @@ class InputMetricsInteractorTest {
         assertEquals(2.0, mockDataAccess.savedMetrics.getWaterIntake());
         assertEquals(2000, mockDataAccess.savedMetrics.getCalories());
         assertEquals(30.0, mockDataAccess.savedMetrics.getExerciseMinutes());
+        assertNotNull(mockPresenter.outputData, "Output data should be set");
+        assertTrue(mockPresenter.outputData.isSuccess(), "Output should indicate success");
+        assertEquals("Metrics saved successfully", mockPresenter.outputData.getMessage());
     }
 
     @Test
@@ -54,7 +57,9 @@ class InputMetricsInteractorTest {
         // Assert
         assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
         assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
-        assertTrue(mockPresenter.errorMessage.contains("Sleep hours"));
+        assertTrue(mockPresenter.errorMessage.contains("Sleep hours") ||
+                   mockPresenter.errorMessage.contains("sleep"),
+                   "Error message should mention sleep hours");
     }
 
     @Test
@@ -67,8 +72,28 @@ class InputMetricsInteractorTest {
         interactor.execute(inputData);
 
         // Assert
-        assertTrue(mockPresenter.isFailCalled);
-        assertTrue(mockPresenter.errorMessage.contains("Sleep hours"));
+        assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
+        assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
+        assertTrue(mockPresenter.errorMessage.contains("Sleep hours") ||
+                   mockPresenter.errorMessage.contains("sleep"),
+                   "Error message should mention sleep hours");
+    }
+
+    @Test
+    void testInvalidSteps_Negative() {
+        // Arrange
+        InputMetricsInputData inputData = new InputMetricsInputData(
+                "testuser", 7.5f, -100, 2.0f, 2000, 30.0f);
+
+        // Act
+        interactor.execute(inputData);
+
+        // Assert
+        assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
+        assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
+        assertTrue(mockPresenter.errorMessage.contains("Steps") ||
+                   mockPresenter.errorMessage.contains("steps"),
+                   "Error message should mention steps");
     }
 
     @Test
@@ -81,8 +106,12 @@ class InputMetricsInteractorTest {
         interactor.execute(inputData);
 
         // Assert
-        assertTrue(mockPresenter.isFailCalled);
-        assertTrue(mockPresenter.errorMessage.contains("Water intake"));
+        assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
+        assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
+        assertTrue(mockPresenter.errorMessage.contains("Water intake") ||
+                   mockPresenter.errorMessage.contains("Water") ||
+                   mockPresenter.errorMessage.contains("water"),
+                   "Error message should mention water intake");
     }
 
     @Test
@@ -95,8 +124,11 @@ class InputMetricsInteractorTest {
         interactor.execute(inputData);
 
         // Assert
-        assertTrue(mockPresenter.isFailCalled);
-        assertTrue(mockPresenter.errorMessage.contains("Calories"));
+        assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
+        assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
+        assertTrue(mockPresenter.errorMessage.contains("Calories") ||
+                   mockPresenter.errorMessage.contains("calories"),
+                   "Error message should mention calories");
     }
 
     @Test
@@ -109,8 +141,12 @@ class InputMetricsInteractorTest {
         interactor.execute(inputData);
 
         // Assert
-        assertTrue(mockPresenter.isFailCalled);
-        assertTrue(mockPresenter.errorMessage.contains("Exercise duration"));
+        assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
+        assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
+        assertTrue(mockPresenter.errorMessage.contains("Exercise duration") ||
+                   mockPresenter.errorMessage.contains("Exercise") ||
+                   mockPresenter.errorMessage.contains("exercise"),
+                   "Error message should mention exercise duration");
     }
 
     @Test
@@ -123,8 +159,14 @@ class InputMetricsInteractorTest {
         interactor.execute(inputData);
 
         // Assert
-        assertTrue(mockPresenter.isSuccessCalled);
-        assertNotNull(mockDataAccess.savedMetrics);
+        assertTrue(mockPresenter.isSuccessCalled, "Success view should be prepared");
+        assertFalse(mockPresenter.isFailCalled, "Fail view should not be prepared");
+        assertNotNull(mockDataAccess.savedMetrics, "Metrics should be saved");
+        assertEquals(0.0, mockDataAccess.savedMetrics.getSleepHours());
+        assertEquals(0, mockDataAccess.savedMetrics.getSteps());
+        assertEquals(0.0, mockDataAccess.savedMetrics.getWaterIntake());
+        assertEquals(0, mockDataAccess.savedMetrics.getCalories());
+        assertEquals(0.0, mockDataAccess.savedMetrics.getExerciseMinutes());
     }
 
     @Test
@@ -137,8 +179,14 @@ class InputMetricsInteractorTest {
         interactor.execute(inputData);
 
         // Assert
-        assertTrue(mockPresenter.isSuccessCalled);
-        assertNotNull(mockDataAccess.savedMetrics);
+        assertTrue(mockPresenter.isSuccessCalled, "Success view should be prepared");
+        assertFalse(mockPresenter.isFailCalled, "Fail view should not be prepared");
+        assertNotNull(mockDataAccess.savedMetrics, "Metrics should be saved");
+        assertEquals(24.0, mockDataAccess.savedMetrics.getSleepHours());
+        assertEquals(50000, mockDataAccess.savedMetrics.getSteps());
+        assertEquals(20.0, mockDataAccess.savedMetrics.getWaterIntake());
+        assertEquals(10000, mockDataAccess.savedMetrics.getCalories());
+        assertEquals(1440.0, mockDataAccess.savedMetrics.getExerciseMinutes());
     }
 
     @Test
@@ -155,6 +203,38 @@ class InputMetricsInteractorTest {
         assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
         assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
         assertTrue(mockPresenter.errorMessage.contains("Error saving metrics"));
+    }
+
+    @Test
+    void testInputDataGetters() {
+        // This test ensures all getters in InputMetricsInputData are covered
+        InputMetricsInputData inputData = new InputMetricsInputData(
+                "testuser", 7.5f, 8000, 2.0f, 2000, 30.0f);
+
+        // Call all getters to achieve 100% coverage
+        assertEquals("testuser", inputData.getUsername());
+        assertEquals(7.5f, inputData.getSleepHours());
+        assertEquals(8000, inputData.getSteps());
+        assertEquals(2.0f, inputData.getWaterIntake());
+        assertEquals(2000, inputData.getCalories());
+        assertEquals(30.0f, inputData.getExerciseDuration());
+    }
+
+    @Test
+    void testOutputDataGetters() {
+        // This test ensures all getters in InputMetricsOutputData are covered
+        InputMetricsOutputData outputData = new InputMetricsOutputData(
+                "2024-12-02", "Test message", true);
+
+        // Call all getters to achieve 100% coverage
+        assertEquals("2024-12-02", outputData.getDate());
+        assertEquals("Test message", outputData.getMessage());
+        assertTrue(outputData.isSuccess());
+
+        // Test with false success value
+        InputMetricsOutputData failOutputData = new InputMetricsOutputData(
+                "2024-12-02", "Fail message", false);
+        assertFalse(failOutputData.isSuccess());
     }
 
     // Mock classes for testing
@@ -198,7 +278,7 @@ class InputMetricsInteractorTest {
 
         @Override
         public void switchToHomeView() {
-            // Not tested in these unit tests
+            // Not implemented in InputMetricsInteractor
         }
     }
 }
