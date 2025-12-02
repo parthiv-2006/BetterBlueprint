@@ -561,6 +561,24 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
             CurrentWeightLabel.setText(state.getCurrentWeightLabel());
         }
 
+        // Clear text fields if state is empty (after logout)
+        boolean isEmptyState = (state.getTarget() == null || state.getTarget().isEmpty()) &&
+                               (state.getTimeframe() == null || state.getTimeframe().isEmpty()) &&
+                               (state.getGoalType() == null || state.getGoalType().isEmpty());
+
+        if (state.getTarget() == null || state.getTarget().isEmpty()) {
+            targetWeightField.setText("");
+        }
+        if (state.getTimeframe() == null || state.getTimeframe().isEmpty()) {
+            timeframeField.setText("");
+        }
+
+        // Reset to SELECT page if state is completely empty (after logout)
+        if (isEmptyState) {
+            innerCardLayout.show(innerCardPanel, "SELECT");
+            return;
+        }
+
         // First handle redirect cases (weight missing)
         if (state.shouldRedirectToSettings()) {
             if (state.getRedirectMessage() != null) {

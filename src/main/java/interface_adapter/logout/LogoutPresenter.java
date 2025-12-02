@@ -13,42 +13,38 @@ import use_case.logout.LogoutOutputData;
  */
 public class LogoutPresenter implements LogoutOutputBoundary {
 
-    private HomeViewModel homeViewModel;
-    private ViewManagerModel viewManagerModel;
-    private LoginViewModel loginViewModel;
+    private final HomeViewModel homeViewModel;
+    private final ViewManagerModel viewManagerModel;
+    private final LoginViewModel loginViewModel;
+    private final LogoutViewResetter viewResetter;
 
     public LogoutPresenter(ViewManagerModel viewManagerModel,
                            HomeViewModel homeViewModel,
-                           LoginViewModel loginViewModel) {
+                           LoginViewModel loginViewModel,
+                           LogoutViewResetter viewResetter) {
         this.homeViewModel = homeViewModel;
         this.viewManagerModel = viewManagerModel;
         this.loginViewModel = loginViewModel;
+        this.viewResetter = viewResetter;
     }
 
     @Override
     public void prepareSuccessView(LogoutOutputData response) {
-        // We need to switch to the login view, which should have
-        // an empty username and password.
-
-        // We also need to set the username in the LoggedInState to
-        // the empty string.
-
-        // 1. get the LoggedInState out of the appropriate View Model,
-        // 2. set the username in the state to the empty string
-        // 3. firePropertyChanged so that the View that is listening is updated.
+        // Clear home state
         final HomeState homeState = homeViewModel.getState();
         homeState.setUsername("");
         this.homeViewModel.firePropertyChange();
 
-        // 1. get the LoginState out of the appropriate View Model,
-        // 2. set the username in the state to be the username of the user that just logged out,
-        // 3. firePropertyChanged so that the View that is listening is updated.
+        // Clear login state
         final LoginState loginState = loginViewModel.getState();
         loginState.setUsername(response.getUsername());
-        loginState.setPassword(""); // Clear the password field
+        loginState.setPassword("");
         this.loginViewModel.firePropertyChange();
 
-        // This code tells the View Manager to switch to the LoginView.
+        // Reset all user-specific ViewModels
+        viewResetter.resetAllViews();
+
+        // Switch to login view
         this.viewManagerModel.setState(loginViewModel.getViewName());
         this.viewManagerModel.firePropertyChange();
     }

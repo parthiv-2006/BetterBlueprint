@@ -27,7 +27,7 @@ import interface_adapter.login.LoginViewModel;
 //import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.logout.LogoutController;
-import interface_adapter.logout.LogoutPresenter;
+import interface_adapter.logout.LogoutViewResetter;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
@@ -160,7 +160,6 @@ public class AppBuilder {
         inputMetricsViewModel = new InputMetricsViewModel();
         inputMetricsView = new InputMetricsView(inputMetricsViewModel);
 
-        // Create GoalsView
         goalsViewModel = new GoalsViewModel();
         goalsView = new GoalsView(goalsViewModel);
 
@@ -200,6 +199,7 @@ public class AppBuilder {
                 loginViewModel,
                 signupViewModel
         );
+
         final LoginInputBoundary loginInteractor = new LoginInteractor(
                 userDataAccessObject, loginOutputBoundary
         );
@@ -223,8 +223,20 @@ public class AppBuilder {
     }
 
     public AppBuilder addLogoutUseCase() {
-        final LogoutOutputBoundary logoutOutputBoundary = new LogoutPresenter(viewManagerModel,
-                homeViewModel, loginViewModel);
+        // Create the view resetter with all ViewModels that need to be cleared
+        final LogoutViewResetter viewResetter = new LogoutViewResetter(
+                inputMetricsViewModel,
+                goalsViewModel,
+                settingsViewModel,
+                dailyHealthScoreViewModel,
+                healthInsightsViewModel
+        );
+
+        final LogoutOutputBoundary logoutOutputBoundary = new LogoutPresenter(
+                viewManagerModel,
+                homeViewModel,
+                loginViewModel,
+                viewResetter);
 
         final LogoutInputBoundary logoutInteractor = new LogoutInteractor(
                 userDataAccessObject, logoutOutputBoundary);
@@ -268,16 +280,12 @@ public class AppBuilder {
     }
 
     public AppBuilder addDailyHealthScoreUseCase() {
-        // Create ViewModel only once
         dailyHealthScoreViewModel = new DailyHealthScoreViewModel();
 
-        // Create the View once
         myScoreView = new MyScoreView(dailyHealthScoreViewModel, null);
 
-        // Create GeminiAPIService (it reads API key from environment variable)
         GeminiAPIService geminiService = new GeminiAPIService();
 
-        // Create the adapter that delegates to the service (includes built-in fallback)
         HealthScoreCalculator scoreCalculator = new GeminiHealthScoreCalculator(geminiService);
 
         DailyHealthScoreUserDataAccessInterface metricsDAO =
@@ -291,7 +299,6 @@ public class AppBuilder {
 
         dailyHealthScoreController = new DailyHealthScoreController(interactor, metricsDAO);
 
-        // NOW inject controller
         myScoreView.setController(dailyHealthScoreController);
 
         return this;
