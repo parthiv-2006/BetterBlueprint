@@ -163,7 +163,6 @@ public class GoalsInteractor implements GoalsInputBoundary {
         static GoalsValidationResult validate(final User user,
                                               final GoalsInputData inputData) {
 
-            // 1) User check
             if (user == null || user.getWeight() <= DEFAULT_INT) {
                 return GoalsValidationResult.redirect(
                         "Please input your weight in Settings before using Goals."
@@ -178,7 +177,6 @@ public class GoalsInteractor implements GoalsInputBoundary {
             final String targetStr = inputData.getTarget();
             final String goalType = inputData.getGoalType();
 
-            // 2) Timeframe validation
             if (timeframeStr == null || timeframeStr.trim().isEmpty()) {
                 return GoalsValidationResult.fail(
                         "Timeframe must be a valid whole number of weeks."
@@ -200,7 +198,6 @@ public class GoalsInteractor implements GoalsInputBoundary {
                 );
             }
 
-            // 3) Target weight validation
             final double targetWeight;
             if (targetStr == null || targetStr.trim().isEmpty()) {
                 targetWeight = currentWeight;
@@ -220,7 +217,6 @@ public class GoalsInteractor implements GoalsInputBoundary {
                 }
             }
 
-            // 4) Goal-versus-weight rules
             if (GOAL_TYPE_WEIGHT_LOSS.equals(goalType)
                     && targetWeight >= currentWeight) {
                 return GoalsValidationResult.fail(
@@ -237,7 +233,6 @@ public class GoalsInteractor implements GoalsInputBoundary {
                 );
             }
 
-            // All good → bundle what execute needs.
             return GoalsValidationResult.success(
                     currentWeight,
                     age,
