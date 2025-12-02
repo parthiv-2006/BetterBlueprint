@@ -15,6 +15,22 @@ public class HealthMetrics {
                          double waterLitres, double exerciseMinutes, int calories) {
         this.userId = userId;
         this.date = date;
+        // Validate and set values
+        if (sleepHour < 0 || sleepHour > 24) {
+            throw new IllegalArgumentException("Sleep hours must be between 0 and 24");
+        }
+        if (steps < 0) {
+            throw new IllegalArgumentException("Steps cannot be negative");
+        }
+        if (waterLitres < 0) {
+            throw new IllegalArgumentException("Water intake cannot be negative");
+        }
+        if (exerciseMinutes < 0) {
+            throw new IllegalArgumentException("Exercise duration cannot be negative");
+        }
+        if (calories < 0) {
+            throw new IllegalArgumentException("Calories cannot be negative");
+        }
         this.sleepHour = sleepHour;
         this.steps = steps;
         this.waterLitres = waterLitres;
@@ -54,7 +70,7 @@ public class HealthMetrics {
 
     public void setExerciseMinutes(double exerciseMinutes) {
         if (exerciseMinutes < 0) {
-            throw new IllegalArgumentException("Exercise minutes cannot be negative");
+            throw new IllegalArgumentException("Exercise duration cannot be negative");
         }
         this.exerciseMinutes = exerciseMinutes;
     }

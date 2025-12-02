@@ -21,6 +21,7 @@ public class InputMetricsInteractor implements InputMetricsInputBoundary {
             LocalDate date = LocalDate.now();
 
             // Create HealthMetrics with ALL required parameters including steps
+            // Constructor will validate the inputs
             HealthMetrics healthMetrics = new HealthMetrics(
                     userId,
                     date,
@@ -30,12 +31,6 @@ public class InputMetricsInteractor implements InputMetricsInputBoundary {
                     inputData.getExerciseDuration(),
                     inputData.getCalories()
             );
-
-            // Validate metrics
-            if (!healthMetrics.validateMetrics()) {
-                outputBoundary.prepareFailView("Invalid health metrics provided");
-                return;
-            }
 
             // Save metrics
             healthMetricsDataAccess.saveHealthMetrics(healthMetrics);
@@ -48,6 +43,9 @@ public class InputMetricsInteractor implements InputMetricsInputBoundary {
             );
             outputBoundary.prepareSuccessView(outputData);
 
+        } catch (IllegalArgumentException e) {
+            // Handle validation errors from HealthMetrics constructor
+            outputBoundary.prepareFailView(e.getMessage());
         } catch (Exception e) {
             outputBoundary.prepareFailView("Error saving metrics: " + e.getMessage());
         }

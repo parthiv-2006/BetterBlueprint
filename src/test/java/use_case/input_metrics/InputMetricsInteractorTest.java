@@ -141,14 +141,34 @@ class InputMetricsInteractorTest {
         assertNotNull(mockDataAccess.savedMetrics);
     }
 
+    @Test
+    void testDataAccessException() {
+        // Arrange
+        mockDataAccess.shouldThrowException = true;
+        InputMetricsInputData inputData = new InputMetricsInputData(
+                "testuser", 7.5f, 8000, 2.0f, 2000, 30.0f);
+
+        // Act
+        interactor.execute(inputData);
+
+        // Assert
+        assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
+        assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
+        assertTrue(mockPresenter.errorMessage.contains("Error saving metrics"));
+    }
+
     // Mock classes for testing
 
     private static class MockMetricsDataAccess implements InputMetricsDataAccessInterface {
         HealthMetrics savedMetrics;
         String currentUsername = "testuser";
+        boolean shouldThrowException = false;
 
         @Override
         public void saveHealthMetrics(HealthMetrics healthMetrics) {
+            if (shouldThrowException) {
+                throw new RuntimeException("Database connection failed");
+            }
             this.savedMetrics = healthMetrics;
         }
 
