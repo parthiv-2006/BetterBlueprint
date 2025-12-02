@@ -111,7 +111,6 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         try {
             this.selectedGoalType = "Weight Maintenance";
 
-            // Update ViewModel state
             GoalsState state = goalsViewModel.getState();
             state.setGoalType(this.selectedGoalType);
             goalsViewModel.setState(state);
@@ -119,17 +118,14 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
             errorMessageLabel.setText("");
 
             if (goalsController != null) {
-                // For maintenance, target is blank; timeframe is not really used, but we pass "1".
                 goalsController.execute(this.selectedGoalType, "", "1");
             }
 
-            // UI-only summary label; the numbers & explanation come from the presenter via state.
             resultSummaryLabel.setText(
                     "Goal: " + selectedGoalType +
                             "  |  Target: (maintain current weight)  |  Timeframe: N/A"
             );
 
-            innerCardLayout.show(innerCardPanel, "RESULT");
         } catch (Exception ex) {
             System.err.println("GoalsView: unexpected error in handleMaintainSelected: " + ex.getMessage());
             errorMessageLabel.setText("Unexpected error: " + ex.getMessage());
@@ -171,7 +167,6 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         maintainButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         gainButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Wire selection behaviour
         lossButton.addActionListener(e -> goToDetailsFor("Weight Loss"));
         maintainButton.addActionListener(e -> handleMaintainSelected());
         gainButton.addActionListener(e -> goToDetailsFor("Weight Gain"));
@@ -229,12 +224,10 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
     private void goToDetailsFor(String goalType) {
         this.selectedGoalType = goalType;
 
-        // Update ViewModel state
         GoalsState state = goalsViewModel.getState();
         state.setGoalType(goalType);
         goalsViewModel.setState(state);
 
-        // Adjust DETAILS UI based on goal type
         selectedGoalLabel.setText("Selected Goal: " + goalType);
 
         boolean needsTarget = !"Weight Maintenance".equals(goalType);
@@ -325,22 +318,18 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
         cardPanel.setMaximumSize(new Dimension(650, 600));
         cardPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Title
         resultTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
         resultTitleLabel.setForeground(TEXT_COLOR);
         resultTitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Summary (Goal | Target | Timeframe)
         resultSummaryLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         resultSummaryLabel.setForeground(new Color(107, 114, 128));
         resultSummaryLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Short explanation text
         explanationLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         explanationLabel.setForeground(TEXT_COLOR);
         explanationLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Disclaimer (smaller, grey)
         disclaimerLabel.setFont(new Font("Segoe UI", Font.ITALIC, 11));
         disclaimerLabel.setForeground(new Color(120, 120, 120));
         disclaimerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -581,8 +570,11 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
                         "Input required",
                         JOptionPane.INFORMATION_MESSAGE
                 );
+                state.setShouldRedirectToSettings(false);
+                state.setRedirectMessage(null);
+                goalsViewModel.setState(state);
             }
-            innerCardLayout.show(innerCardPanel, "DETAILS");
+            innerCardLayout.show(innerCardPanel, "SELECT");
             return;
         }
 
@@ -596,6 +588,9 @@ public class GoalsView extends JPanel implements PropertyChangeListener {
                     "Invalid goal",
                     JOptionPane.WARNING_MESSAGE
             );
+
+            state.setErrorMessage(null);
+            goalsViewModel.setState(state);
 
             innerCardLayout.show(innerCardPanel, "DETAILS");
             return;
