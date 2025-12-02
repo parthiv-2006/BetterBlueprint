@@ -5,6 +5,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for SettingsOutputData.
+ *
+ * <p>Note: All validation logic (checking for negative or unrealistic values) is handled by
+ * SettingsInteractor before creating the output data, in accordance with Clean Architecture
+ * principles where business rules and validation belong in the use case layer, not in data
+ * transfer objects.</p>
  */
 public class SettingsOutputDataTest {
 
@@ -160,7 +165,9 @@ public class SettingsOutputDataTest {
     }
 
     /**
-     * Tests the constructor with negative values (edge case that should be handled by validation elsewhere).
+     * Tests the constructor with negative values (edge case).
+     * This demonstrates that SettingsOutputData accepts any integer values without validation,
+     * as validation is intentionally handled by SettingsInteractor before creating output data.
      */
     @Test
     public void testWithNegativeValues() {
@@ -175,6 +182,8 @@ public class SettingsOutputDataTest {
 
     /**
      * Tests the constructor with very large values (edge case).
+     * This demonstrates that SettingsOutputData accepts any integer values without validation,
+     * as validation is intentionally handled by SettingsInteractor before creating output data.
      */
     @Test
     public void testWithVeryLargeValues() {

@@ -5,6 +5,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for SettingsInputData.
+ * Note: All validation logic (checking for null, empty, negative, or non-numeric values)
+ * is handled by SettingsInteractor in accordance with Clean Architecture principles,
+ * where business rules and validation belong in the use case layer, not in data transfer objects.</p>
+ *
  */
 public class SettingsInputDataTest {
 
@@ -132,7 +136,9 @@ public class SettingsInputDataTest {
     }
 
     /**
-     * Tests the constructor with negative values (edge case that should be handled by validation).
+     * Tests the constructor with negative values (edge case).
+     * This demonstrates that SettingsInputData accepts any string values without validation,
+     * as validation is intentionally handled by SettingsInteractor.
      */
     @Test
     public void testWithNegativeValues() {
@@ -147,6 +153,8 @@ public class SettingsInputDataTest {
 
     /**
      * Tests the constructor with non-numeric string values (edge case).
+     * This demonstrates that SettingsInputData accepts any string values without validation,
+     * as validation is intentionally handled by SettingsInteractor.
      */
     @Test
     public void testWithNonNumericValues() {
