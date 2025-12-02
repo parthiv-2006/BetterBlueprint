@@ -37,6 +37,8 @@ public class GoalsOutputDataTest {
                 "To gain weight, maintain a caloric surplus.",
                 80,
                 false,
+                "",
+                "",
                 ""
         );
 
@@ -96,6 +98,8 @@ public class GoalsOutputDataTest {
                 "Maintain your current weight by consuming approximately your daily burn calories.",
                 100,
                 false,
+                "",
+                "",
                 ""
         );
 
@@ -113,7 +117,9 @@ public class GoalsOutputDataTest {
                 "Explanation",
                 0,
                 true,
-                "Please input your weight in Settings before using Goals."
+                "Please input your weight in Settings before using Goals.",
+                "",
+                ""
         );
 
         assertTrue(outputData.shouldRedirectToSettings());
@@ -125,7 +131,7 @@ public class GoalsOutputDataTest {
     @Test
     public void testCurrentWeightVariations() {
         GoalsOutputData output1 = new GoalsOutputData("Weight Loss", "1800", "2400", "Exp", 95, false, "", "85", "10");
-        GoalsOutputData output2 = new GoalsOutputData("Weight Loss", "1800", "2400", "Exp", 0, true, "Weight not set");
+        GoalsOutputData output2 = new GoalsOutputData("Weight Loss", "1800", "2400", "Exp", 0, true, "Weight not set", "", "");
         GoalsOutputData output3 = new GoalsOutputData("Weight Gain", "2500", "2200", "Exp", 200, false, "", "150", "20");
 
         assertEquals(95, output1.getCurrentWeightKg());

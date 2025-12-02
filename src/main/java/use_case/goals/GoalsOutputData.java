@@ -16,25 +16,6 @@ public class GoalsOutputData {
 
     private final String timeframe;
 
-    public GoalsOutputData(String goalType,
-                           String dailyIntakeCalories,
-                           String dailyBurnCalories,
-                           String explanation,
-                           int currentWeightKg,
-                           boolean shouldRedirectToSettings,
-                           String redirectMessage) {
-        this(
-                goalType,
-                dailyIntakeCalories,
-                dailyBurnCalories,
-                explanation,
-                currentWeightKg,
-                shouldRedirectToSettings,
-                redirectMessage,
-                "",
-                ""
-        );
-    }
 
     public GoalsOutputData(String goalType,
                            String dailyIntakeCalories,
