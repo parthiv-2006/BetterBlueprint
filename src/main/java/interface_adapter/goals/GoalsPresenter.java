@@ -78,6 +78,8 @@ public class GoalsPresenter implements GoalsOutputBoundary {
         GoalsState state = goalsViewModel.getState();
         state.setErrorMessage(errorMessage);
         state.setResultReady(false);
+        state.setShouldRedirectToSettings(false);
+        state.setRedirectMessage(null);
         goalsViewModel.setState(state);
         goalsViewModel.firePropertyChange();
     }
@@ -87,6 +89,8 @@ public class GoalsPresenter implements GoalsOutputBoundary {
         GoalsState state = goalsViewModel.getState();
         state.setErrorMessage(errorMessage);
         state.setResultReady(false);
+        state.setShouldRedirectToSettings(false);
+        state.setRedirectMessage(null);
         goalsViewModel.setState(state);
         goalsViewModel.firePropertyChange();
     }
