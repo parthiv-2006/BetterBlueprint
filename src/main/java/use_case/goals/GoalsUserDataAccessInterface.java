@@ -4,7 +4,7 @@ import Entities.User;
 
 /**
  * Data access interface for the Goals use case.
- * Implemented by FileUserDataAccessObject.
+ * Implementations provide access to the currently logged-in user and user lookup.
  */
 public interface GoalsUserDataAccessInterface {
 

@@ -2,10 +2,27 @@ package use_case.goals;
 
 import Entities.User;
 
+/**
+ * The Goals Interactor.
+ */
 public class GoalsInteractor implements GoalsInputBoundary {
 
     private static final String GOAL_TYPE_WEIGHT_LOSS = "Weight Loss";
     private static final String GOAL_TYPE_WEIGHT_GAIN = "Weight Gain";
+
+    private static final double BMR_WEIGHT_FACTOR = 10.0;
+    private static final double BMR_HEIGHT_FACTOR = 6.25;
+    private static final double BMR_AGE_FACTOR = 5.0;
+    private static final double BMR_SEX_CONSTANT = 5.0;
+    private static final double ACTIVITY_FACTOR = 1.5;
+
+    private static final double CALORIES_PER_KILOGRAM = 7700.0;
+    private static final double DAYS_PER_WEEK = 7.0;
+
+    private static final int MIN_TIMEFRAME_WEEKS = 1;
+
+    private static final int DEFAULT_INT = 0;
+    private static final double DEFAULT_DOUBLE = 0.0;
 
     private final GoalsOutputBoundary presenter;
     private final GoalsUserDataAccessInterface userDataAccess;
@@ -66,11 +83,11 @@ public class GoalsInteractor implements GoalsInputBoundary {
     private double calculateDailyBurn(final int currentWeight,
                                       final int age,
                                       final int height) {
-        final double bmr = 10.0 * currentWeight
-                + 6.25 * height
-                - 5.0 * age
-                + 5.0;
-        return bmr * 1.5;
+        final double bmr = BMR_WEIGHT_FACTOR * currentWeight
+                + BMR_HEIGHT_FACTOR * height
+                - BMR_AGE_FACTOR * age
+                + BMR_SEX_CONSTANT;
+        return bmr * ACTIVITY_FACTOR;
     }
 
     private double calculateDailyIntake(final int currentWeight,
@@ -78,9 +95,9 @@ public class GoalsInteractor implements GoalsInputBoundary {
                                         final int timeframe,
                                         final double dailyBurn) {
         final double weeklyWeightChange =
-                (targetWeight - currentWeight) / timeframe;
+                (targetWeight - currentWeight) / (double) timeframe;
         final double dailyCalorieAdjustment =
-                (weeklyWeightChange * 7700.0) / 7.0;
+                (weeklyWeightChange * CALORIES_PER_KILOGRAM) / DAYS_PER_WEEK;
         return dailyBurn + dailyCalorieAdjustment;
     }
 
@@ -121,11 +138,11 @@ public class GoalsInteractor implements GoalsInputBoundary {
     public void refreshCurrentWeight() {
         final String username = userDataAccess.getCurrentUsername();
         if (username == null) {
-            presenter.updateCurrentWeight(0);
+            presenter.updateCurrentWeight(DEFAULT_INT);
         } else {
             final User user = userDataAccess.get(username);
             if (user == null) {
-                presenter.updateCurrentWeight(0);
+                presenter.updateCurrentWeight(DEFAULT_INT);
             } else {
                 presenter.updateCurrentWeight(user.getWeight());
             }
@@ -147,7 +164,7 @@ public class GoalsInteractor implements GoalsInputBoundary {
                                               final GoalsInputData inputData) {
 
             // 1) User check
-            if (user == null || user.getWeight() <= 0) {
+            if (user == null || user.getWeight() <= DEFAULT_INT) {
                 return GoalsValidationResult.redirect(
                         "Please input your weight in Settings before using Goals."
                 );
@@ -177,7 +194,7 @@ public class GoalsInteractor implements GoalsInputBoundary {
                 );
             }
 
-            if (timeframe <= 0) {
+            if (timeframe < MIN_TIMEFRAME_WEEKS) {
                 return GoalsValidationResult.fail(
                         "Timeframe must be a positive number of weeks."
                 );
@@ -196,7 +213,7 @@ public class GoalsInteractor implements GoalsInputBoundary {
                     );
                 }
 
-                if (targetWeight <= 0) {
+                if (targetWeight <= DEFAULT_DOUBLE) {
                     return GoalsValidationResult.fail(
                             "Target weight must be a positive number."
                     );
@@ -281,8 +298,8 @@ public class GoalsInteractor implements GoalsInputBoundary {
         static GoalsValidationResult redirect(final String message) {
             return new GoalsValidationResult(
                     false, true, message,
-                    0, 0, 0,
-                    0, 0.0,
+                    DEFAULT_INT, DEFAULT_INT, DEFAULT_INT,
+                    DEFAULT_INT, DEFAULT_DOUBLE,
                     null, null, null
             );
         }
@@ -290,8 +307,8 @@ public class GoalsInteractor implements GoalsInputBoundary {
         static GoalsValidationResult fail(final String message) {
             return new GoalsValidationResult(
                     false, false, message,
-                    0, 0, 0,
-                    0, 0.0,
+                    DEFAULT_INT, DEFAULT_INT, DEFAULT_INT,
+                    DEFAULT_INT, DEFAULT_DOUBLE,
                     null, null, null
             );
         }

@@ -1,5 +1,8 @@
 package use_case.goals;
 
+/**
+ * Data Transfer Object produced by the Goals interactor and consumed by presenters.
+ */
 public class GoalsOutputData {
 
     private final String goalType;

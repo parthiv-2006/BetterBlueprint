@@ -1,5 +1,9 @@
 package use_case.goals;
 
+/**
+ * Output boundary for the Goals use case.
+ * Implemented by presenters to update the ViewModel.
+ */
 public interface GoalsOutputBoundary {
     void present(GoalsOutputData outputData);
 
