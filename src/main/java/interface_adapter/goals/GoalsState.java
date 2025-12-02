@@ -1,5 +1,8 @@
 package interface_adapter.goals;
 
+/**
+ * State object for Goals view. Holds UI fields that Views bind to.
+ */
 public class GoalsState {
     private String goalType;
     private String target;
@@ -119,4 +122,3 @@ public class GoalsState {
         this.resultReady = resultReady;
     }
 }
-

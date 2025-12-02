@@ -3,10 +3,14 @@ package use_case.goals;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GoalsOutputDataTest {
+/**
+ * Unit tests for GoalsOutputData ensuring proper storage and access
+ * of DTO fields used by the Goals use case.
+ */
+class GoalsOutputDataTest {
 
     @Test
-    public void testFullConstructorWithAllParameters() {
+    void testFullConstructorWithAllParameters() {
         GoalsOutputData outputData = new GoalsOutputData(
                 "Weight Loss",
                 "1800",
@@ -29,7 +33,7 @@ public class GoalsOutputDataTest {
     }
 
     @Test
-    public void testShortConstructorWithSevenParameters() {
+    void testShortConstructorWithSevenParameters() {
         GoalsOutputData outputData = new GoalsOutputData(
                 "Weight Gain",
                 "2500",
@@ -37,6 +41,8 @@ public class GoalsOutputDataTest {
                 "To gain weight, maintain a caloric surplus.",
                 80,
                 false,
+                "",
+                "",
                 ""
         );
 
@@ -48,7 +54,7 @@ public class GoalsOutputDataTest {
     }
 
     @Test
-    public void testWeightLossGoalOutput() {
+    void testWeightLossGoalOutput() {
         GoalsOutputData outputData = new GoalsOutputData(
                 "Weight Loss",
                 "1700",
@@ -68,7 +74,7 @@ public class GoalsOutputDataTest {
     }
 
     @Test
-    public void testWeightGainGoalOutput() {
+    void testWeightGainGoalOutput() {
         GoalsOutputData outputData = new GoalsOutputData(
                 "Weight Gain",
                 "2600",
@@ -88,7 +94,7 @@ public class GoalsOutputDataTest {
     }
 
     @Test
-    public void testWeightMaintenanceGoalOutput() {
+    void testWeightMaintenanceGoalOutput() {
         GoalsOutputData outputData = new GoalsOutputData(
                 "Weight Maintenance",
                 "2300",
@@ -96,6 +102,8 @@ public class GoalsOutputDataTest {
                 "Maintain your current weight by consuming approximately your daily burn calories.",
                 100,
                 false,
+                "",
+                "",
                 ""
         );
 
@@ -105,7 +113,7 @@ public class GoalsOutputDataTest {
     }
 
     @Test
-    public void testRedirectToSettingsTrue() {
+    void testRedirectToSettingsTrue() {
         GoalsOutputData outputData = new GoalsOutputData(
                 "Weight Loss",
                 "1800",
@@ -113,7 +121,9 @@ public class GoalsOutputDataTest {
                 "Explanation",
                 0,
                 true,
-                "Please input your weight in Settings before using Goals."
+                "Please input your weight in Settings before using Goals.",
+                "",
+                ""
         );
 
         assertTrue(outputData.shouldRedirectToSettings());
@@ -123,9 +133,35 @@ public class GoalsOutputDataTest {
     }
 
     @Test
-    public void testCurrentWeightVariations() {
+    void testRedirectAccessors_areAccessible() {
+        final String msg = "Please set your weight in Settings";
+        GoalsOutputData out = new GoalsOutputData("X", "1000", "1200", "E", 0, true, msg, "", "");
+        assertTrue(out.shouldRedirectToSettings());
+        assertEquals(msg, out.getRedirectMessage());
+    }
+
+    @Test
+    void testRedirectToSettingsFalse() {
+        GoalsOutputData outputData = new GoalsOutputData(
+                "Weight Loss",
+                "1800",
+                "2400",
+                "Explanation",
+                100,
+                false,
+                "",
+                "85",
+                "10"
+        );
+
+        assertFalse(outputData.shouldRedirectToSettings());
+        assertEquals("", outputData.getRedirectMessage());
+    }
+
+    @Test
+    void testCurrentWeightVariations() {
         GoalsOutputData output1 = new GoalsOutputData("Weight Loss", "1800", "2400", "Exp", 95, false, "", "85", "10");
-        GoalsOutputData output2 = new GoalsOutputData("Weight Loss", "1800", "2400", "Exp", 0, true, "Weight not set");
+        GoalsOutputData output2 = new GoalsOutputData("Weight Loss", "1800", "2400", "Exp", 0, true, "Weight not set", "", "");
         GoalsOutputData output3 = new GoalsOutputData("Weight Gain", "2500", "2200", "Exp", 200, false, "", "150", "20");
 
         assertEquals(95, output1.getCurrentWeightKg());
@@ -134,7 +170,7 @@ public class GoalsOutputDataTest {
     }
 
     @Test
-    public void testCalorieValuesAsRoundedIntegers() {
+    void testCalorieValuesAsRoundedIntegers() {
         GoalsOutputData outputData = new GoalsOutputData(
                 "Weight Loss", "1800", "2400", "Exp", 100, false, "", "85", "10"
         );
@@ -147,7 +183,7 @@ public class GoalsOutputDataTest {
     }
 
     @Test
-    public void testCalorieValuesAsDecimalNumbers() {
+    void testCalorieValuesAsDecimalNumbers() {
         GoalsOutputData outputData = new GoalsOutputData(
                 "Weight Loss", "1850.5", "2425.3", "Exp", 100, false, "", "85", "10"
         );
@@ -157,7 +193,7 @@ public class GoalsOutputDataTest {
     }
 
     @Test
-    public void testMultipleOutputDataInstances() {
+    void testMultipleOutputDataInstances() {
         GoalsOutputData output1 = new GoalsOutputData(
                 "Weight Loss", "1800", "2400", "Loss explanation", 100, false, "", "85", "10"
         );
@@ -170,5 +206,29 @@ public class GoalsOutputDataTest {
         assertEquals("1800", output1.getDailyIntakeCalories());
         assertEquals("2600", output2.getDailyIntakeCalories());
     }
-}
 
+    /**
+     * Test shouldRedirectToSettings() returns true when redirect flag is set.
+     */
+    @Test
+    void testShouldRedirectToSettings_returnsTrueWhenRedirectFlagIsTrue() {
+        GoalsOutputData outputData = new GoalsOutputData(
+                "Weight Loss", "1800", "2400", "Explanation", 0, true, "Please set weight", "", ""
+        );
+
+        assertTrue(outputData.shouldRedirectToSettings());
+    }
+
+    /**
+     * Test getRedirectMessage() returns the correct message when redirect is enabled.
+     */
+    @Test
+    void testGetRedirectMessage_returnsMessageWhenRedirectIsEnabled() {
+        final String redirectMsg = "Please input your weight in Settings";
+        GoalsOutputData outputData = new GoalsOutputData(
+                "Weight Loss", "1800", "2400", "Explanation", 0, true, redirectMsg, "", ""
+        );
+
+        assertEquals(redirectMsg, outputData.getRedirectMessage());
+    }
+}

@@ -3,10 +3,16 @@ package use_case.goals;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GoalsInputDataTest {
+/**
+ * Unit tests for Goals Input Data verifying construction and getters.
+ */
+class GoalsInputDataTest {
 
+    /**
+     * Tests that constructor properly stores all provided values.
+     */
     @Test
-    public void testConstructorWithAllValues() {
+    void testConstructorWithAllValues() {
         GoalsInputData inputData = new GoalsInputData("Weight Loss", "85", "10");
 
         assertEquals("Weight Loss", inputData.getGoalType());
@@ -14,8 +20,11 @@ public class GoalsInputDataTest {
         assertEquals("10", inputData.getTimeframe());
     }
 
+    /**
+     * Tests that constructor handles empty string parameters correctly.
+     */
     @Test
-    public void testConstructorWithEmptyStrings() {
+    void testConstructorWithEmptyStrings() {
         GoalsInputData inputData = new GoalsInputData("Weight Maintenance", "", "");
 
         assertEquals("Weight Maintenance", inputData.getGoalType());
@@ -23,8 +32,13 @@ public class GoalsInputDataTest {
         assertEquals("", inputData.getTimeframe());
     }
 
+    /**
+     * Tests that constructor handles null parameters correctly.
+     * Note: This only tests that GoalsInputData can store null values without error.
+     * Actual validation and null checking is performed by GoalsInteractor.
+     */
     @Test
-    public void testConstructorWithNullValues() {
+    void testConstructorWithNullValues() {
         GoalsInputData inputData = new GoalsInputData(null, null, null);
 
         assertNull(inputData.getGoalType());
@@ -32,8 +46,11 @@ public class GoalsInputDataTest {
         assertNull(inputData.getTimeframe());
     }
 
+    /**
+     * Tests weight loss goal input data construction and access.
+     */
     @Test
-    public void testWeightLossGoalInput() {
+    void testWeightLossGoalInput() {
         GoalsInputData inputData = new GoalsInputData("Weight Loss", "75", "12");
 
         assertEquals("Weight Loss", inputData.getGoalType());
@@ -41,8 +58,11 @@ public class GoalsInputDataTest {
         assertEquals("12", inputData.getTimeframe());
     }
 
+    /**
+     * Tests weight gain goal input data construction and access.
+     */
     @Test
-    public void testWeightGainGoalInput() {
+    void testWeightGainGoalInput() {
         GoalsInputData inputData = new GoalsInputData("Weight Gain", "95", "16");
 
         assertEquals("Weight Gain", inputData.getGoalType());
@@ -50,8 +70,11 @@ public class GoalsInputDataTest {
         assertEquals("16", inputData.getTimeframe());
     }
 
+    /**
+     * Tests weight maintenance goal input data construction and access.
+     */
     @Test
-    public void testWeightMaintenanceGoalInput() {
+    void testWeightMaintenanceGoalInput() {
         GoalsInputData inputData = new GoalsInputData("Weight Maintenance", "", "1");
 
         assertEquals("Weight Maintenance", inputData.getGoalType());
@@ -59,30 +82,48 @@ public class GoalsInputDataTest {
         assertEquals("1", inputData.getTimeframe());
     }
 
+    /**
+     * Tests that target weight with decimal values is properly stored.
+     * Note: This only tests that GoalsInputData correctly passes through decimal values.
+     * Actual validation of whether decimal targets are acceptable is performed by GoalsInteractor.
+     */
     @Test
-    public void testTargetWeightWithDecimal() {
+    void testTargetWeightWithDecimal() {
         GoalsInputData inputData = new GoalsInputData("Weight Loss", "85.5", "10");
 
         assertEquals("Weight Loss", inputData.getGoalType());
         assertEquals("85.5", inputData.getTarget());
     }
 
+    /**
+     * Tests that target weight with negative sign is properly stored.
+     * Note: This only tests that GoalsInputData correctly passes through negative values.
+     * Actual validation that negative weights are invalid is performed by GoalsInteractor.
+     */
     @Test
-    public void testTargetWeightWithNegativeSign() {
+    void testTargetWeightWithNegativeSign() {
         GoalsInputData inputData = new GoalsInputData("Weight Loss", "-50", "10");
 
         assertEquals("-50", inputData.getTarget());
     }
 
+    /**
+     * Tests that timeframe with non-numeric characters is stored as-is.
+     * Note: This only tests that GoalsInputData correctly passes through non-numeric values.
+     * Actual validation that timeframe must be a valid integer is performed by GoalsInteractor.
+     */
     @Test
-    public void testTimeframeWithNonNumeric() {
+    void testTimeframeWithNonNumeric() {
         GoalsInputData inputData = new GoalsInputData("Weight Loss", "85", "abc");
 
         assertEquals("abc", inputData.getTimeframe());
     }
 
+    /**
+     * Tests that getter methods return consistent values across multiple calls.
+     */
     @Test
-    public void testAllGettersReturnConsistentValues() {
+    void testAllGettersReturnConsistentValues() {
         String goalType = "Weight Loss";
         String target = "80";
         String timeframe = "12";
@@ -94,7 +135,26 @@ public class GoalsInputDataTest {
             assertEquals(timeframe, inputData.getTimeframe());
         }
     }
+
+    /**
+     * Tests comprehensive coverage of all getters across multiple instances.
+     */
+    @Test
+    void testComprehensiveCoverageAllGetters() {
+        GoalsInputData a = new GoalsInputData("A", "1", "2");
+        GoalsInputData b = new GoalsInputData("B", "", "3");
+        GoalsInputData c = new GoalsInputData(null, "5.5", null);
+
+        assertEquals("A", a.getGoalType());
+        assertEquals("1", a.getTarget());
+        assertEquals("2", a.getTimeframe());
+
+        assertEquals("B", b.getGoalType());
+        assertEquals("", b.getTarget());
+        assertEquals("3", b.getTimeframe());
+
+        assertNull(c.getGoalType());
+        assertEquals("5.5", c.getTarget());
+        assertNull(c.getTimeframe());
+    }
 }
-
-
-

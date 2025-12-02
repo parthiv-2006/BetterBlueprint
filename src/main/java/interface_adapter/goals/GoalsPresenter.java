@@ -3,6 +3,10 @@ package interface_adapter.goals;
 import use_case.goals.GoalsOutputBoundary;
 import use_case.goals.GoalsOutputData;
 
+/**
+ * Presenter for the Goals use case. Converts interactor output into a GoalsState
+ * and notifies the GoalsViewModel.
+ */
 public class GoalsPresenter implements GoalsOutputBoundary {
 
     private final GoalsViewModel goalsViewModel;

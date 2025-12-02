@@ -1,5 +1,8 @@
 package use_case.goals;
 
+/**
+ * Input Data object for the Goals use case. Created by controllers from user input.
+ */
 public class GoalsInputData {
     private final String goalType;
     private final String target;
