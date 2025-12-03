@@ -27,10 +27,23 @@ public class SettingsView extends JPanel implements PropertyChangeListener {
     private LogoutController logoutController;
     private ChangePasswordController changePasswordController;
 
-    private final JTextField ageField = new JTextField(15);
-    private final JTextField heightField = new JTextField(15);
-    private final JTextField weightField = new JTextField(15);
-    private final JPasswordField newPasswordField = new JPasswordField(15);
+    // UI Dimension Constants
+    private static final int TEXT_FIELD_COLUMNS = 15;
+    private static final int CARD_PADDING_TOP = 30;
+    private static final int CARD_PADDING_SIDE = 40;
+    private static final int CARD_PADDING_BOTTOM = 30;
+    private static final int CARD_MAX_WIDTH = 520;
+    private static final int CARD_MAX_HEIGHT = 600;
+    private static final int BORDER_THICKNESS = 1;
+    private static final int TITLE_FONT_SIZE = 28;
+    private static final int SPACING_SMALL = 8;
+    private static final int SPACING_MEDIUM = 12;
+    private static final int SPACING_LARGE = 16;
+
+    private final JTextField ageField = new JTextField(TEXT_FIELD_COLUMNS);
+    private final JTextField heightField = new JTextField(TEXT_FIELD_COLUMNS);
+    private final JTextField weightField = new JTextField(TEXT_FIELD_COLUMNS);
+    private final JPasswordField newPasswordField = new JPasswordField(TEXT_FIELD_COLUMNS);
     private final JButton saveButton;
     private final JButton cancelButton;
     private final JButton changePasswordButton;
@@ -60,13 +73,13 @@ public class SettingsView extends JPanel implements PropertyChangeListener {
         cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
         cardPanel.setBackground(CARD_COLOR);
         cardPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
-                new EmptyBorder(30, 40, 30, 40)
+                BorderFactory.createLineBorder(BORDER_COLOR, BORDER_THICKNESS, true),
+                new EmptyBorder(CARD_PADDING_TOP, CARD_PADDING_SIDE, CARD_PADDING_BOTTOM, CARD_PADDING_SIDE)
         ));
-        cardPanel.setMaximumSize(new Dimension(520, 600));
+        cardPanel.setMaximumSize(new Dimension(CARD_MAX_WIDTH, CARD_MAX_HEIGHT));
 
         JLabel title = new JLabel("Settings");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        title.setFont(new Font("Segoe UI", Font.BOLD, TITLE_FONT_SIZE));
         title.setForeground(TEXT_COLOR);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -90,28 +103,28 @@ public class SettingsView extends JPanel implements PropertyChangeListener {
         buttonsPanel.setBackground(CARD_COLOR);
         buttonsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttonsPanel.add(saveButton);
-        buttonsPanel.add(Box.createRigidArea(new Dimension(0, 12)));
+        buttonsPanel.add(Box.createRigidArea(new Dimension(0, SPACING_MEDIUM)));
         buttonsPanel.add(passwordPanel); // Moved password field here
-        buttonsPanel.add(Box.createRigidArea(new Dimension(0, 12)));
+        buttonsPanel.add(Box.createRigidArea(new Dimension(0, SPACING_MEDIUM)));
         buttonsPanel.add(changePasswordButton);
-        buttonsPanel.add(Box.createRigidArea(new Dimension(0, 12)));
+        buttonsPanel.add(Box.createRigidArea(new Dimension(0, SPACING_MEDIUM)));
         buttonsPanel.add(logoutButton);
 
-        errorMessageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        errorMessageLabel.setFont(new Font("Segoe UI", Font.PLAIN, SPACING_MEDIUM));
         errorMessageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        errorMessageLabel.setBorder(new EmptyBorder(8, 0, 8, 0));
+        errorMessageLabel.setBorder(new EmptyBorder(SPACING_SMALL, 0, SPACING_SMALL, 0));
         errorMessageLabel.setForeground(ERROR_COLOR);
 
         addButtonListeners();
 
         cardPanel.add(title);
-        cardPanel.add(Box.createRigidArea(new Dimension(0, 16)));
+        cardPanel.add(Box.createRigidArea(new Dimension(0, SPACING_LARGE)));
         cardPanel.add(agePanel);
-        cardPanel.add(Box.createRigidArea(new Dimension(0, 8)));
+        cardPanel.add(Box.createRigidArea(new Dimension(0, SPACING_SMALL)));
         cardPanel.add(heightPanel);
-        cardPanel.add(Box.createRigidArea(new Dimension(0, 8)));
+        cardPanel.add(Box.createRigidArea(new Dimension(0, SPACING_SMALL)));
         cardPanel.add(weightPanel);
-        cardPanel.add(Box.createRigidArea(new Dimension(0, 16)));
+        cardPanel.add(Box.createRigidArea(new Dimension(0, SPACING_LARGE)));
         cardPanel.add(buttonsPanel);
         cardPanel.add(Box.createVerticalGlue());
 
@@ -122,7 +135,7 @@ public class SettingsView extends JPanel implements PropertyChangeListener {
         bottomBackPanel.add(cancelButton);
 
         cardPanel.add(bottomBackPanel);
-        cardPanel.add(Box.createRigidArea(new Dimension(0, 12)));
+        cardPanel.add(Box.createRigidArea(new Dimension(0, SPACING_MEDIUM)));
         cardPanel.add(errorMessageLabel);
 
         add(cardPanel);
@@ -173,7 +186,12 @@ public class SettingsView extends JPanel implements PropertyChangeListener {
             ageField.setText(state.getAge());
             heightField.setText(state.getHeight());
             weightField.setText(state.getWeight());
-            errorMessageLabel.setText("");
+            // Display settings error if present, otherwise clear
+            if (state.getSettingsError() != null && !state.getSettingsError().isEmpty()) {
+                errorMessageLabel.setText(state.getSettingsError());
+            } else {
+                errorMessageLabel.setText("");
+            }
         } else if ("settingsSaved".equals(evt.getPropertyName())) {
             SettingsState state = settingsViewModel.getState();
             String message = state.getSuccessMessage();

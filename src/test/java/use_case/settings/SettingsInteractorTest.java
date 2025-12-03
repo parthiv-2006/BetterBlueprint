@@ -268,9 +268,8 @@ class SettingsInteractorTest {
         // Assert
         assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
         assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
-        assertTrue(mockPresenter.errorMessage.contains("Age") &&
-                   mockPresenter.errorMessage.contains("positive"),
-                   "Error message should mention Age must be positive");
+        assertTrue(mockPresenter.errorMessage.contains("Age"),
+                   "Error message should mention Age validation failed");
     }
 
     @Test
@@ -285,8 +284,8 @@ class SettingsInteractorTest {
         assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
         assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
         assertTrue(mockPresenter.errorMessage.contains("Height") &&
-                   mockPresenter.errorMessage.contains("positive"),
-                   "Error message should mention Height must be positive");
+                   mockPresenter.errorMessage.contains("negative"),
+                   "Error message should mention Height cannot be negative");
     }
 
     @Test
@@ -301,56 +300,59 @@ class SettingsInteractorTest {
         assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
         assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
         assertTrue(mockPresenter.errorMessage.contains("Weight") &&
-                   mockPresenter.errorMessage.contains("positive"),
-                   "Error message should mention Weight must be positive");
+                   mockPresenter.errorMessage.contains("negative"),
+                   "Error message should mention Weight cannot be negative");
     }
 
     @Test
     void testZeroAge() {
-        // Arrange
+        // Arrange - 0 is valid (represents "not set yet")
         SettingsInputData inputData = new SettingsInputData("0", "175", "70");
 
         // Act
         interactor.execute(inputData);
 
         // Assert
-        assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
-        assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
-        assertTrue(mockPresenter.errorMessage.contains("Age") &&
-                   mockPresenter.errorMessage.contains("positive"),
-                   "Error message should mention Age must be positive");
+        assertTrue(mockPresenter.isSuccessCalled, "Success view should be prepared - 0 is valid");
+        assertFalse(mockPresenter.isFailCalled, "Fail view should not be prepared");
+        assertNotNull(mockDataAccess.savedUser, "User should be saved");
+        assertEquals(0, mockDataAccess.savedUser.getAge());
+        assertEquals(175, mockDataAccess.savedUser.getHeight());
+        assertEquals(70, mockDataAccess.savedUser.getWeight());
     }
 
     @Test
     void testZeroHeight() {
-        // Arrange
+        // Arrange - 0 is valid (represents "not set yet")
         SettingsInputData inputData = new SettingsInputData("25", "0", "70");
 
         // Act
         interactor.execute(inputData);
 
         // Assert
-        assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
-        assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
-        assertTrue(mockPresenter.errorMessage.contains("Height") &&
-                   mockPresenter.errorMessage.contains("positive"),
-                   "Error message should mention Height must be positive");
+        assertTrue(mockPresenter.isSuccessCalled, "Success view should be prepared - 0 is valid");
+        assertFalse(mockPresenter.isFailCalled, "Fail view should not be prepared");
+        assertNotNull(mockDataAccess.savedUser, "User should be saved");
+        assertEquals(25, mockDataAccess.savedUser.getAge());
+        assertEquals(0, mockDataAccess.savedUser.getHeight());
+        assertEquals(70, mockDataAccess.savedUser.getWeight());
     }
 
     @Test
     void testZeroWeight() {
-        // Arrange
+        // Arrange - 0 is valid (represents "not set yet")
         SettingsInputData inputData = new SettingsInputData("25", "175", "0");
 
         // Act
         interactor.execute(inputData);
 
         // Assert
-        assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
-        assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
-        assertTrue(mockPresenter.errorMessage.contains("Weight") &&
-                   mockPresenter.errorMessage.contains("positive"),
-                   "Error message should mention Weight must be positive");
+        assertTrue(mockPresenter.isSuccessCalled, "Success view should be prepared - 0 is valid");
+        assertFalse(mockPresenter.isFailCalled, "Fail view should not be prepared");
+        assertNotNull(mockDataAccess.savedUser, "User should be saved");
+        assertEquals(25, mockDataAccess.savedUser.getAge());
+        assertEquals(175, mockDataAccess.savedUser.getHeight());
+        assertEquals(0, mockDataAccess.savedUser.getWeight());
     }
 
     /**
@@ -676,41 +678,22 @@ class SettingsInteractorTest {
     }
 
     /**
-     * Tests that zero age with other valid fields is rejected at the individual field validation level.
-     * Expected: Fail view with age-specific error message.
-     */
-    @Test
-    void testZeroAgeOnly() {
-        // Arrange - only age is zero, others are empty
-        SettingsInputData inputData = new SettingsInputData("0", "", "");
-
-        // Act
-        interactor.execute(inputData);
-
-        // Assert
-        assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
-        assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
-        assertTrue(mockPresenter.errorMessage.contains("Age") &&
-                   mockPresenter.errorMessage.contains("positive"));
-    }
-
-    /**
      * Tests that zero height with other valid fields is rejected at the individual field validation level.
      * Expected: Fail view with height-specific error message.
      */
     @Test
-    void testZeroHeightOnly() {
-        // Arrange - only height is zero, others are empty
-        SettingsInputData inputData = new SettingsInputData("", "0", "");
+    void testZeroWeightOnly() {
+        // Arrange - only weight is zero, others are empty (0 is valid - represents "not set")
+        SettingsInputData inputData = new SettingsInputData("", "", "0");
 
         // Act
         interactor.execute(inputData);
 
         // Assert
-        assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
-        assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
-        assertTrue(mockPresenter.errorMessage.contains("Height") &&
-                   mockPresenter.errorMessage.contains("positive"));
+        assertTrue(mockPresenter.isSuccessCalled, "Success view should be prepared - 0 is valid");
+        assertFalse(mockPresenter.isFailCalled, "Fail view should not be prepared");
+        assertNotNull(mockDataAccess.savedUser, "User should be saved");
+        assertEquals(0, mockDataAccess.savedUser.getWeight());
     }
 
     /**
@@ -718,18 +701,18 @@ class SettingsInteractorTest {
      * Expected: Fail view with weight-specific error message.
      */
     @Test
-    void testZeroWeightOnly() {
-        // Arrange - only weight is zero, others are empty
-        SettingsInputData inputData = new SettingsInputData("", "", "0");
+    void testZeroAgeOnly() {
+        // Arrange - only age is zero, others are empty (0 is valid - represents "not set")
+        SettingsInputData inputData = new SettingsInputData("0", "", "");
 
         // Act
         interactor.execute(inputData);
 
         // Assert
-        assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
-        assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
-        assertTrue(mockPresenter.errorMessage.contains("Weight") &&
-                   mockPresenter.errorMessage.contains("positive"));
+        assertTrue(mockPresenter.isSuccessCalled, "Success view should be prepared - 0 is valid");
+        assertFalse(mockPresenter.isFailCalled, "Fail view should not be prepared");
+        assertNotNull(mockDataAccess.savedUser, "User should be saved");
+        assertEquals(0, mockDataAccess.savedUser.getAge());
     }
 
     /**
@@ -747,8 +730,8 @@ class SettingsInteractorTest {
         // Assert
         assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
         assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
-        assertTrue(mockPresenter.errorMessage.contains("Age") &&
-                   mockPresenter.errorMessage.contains("positive"));
+        assertTrue(mockPresenter.errorMessage.contains("Age"),
+                   "Error message should mention Age validation failed");
     }
 
     /**
@@ -767,7 +750,8 @@ class SettingsInteractorTest {
         assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
         assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
         assertTrue(mockPresenter.errorMessage.contains("Height") &&
-                   mockPresenter.errorMessage.contains("positive"));
+                   mockPresenter.errorMessage.contains("negative"),
+                   "Error message should mention Height cannot be negative");
     }
 
     /**
@@ -786,7 +770,8 @@ class SettingsInteractorTest {
         assertTrue(mockPresenter.isFailCalled, "Fail view should be prepared");
         assertFalse(mockPresenter.isSuccessCalled, "Success view should not be prepared");
         assertTrue(mockPresenter.errorMessage.contains("Weight") &&
-                   mockPresenter.errorMessage.contains("positive"));
+                   mockPresenter.errorMessage.contains("negative"),
+                   "Error message should mention Weight cannot be negative");
     }
 
     // Mock classes for testing

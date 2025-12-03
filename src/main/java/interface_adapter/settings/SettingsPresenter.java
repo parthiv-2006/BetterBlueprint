@@ -14,6 +14,10 @@ import use_case.settings.SettingsOutputData;
  */
 public class SettingsPresenter implements SettingsOutputBoundary {
 
+    private static final int MIN_WEIGHT_VALUE = 0;
+    private static final int ALL_FIELDS_COUNT = 3;
+    private static final int TWO_FIELDS_COUNT = 2;
+
     private final SettingsViewModel settingsViewModel;
     private final GoalsViewModel goalsViewModel;
 
@@ -45,7 +49,7 @@ public class SettingsPresenter implements SettingsOutputBoundary {
         final GoalsState goalsState = goalsViewModel.getState();
         int w = outputData.getWeight();
         String weightLabel;
-        if (w <= 0) {
+        if (w <= MIN_WEIGHT_VALUE) {
             weightLabel = "Current weight: not set — open Settings";
         } else {
             weightLabel = "Current weight: " + w + " kg";
@@ -69,9 +73,9 @@ public class SettingsPresenter implements SettingsOutputBoundary {
         if (heightUpdated) updatedFields.add("Height");
         if (weightUpdated) updatedFields.add("Weight");
 
-        if (updatedFields.size() == 3) {
+        if (updatedFields.size() == ALL_FIELDS_COUNT) {
             return "Age, Height, and Weight saved successfully!";
-        } else if (updatedFields.size() == 2) {
+        } else if (updatedFields.size() == TWO_FIELDS_COUNT) {
             return updatedFields.get(0) + " and " + updatedFields.get(1) + " saved successfully!";
         } else {
             return updatedFields.get(0) + " saved successfully!";

@@ -36,30 +36,18 @@ public class SettingsInteractor implements SettingsInputBoundary {
             // Update age if provided
             if (ageProvided) {
                 final int age = Integer.parseInt(settingsInputData.getAge().trim());
-                if (age <= 0) {
-                    settingsPresenter.prepareFailView("Age must be a positive number.");
-                    return;
-                }
                 user.updateAge(age);
             }
 
             // Update height if provided
             if (heightProvided) {
                 final int height = Integer.parseInt(settingsInputData.getHeight().trim());
-                if (height <= 0) {
-                    settingsPresenter.prepareFailView("Height must be a positive number.");
-                    return;
-                }
                 user.updateHeight(height);
             }
 
             // Update weight if provided
             if (weightProvided) {
                 final int weight = Integer.parseInt(settingsInputData.getWeight().trim());
-                if (weight <= 0) {
-                    settingsPresenter.prepareFailView("Weight must be a positive number.");
-                    return;
-                }
                 user.updateWeight(weight);
             }
 
