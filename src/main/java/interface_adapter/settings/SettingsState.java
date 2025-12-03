@@ -10,6 +10,7 @@ public class SettingsState {
     private String weight = "";
     private String settingsError;
     private String passwordError;
+    private String successMessage;
 
     public String getUsername() {
         return username;
@@ -57,5 +58,13 @@ public class SettingsState {
 
     public void setPasswordError(String passwordError) {
         this.passwordError = passwordError;
+    }
+
+    public String getSuccessMessage() {
+        return successMessage;
+    }
+
+    public void setSuccessMessage(String successMessage) {
+        this.successMessage = successMessage;
     }
 }

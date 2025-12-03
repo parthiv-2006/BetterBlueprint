@@ -18,38 +18,57 @@ public class SettingsInteractor implements SettingsInputBoundary {
 
     @Override
     public void execute(SettingsInputData settingsInputData) {
-        // Validate inputs
-        if ("".equals(settingsInputData.getAge()) || "".equals(settingsInputData.getHeight())
-                || "".equals(settingsInputData.getWeight())) {
-            settingsPresenter.prepareFailView("All fields must be filled.");
+        // Check if at least one field is filled
+        final boolean ageProvided = settingsInputData.getAge() != null && !settingsInputData.getAge().trim().isEmpty();
+        final boolean heightProvided = settingsInputData.getHeight() != null && !settingsInputData.getHeight().trim().isEmpty();
+        final boolean weightProvided = settingsInputData.getWeight() != null && !settingsInputData.getWeight().trim().isEmpty();
+
+        if (!ageProvided && !heightProvided && !weightProvided) {
+            settingsPresenter.prepareFailView("Please provide at least one field to update.");
             return;
         }
 
         try {
-            // Parse and validate the numeric values
-            final int age = Integer.parseInt(settingsInputData.getAge());
-            final int height = Integer.parseInt(settingsInputData.getHeight());
-            final int weight = Integer.parseInt(settingsInputData.getWeight());
-
-            if (age <= 0 || height <= 0 || weight <= 0) {
-                settingsPresenter.prepareFailView("All values must be positive numbers.");
-                return;
-            }
-
-            // Get current user and update their settings
+            // Get current user
             final String currentUsername = userDataAccessObject.getCurrentUsername();
             final User user = userDataAccessObject.get(currentUsername);
-            user.updateAgeHeightWeight(age, height, weight);
+
+            // Update age if provided
+            if (ageProvided) {
+                final int age = Integer.parseInt(settingsInputData.getAge().trim());
+                user.updateAge(age);
+            }
+
+            // Update height if provided
+            if (heightProvided) {
+                final int height = Integer.parseInt(settingsInputData.getHeight().trim());
+                user.updateHeight(height);
+            }
+
+            // Update weight if provided
+            if (weightProvided) {
+                final int weight = Integer.parseInt(settingsInputData.getWeight().trim());
+                user.updateWeight(weight);
+            }
 
             // Save updated user
             userDataAccessObject.save(user);
 
-            // Prepare success response
-            final SettingsOutputData outputData = new SettingsOutputData(age, height, weight);
+            // Prepare success response with current values and update flags
+            final SettingsOutputData outputData = new SettingsOutputData(
+                user.getAge(),
+                user.getHeight(),
+                user.getWeight(),
+                ageProvided,
+                heightProvided,
+                weightProvided
+            );
             settingsPresenter.prepareSuccessView(outputData);
 
         } catch (NumberFormatException exception) {
-            settingsPresenter.prepareFailView("Please enter valid numbers for all fields.");
+            settingsPresenter.prepareFailView("Please enter valid numbers for the provided fields.");
+        } catch (IllegalArgumentException exception) {
+            settingsPresenter.prepareFailView(exception.getMessage());
         }
     }
 }

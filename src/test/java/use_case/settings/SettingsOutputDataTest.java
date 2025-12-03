@@ -24,13 +24,16 @@ public class SettingsOutputDataTest {
         int weight = 70;
 
         // Act
-        SettingsOutputData outputData = new SettingsOutputData(age, height, weight);
+        SettingsOutputData outputData = new SettingsOutputData(age, height, weight, true, true, true);
 
         // Assert
         assertNotNull(outputData, "OutputData should not be null");
         assertEquals(age, outputData.getAge(), "Age should match");
         assertEquals(height, outputData.getHeight(), "Height should match");
         assertEquals(weight, outputData.getWeight(), "Weight should match");
+        assertTrue(outputData.isAgeUpdated(), "Age updated flag should be true");
+        assertTrue(outputData.isHeightUpdated(), "Height updated flag should be true");
+        assertTrue(outputData.isWeightUpdated(), "Weight updated flag should be true");
     }
 
     /**
@@ -39,7 +42,7 @@ public class SettingsOutputDataTest {
     @Test
     public void testConstructorWithZeroValues() {
         // Arrange & Act
-        SettingsOutputData outputData = new SettingsOutputData(0, 0, 0);
+        SettingsOutputData outputData = new SettingsOutputData(0, 0, 0, true, true, true);
 
         // Assert
         assertEquals(0, outputData.getAge(), "Age should be 0");
@@ -53,7 +56,7 @@ public class SettingsOutputDataTest {
     @Test
     public void testWithTypicalAdultValues() {
         // Arrange & Act
-        SettingsOutputData outputData = new SettingsOutputData(30, 180, 75);
+        SettingsOutputData outputData = new SettingsOutputData(30, 180, 75, true, true, true);
 
         // Assert
         assertEquals(30, outputData.getAge());
@@ -67,7 +70,7 @@ public class SettingsOutputDataTest {
     @Test
     public void testWithMinimumRealisticValues() {
         // Arrange & Act
-        SettingsOutputData outputData = new SettingsOutputData(18, 150, 45);
+        SettingsOutputData outputData = new SettingsOutputData(18, 150, 45, true, true, true);
 
         // Assert
         assertEquals(18, outputData.getAge());
@@ -81,7 +84,7 @@ public class SettingsOutputDataTest {
     @Test
     public void testWithHighValues() {
         // Arrange & Act
-        SettingsOutputData outputData = new SettingsOutputData(85, 200, 120);
+        SettingsOutputData outputData = new SettingsOutputData(85, 200, 120, true, true, true);
 
         // Assert
         assertEquals(85, outputData.getAge());
@@ -98,7 +101,7 @@ public class SettingsOutputDataTest {
         int age = 28;
         int height = 170;
         int weight = 68;
-        SettingsOutputData outputData = new SettingsOutputData(age, height, weight);
+        SettingsOutputData outputData = new SettingsOutputData(age, height, weight, true, true, true);
 
         // Act & Assert - Call getters multiple times to ensure consistency
         for (int i = 0; i < 3; i++) {
@@ -114,7 +117,7 @@ public class SettingsOutputDataTest {
     @Test
     public void testWithYoungAdultValues() {
         // Arrange & Act
-        SettingsOutputData outputData = new SettingsOutputData(20, 165, 60);
+        SettingsOutputData outputData = new SettingsOutputData(20, 165, 60, true, true, true);
 
         // Assert
         assertEquals(20, outputData.getAge());
@@ -128,7 +131,7 @@ public class SettingsOutputDataTest {
     @Test
     public void testWithMiddleAgedValues() {
         // Arrange & Act
-        SettingsOutputData outputData = new SettingsOutputData(45, 172, 80);
+        SettingsOutputData outputData = new SettingsOutputData(45, 172, 80, true, true, true);
 
         // Assert
         assertEquals(45, outputData.getAge());
@@ -142,7 +145,7 @@ public class SettingsOutputDataTest {
     @Test
     public void testWithShorterLighterPersonValues() {
         // Arrange & Act
-        SettingsOutputData outputData = new SettingsOutputData(22, 155, 50);
+        SettingsOutputData outputData = new SettingsOutputData(22, 155, 50, true, true, true);
 
         // Assert
         assertEquals(22, outputData.getAge());
@@ -156,7 +159,7 @@ public class SettingsOutputDataTest {
     @Test
     public void testWithTallerHeavierPersonValues() {
         // Arrange & Act
-        SettingsOutputData outputData = new SettingsOutputData(35, 195, 110);
+        SettingsOutputData outputData = new SettingsOutputData(35, 195, 110, true, true, true);
 
         // Assert
         assertEquals(35, outputData.getAge());
@@ -172,7 +175,7 @@ public class SettingsOutputDataTest {
     @Test
     public void testWithNegativeValues() {
         // Arrange & Act
-        SettingsOutputData outputData = new SettingsOutputData(-5, -180, -70);
+        SettingsOutputData outputData = new SettingsOutputData(-5, -180, -70, true, true, true);
 
         // Assert
         assertEquals(-5, outputData.getAge());
@@ -188,7 +191,7 @@ public class SettingsOutputDataTest {
     @Test
     public void testWithVeryLargeValues() {
         // Arrange & Act
-        SettingsOutputData outputData = new SettingsOutputData(120, 300, 500);
+        SettingsOutputData outputData = new SettingsOutputData(120, 300, 500, true, true, true);
 
         // Assert
         assertEquals(120, outputData.getAge());
@@ -202,11 +205,79 @@ public class SettingsOutputDataTest {
     @Test
     public void testWithFitnessEnthusiastValues() {
         // Arrange & Act
-        SettingsOutputData outputData = new SettingsOutputData(26, 178, 82);
+        SettingsOutputData outputData = new SettingsOutputData(26, 178, 82, true, true, true);
 
         // Assert
         assertEquals(26, outputData.getAge());
         assertEquals(178, outputData.getHeight());
         assertEquals(82, outputData.getWeight());
+    }
+
+    /**
+     * Tests that only age was updated (height and weight flags are false).
+     */
+    @Test
+    public void testWithOnlyAgeUpdated() {
+        // Arrange & Act
+        SettingsOutputData outputData = new SettingsOutputData(30, 175, 70, true, false, false);
+
+        // Assert
+        assertEquals(30, outputData.getAge());
+        assertEquals(175, outputData.getHeight());
+        assertEquals(70, outputData.getWeight());
+        assertTrue(outputData.isAgeUpdated(), "Age should be marked as updated");
+        assertFalse(outputData.isHeightUpdated(), "Height should not be marked as updated");
+        assertFalse(outputData.isWeightUpdated(), "Weight should not be marked as updated");
+    }
+
+    /**
+     * Tests that only height was updated (age and weight flags are false).
+     */
+    @Test
+    public void testWithOnlyHeightUpdated() {
+        // Arrange & Act
+        SettingsOutputData outputData = new SettingsOutputData(25, 180, 65, false, true, false);
+
+        // Assert
+        assertEquals(25, outputData.getAge());
+        assertEquals(180, outputData.getHeight());
+        assertEquals(65, outputData.getWeight());
+        assertFalse(outputData.isAgeUpdated(), "Age should not be marked as updated");
+        assertTrue(outputData.isHeightUpdated(), "Height should be marked as updated");
+        assertFalse(outputData.isWeightUpdated(), "Weight should not be marked as updated");
+    }
+
+    /**
+     * Tests that only weight was updated (age and height flags are false).
+     */
+    @Test
+    public void testWithOnlyWeightUpdated() {
+        // Arrange & Act
+        SettingsOutputData outputData = new SettingsOutputData(28, 170, 75, false, false, true);
+
+        // Assert
+        assertEquals(28, outputData.getAge());
+        assertEquals(170, outputData.getHeight());
+        assertEquals(75, outputData.getWeight());
+        assertFalse(outputData.isAgeUpdated(), "Age should not be marked as updated");
+        assertFalse(outputData.isHeightUpdated(), "Height should not be marked as updated");
+        assertTrue(outputData.isWeightUpdated(), "Weight should be marked as updated");
+    }
+
+    /**
+     * Tests that age and height were updated (weight flag is false).
+     */
+    @Test
+    public void testWithAgeAndHeightUpdated() {
+        // Arrange & Act
+        SettingsOutputData outputData = new SettingsOutputData(32, 178, 72, true, true, false);
+
+        // Assert
+        assertEquals(32, outputData.getAge());
+        assertEquals(178, outputData.getHeight());
+        assertEquals(72, outputData.getWeight());
+        assertTrue(outputData.isAgeUpdated(), "Age should be marked as updated");
+        assertTrue(outputData.isHeightUpdated(), "Height should be marked as updated");
+        assertFalse(outputData.isWeightUpdated(), "Weight should not be marked as updated");
     }
 }
