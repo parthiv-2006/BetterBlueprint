@@ -175,7 +175,12 @@ public class SettingsView extends JPanel implements PropertyChangeListener {
             weightField.setText(state.getWeight());
             errorMessageLabel.setText("");
         } else if ("settingsSaved".equals(evt.getPropertyName())) {
-            JOptionPane.showMessageDialog(this, "Age/Height/Weight Saved Successfully!");
+            SettingsState state = settingsViewModel.getState();
+            String message = state.getSuccessMessage();
+            if (message == null || message.isEmpty()) {
+                message = "Settings saved successfully!";
+            }
+            JOptionPane.showMessageDialog(this, message);
         } else if ("passwordChanged".equals(evt.getPropertyName())) {
             JOptionPane.showMessageDialog(this, "Password changed successfully!");
         } else if ("passwordError".equals(evt.getPropertyName())) {

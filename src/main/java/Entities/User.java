@@ -56,6 +56,33 @@ public class User {
         this.weight = newWeight;
     }
 
+    /**
+     * Update only the age field.
+     * @param newAge the new age value
+     */
+    public void updateAge(int newAge) {
+        validateAge(newAge);
+        this.age = newAge;
+    }
+
+    /**
+     * Update only the height field.
+     * @param newHeight the new height value
+     */
+    public void updateHeight(int newHeight) {
+        validateHeight(newHeight);
+        this.height = newHeight;
+    }
+
+    /**
+     * Update only the weight field.
+     * @param newWeight the new weight value
+     */
+    public void updateWeight(int newWeight) {
+        validateWeight(newWeight);
+        this.weight = newWeight;
+    }
+
     private void validateAge(int age) {
         if (age < 0 || age > 150) {
             throw new IllegalArgumentException("Age must be between 0 and 150");

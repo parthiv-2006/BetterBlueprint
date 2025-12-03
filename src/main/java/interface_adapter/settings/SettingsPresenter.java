@@ -32,8 +32,16 @@ public class SettingsPresenter implements SettingsOutputBoundary {
         settingsState.setWeight(String.valueOf(outputData.getWeight()));
         settingsState.setSettingsError(null);
 
+        // Generate dynamic success message based on what was updated
+        String successMessage = buildSuccessMessage(
+            outputData.isAgeUpdated(),
+            outputData.isHeightUpdated(),
+            outputData.isWeightUpdated()
+        );
+        settingsState.setSuccessMessage(successMessage);
 
         this.settingsViewModel.firePropertyChange("settingsSaved");
+
         final GoalsState goalsState = goalsViewModel.getState();
         int w = outputData.getWeight();
         String weightLabel;
@@ -46,6 +54,28 @@ public class SettingsPresenter implements SettingsOutputBoundary {
         goalsState.setCurrentWeightLabel(weightLabel);
         goalsViewModel.setState(goalsState);
         goalsViewModel.firePropertyChange();
+    }
+
+    /**
+     * Builds a specific success message based on which fields were updated.
+     * @param ageUpdated whether age was updated
+     * @param heightUpdated whether height was updated
+     * @param weightUpdated whether weight was updated
+     * @return a user-friendly success message
+     */
+    private String buildSuccessMessage(boolean ageUpdated, boolean heightUpdated, boolean weightUpdated) {
+        java.util.List<String> updatedFields = new java.util.ArrayList<>();
+        if (ageUpdated) updatedFields.add("Age");
+        if (heightUpdated) updatedFields.add("Height");
+        if (weightUpdated) updatedFields.add("Weight");
+
+        if (updatedFields.size() == 3) {
+            return "Age, Height, and Weight saved successfully!";
+        } else if (updatedFields.size() == 2) {
+            return updatedFields.get(0) + " and " + updatedFields.get(1) + " saved successfully!";
+        } else {
+            return updatedFields.get(0) + " saved successfully!";
+        }
     }
 
     @Override
