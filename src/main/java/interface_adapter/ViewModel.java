@@ -61,4 +61,15 @@ public class ViewModel<T> {
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         this.support.addPropertyChangeListener(listener);
     }
+
+    /**
+     * Resets this ViewModel to its initial empty state.
+     * Called when a user logs out to clear all UI-related data.
+     * Subclasses can override this to create a fresh state object.
+     * Default implementation does nothing (for ViewModels that don't need reset).
+     */
+    public void reset() {
+        // Default: do nothing
+        // Subclasses that need reset functionality should override this
+    }
 }

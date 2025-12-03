@@ -39,4 +39,10 @@ public class HealthInsightsViewModel extends ViewModel<HealthInsightsState> {
     public String getViewName() {
         return viewName;
     }
+
+    @Override
+    public void reset() {
+        setState(new HealthInsightsState());
+        firePropertyChange();
+    }
 }

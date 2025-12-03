@@ -27,7 +27,6 @@ import interface_adapter.login.LoginViewModel;
 //import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.logout.LogoutController;
-import interface_adapter.logout.LogoutViewResetter;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
@@ -223,27 +222,48 @@ public class AppBuilder {
     }
 
     public AppBuilder addLogoutUseCase() {
-        // Create the view resetter with all ViewModels that need to be cleared
-        final LogoutViewResetter viewResetter = new LogoutViewResetter(
-                inputMetricsViewModel,
-                goalsViewModel,
-                settingsViewModel,
-                dailyHealthScoreViewModel,
-                healthInsightsViewModel
-        );
-
         final LogoutOutputBoundary logoutOutputBoundary = new LogoutPresenter(
                 viewManagerModel,
                 homeViewModel,
-                loginViewModel,
-                viewResetter);
+                loginViewModel
+        );
 
         final LogoutInputBoundary logoutInteractor = new LogoutInteractor(
                 userDataAccessObject, logoutOutputBoundary);
 
-        final LogoutController logoutController = new LogoutController(logoutInteractor);
+        final LogoutInputBoundary logoutInteractorWithReset = new LogoutInputBoundary() {
+            @Override
+            public void execute() {
+                logoutInteractor.execute();
+                resetUserViewModels();
+            }
+        };
+
+        final LogoutController logoutController = new LogoutController(logoutInteractorWithReset);
         settingsView.setLogoutController(logoutController);
         return this;
+    }
+
+    /**
+     * Resets all user-specific ViewModels to their initial state.
+     * Called after logout to clear UI for the next user.
+     */
+    private void resetUserViewModels() {
+        if (inputMetricsViewModel != null) {
+            inputMetricsViewModel.reset();
+        }
+        if (goalsViewModel != null) {
+            goalsViewModel.reset();
+        }
+        if (settingsViewModel != null) {
+            settingsViewModel.reset();
+        }
+        if (dailyHealthScoreViewModel != null) {
+            dailyHealthScoreViewModel.reset();
+        }
+        if (healthInsightsViewModel != null) {
+            healthInsightsViewModel.reset();
+        }
     }
 
     public AppBuilder addSettingsUseCase() {

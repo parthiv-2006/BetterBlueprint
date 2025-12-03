@@ -16,16 +16,13 @@ public class LogoutPresenter implements LogoutOutputBoundary {
     private final HomeViewModel homeViewModel;
     private final ViewManagerModel viewManagerModel;
     private final LoginViewModel loginViewModel;
-    private final LogoutViewResetter viewResetter;
 
     public LogoutPresenter(ViewManagerModel viewManagerModel,
                            HomeViewModel homeViewModel,
-                           LoginViewModel loginViewModel,
-                           LogoutViewResetter viewResetter) {
+                           LoginViewModel loginViewModel) {
         this.homeViewModel = homeViewModel;
         this.viewManagerModel = viewManagerModel;
         this.loginViewModel = loginViewModel;
-        this.viewResetter = viewResetter;
     }
 
     @Override
@@ -41,8 +38,6 @@ public class LogoutPresenter implements LogoutOutputBoundary {
         loginState.setPassword("");
         this.loginViewModel.firePropertyChange();
 
-        // Reset all user-specific ViewModels
-        viewResetter.resetAllViews();
 
         // Switch to login view
         this.viewManagerModel.setState(loginViewModel.getViewName());

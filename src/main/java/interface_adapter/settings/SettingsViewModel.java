@@ -18,4 +18,10 @@ public class SettingsViewModel extends ViewModel<SettingsState> {
         super("settings");
         setState(new SettingsState());
     }
+
+    @Override
+    public void reset() {
+        setState(new SettingsState());
+        firePropertyChange();
+    }
 }
