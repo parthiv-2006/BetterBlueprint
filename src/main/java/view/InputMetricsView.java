@@ -387,6 +387,23 @@ public class InputMetricsView extends JPanel implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent evt) {
         InputMetricsState state = (InputMetricsState) evt.getNewValue();
 
+        // Clear fields if state is empty (after logout)
+        if (state.getSleepHours() == null || state.getSleepHours().isEmpty()) {
+            sleepHoursField.setText("");
+        }
+        if (state.getSteps() == null || state.getSteps().isEmpty()) {
+            stepsField.setText("");
+        }
+        if (state.getWaterIntake() == null || state.getWaterIntake().isEmpty()) {
+            waterIntakeField.setText("");
+        }
+        if (state.getCaloriesConsumed() == null || state.getCaloriesConsumed().isEmpty()) {
+            caloriesField.setText("");
+        }
+        if (state.getExerciseDuration() == null || state.getExerciseDuration().isEmpty()) {
+            exerciseDurationField.setText("");
+        }
+
         if (state.getErrorMessage() != null) {
             errorMessageLabel.setText(state.getErrorMessage());
             // Check if it's a success message (contains "successfully")

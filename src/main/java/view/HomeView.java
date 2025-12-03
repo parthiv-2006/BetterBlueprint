@@ -249,6 +249,9 @@ public class HomeView extends JPanel {
         homeViewModel.addPropertyChangeListener(evt -> {
             String newUsername = homeViewModel.getState().getUsername();
 
+            // Reset to home page when user changes (login/logout)
+            mainCardLayout.show(mainContentPanel, "Home");
+
             // Update HealthInsightsView
             if (healthInsightsView instanceof HealthInsightsView) {
                 ((HealthInsightsView) healthInsightsView).setCurrentUser(newUsername);

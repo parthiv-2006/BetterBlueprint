@@ -10,4 +10,10 @@ public class HealthHistoryViewModel extends ViewModel<HealthHistoryState>{
         super("Health History");
         setState(new HealthHistoryState());
     }
+
+    @Override
+    public void reset() {
+        setState(new HealthHistoryState());
+        firePropertyChange();
+    }
 }

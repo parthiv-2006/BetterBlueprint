@@ -13,4 +13,10 @@ public class GoalsViewModel extends ViewModel<GoalsState> {
         super("Goals");
         setState(new GoalsState());
     }
+
+    @Override
+    public void reset() {
+        setState(new GoalsState());
+        firePropertyChange();
+    }
 }

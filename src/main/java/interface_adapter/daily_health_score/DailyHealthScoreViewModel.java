@@ -1,7 +1,5 @@
 package interface_adapter.daily_health_score;
 
-import interface_adapter.ViewModel;
-
 /**
  * The View Model for the Daily Health Score Use Case.
  */
@@ -33,5 +31,14 @@ public class DailyHealthScoreViewModel {
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         support.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * Resets this ViewModel to its initial empty state.
+     * Called when a user logs out to clear all UI-related data.
+     */
+    public void reset() {
+        this.state = new DailyHealthScoreState();
+        firePropertyChanged();
     }
 }

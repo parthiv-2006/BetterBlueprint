@@ -21,4 +21,10 @@ public class InputMetricsViewModel extends ViewModel<InputMetricsState> {
         super("input metrics");
         setState(new InputMetricsState());
     }
+
+    @Override
+    public void reset() {
+        setState(new InputMetricsState());
+        firePropertyChange();
+    }
 }

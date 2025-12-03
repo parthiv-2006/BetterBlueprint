@@ -24,7 +24,6 @@ import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginPresenter;
 import interface_adapter.login.LoginViewModel;
 import interface_adapter.logout.LogoutController;
-import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
@@ -155,7 +154,6 @@ public class AppBuilder {
         inputMetricsViewModel = new InputMetricsViewModel();
         inputMetricsView = new InputMetricsView(inputMetricsViewModel);
 
-        // Create GoalsView
         goalsViewModel = new GoalsViewModel();
         goalsView = new GoalsView(goalsViewModel);
 
@@ -195,6 +193,7 @@ public class AppBuilder {
                 loginViewModel,
                 signupViewModel
         );
+
         final LoginInputBoundary loginInteractor = new LoginInteractor(
                 userDataAccessObject, loginOutputBoundary
         );
@@ -218,15 +217,48 @@ public class AppBuilder {
     }
 
     public AppBuilder addLogoutUseCase() {
-        final LogoutOutputBoundary logoutOutputBoundary = new LogoutPresenter(viewManagerModel,
-                homeViewModel, loginViewModel);
+        final LogoutOutputBoundary logoutOutputBoundary = new LogoutPresenter(
+                viewManagerModel,
+                homeViewModel,
+                loginViewModel
+        );
 
         final LogoutInputBoundary logoutInteractor = new LogoutInteractor(
                 userDataAccessObject, logoutOutputBoundary);
 
-        final LogoutController logoutController = new LogoutController(logoutInteractor);
+        final LogoutInputBoundary logoutInteractorWithReset = new LogoutInputBoundary() {
+            @Override
+            public void execute() {
+                logoutInteractor.execute();
+                resetUserViewModels();
+            }
+        };
+
+        final LogoutController logoutController = new LogoutController(logoutInteractorWithReset);
         settingsView.setLogoutController(logoutController);
         return this;
+    }
+
+    /**
+     * Resets all user-specific ViewModels to their initial state.
+     * Called after logout to clear UI for the next user.
+     */
+    private void resetUserViewModels() {
+        if (inputMetricsViewModel != null) {
+            inputMetricsViewModel.reset();
+        }
+        if (goalsViewModel != null) {
+            goalsViewModel.reset();
+        }
+        if (settingsViewModel != null) {
+            settingsViewModel.reset();
+        }
+        if (dailyHealthScoreViewModel != null) {
+            dailyHealthScoreViewModel.reset();
+        }
+        if (healthInsightsViewModel != null) {
+            healthInsightsViewModel.reset();
+        }
     }
 
     public AppBuilder addSettingsUseCase() {
@@ -261,16 +293,12 @@ public class AppBuilder {
     }
 
     public AppBuilder addDailyHealthScoreUseCase() {
-        // Create ViewModel only once
         dailyHealthScoreViewModel = new DailyHealthScoreViewModel();
 
-        // Create the View once
         myScoreView = new MyScoreView(dailyHealthScoreViewModel, null);
 
-        // Create GeminiAPIService (it reads API key from environment variable)
         GeminiAPIService geminiService = new GeminiAPIService();
 
-        // Create the adapter that delegates to the service (includes built-in fallback)
         HealthScoreCalculator scoreCalculator = new GeminiHealthScoreCalculator(geminiService);
 
         DailyHealthScoreUserDataAccessInterface metricsDAO =
@@ -284,7 +312,6 @@ public class AppBuilder {
 
         dailyHealthScoreController = new DailyHealthScoreController(interactor, metricsDAO);
 
-        // NOW inject controller
         myScoreView.setController(dailyHealthScoreController);
 
         return this;

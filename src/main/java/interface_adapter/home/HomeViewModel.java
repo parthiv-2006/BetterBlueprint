@@ -9,4 +9,10 @@ public class HomeViewModel extends ViewModel<HomeState> {
         super("home");
         setState(new HomeState());
     }
+
+    @Override
+    public void reset() {
+        setState(new HomeState());
+        firePropertyChange();
+    }
 }

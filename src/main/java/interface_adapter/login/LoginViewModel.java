@@ -15,4 +15,9 @@ public class LoginViewModel extends ViewModel<LoginState> {
         setState(new LoginState());
     }
 
+    @Override
+    public void reset() {
+        setState(new LoginState());
+        firePropertyChange();
+    }
 }
